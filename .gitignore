@@ -1,0 +1,23 @@
+# Lab-Arbeitsdateien
+lab/work/*
+!lab/work/.gitkeep
+
+# Maven
+lab/java/pkcs11-demo/target/
+*.class
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+!.vscode/settings.json
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

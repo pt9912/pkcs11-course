@@ -1,0 +1,13 @@
+services:
+  pkcs11-lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace
+      - softhsm-tokens:/var/lib/softhsm/tokens
+    working_dir: /workspace
+    tty: true
+
+volumes:
+  softhsm-tokens:

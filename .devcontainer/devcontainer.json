@@ -1,0 +1,14 @@
+{
+  "name": "PKCS11 Course",
+  "dockerComposeFile": "../lab/docker-compose.yml",
+  "service": "pkcs11-lab",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+lab/work/*
+lab/java/pkcs11-demo/target
+*.log
+.DS_Store
