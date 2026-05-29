@@ -81,14 +81,30 @@ Alle Funktionen geben `CK_RV` zurück. `CKR_OK = 0` bedeutet Erfolg. Jede andere
 ### 2.3 Typische Aufrufsequenz: Signieren
 
 ```c
-CK_FUNCTION_LIST_PTR p11;
-C_GetFunctionList(&p11);
-p11->C_Initialize(NULL);
+#define CHECK(call) do {                         \
+    CK_RV rv_ = (call);                          \
+    if (rv_ != CKR_OK) {                         \
+        /* Fehler behandeln, z. B. loggen/cleanup */ \
+        goto cleanup;                            \
+    }                                            \
+} while (0)
+
+CK_FUNCTION_LIST_PTR p11 = NULL_PTR;
+CK_SESSION_HANDLE s = CK_INVALID_HANDLE;
+CK_BYTE *sig = NULL_PTR;
+CK_BBOOL initialized = CK_FALSE;
+CK_BBOOL sessionOpen = CK_FALSE;
+CK_BBOOL loggedIn = CK_FALSE;
+
+CHECK(C_GetFunctionList(&p11));
+CHECK(p11->C_Initialize(NULL));
+initialized = CK_TRUE;
 
 CK_SLOT_ID slot;                /* via C_GetSlotList ermittelt */
-CK_SESSION_HANDLE s;
-p11->C_OpenSession(slot, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL, NULL, &s);
-p11->C_Login(s, CKU_USER, (CK_UTF8CHAR*)"987654", 6);
+CHECK(p11->C_OpenSession(slot, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL, NULL, &s));
+sessionOpen = CK_TRUE;
+CHECK(p11->C_Login(s, CKU_USER, (CK_UTF8CHAR*)"987654", 6));
+loggedIn = CK_TRUE;
 
 /* Privaten Key per Label/ID suchen */
 CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
@@ -99,20 +115,38 @@ CK_ATTRIBUTE tmpl[] = {
 };
 CK_OBJECT_HANDLE key;
 CK_ULONG n;
-p11->C_FindObjectsInit(s, tmpl, 2);
-p11->C_FindObjects(s, &key, 1, &n);
-p11->C_FindObjectsFinal(s);
+CHECK(p11->C_FindObjectsInit(s, tmpl, 2));
+CHECK(p11->C_FindObjects(s, &key, 1, &n));
+CHECK(p11->C_FindObjectsFinal(s));
+if (n != 1) {
+    /* kein eindeutiger Key gefunden */
+    goto cleanup;
+}
 
 /* Mechanismus: SHA256 + RSA-PKCS#1 v1.5, vom Token gehasht */
 CK_MECHANISM mech = { CKM_SHA256_RSA_PKCS, NULL, 0 };
-p11->C_SignInit(s, &mech, key);
+CHECK(p11->C_SignInit(s, &mech, key));
 
-CK_BYTE sig[512]; CK_ULONG sigLen = sizeof(sig);
-p11->C_Sign(s, data, dataLen, sig, &sigLen);
+CK_ULONG sigLen = 0;
+CHECK(p11->C_Sign(s, data, dataLen, NULL_PTR, &sigLen));
+sig = malloc(sigLen);
+if (sig == NULL) {
+    goto cleanup;
+}
+CHECK(p11->C_SignInit(s, &mech, key));
+CHECK(p11->C_Sign(s, data, dataLen, sig, &sigLen));
 
-p11->C_Logout(s);
-p11->C_CloseSession(s);
-p11->C_Finalize(NULL);
+cleanup:
+free(sig);
+if (p11 != NULL_PTR && loggedIn) {
+    p11->C_Logout(s);
+}
+if (p11 != NULL_PTR && sessionOpen) {
+    p11->C_CloseSession(s);
+}
+if (p11 != NULL_PTR && initialized) {
+    p11->C_Finalize(NULL);
+}
 ```
 
 Für RSA-PSS braucht `mech.pParameter` zusätzlich eine `CK_RSA_PKCS_PSS_PARAMS`-Struktur mit Hash, MGF und Salt-Länge. Für ECDSA gibt es keine Parameter, das Encoding ist aber roh `r||s` — DER-Wrap erledigt der Wrapper (`pkcs11-tool --signature-format openssl`).
@@ -202,11 +236,12 @@ Beispiele und typische Stolpersteine: siehe [cheatsheet.md](cheatsheet.md).
 
 OpenSSL kennt zwei Wege zu PKCS#11:
 
-### 4.1 `engine_pkcs11` (OpenSSL ≤ 3.0)
+### 4.1 `engine_pkcs11` (OpenSSL 1.1.1 und OpenSSL 3.x legacy)
 
 - Engine-Mechanismus, paketiert als `libengine-pkcs11-openssl` (Debian/Ubuntu).
+- In OpenSSL 3.x funktioniert das weiterhin über die Legacy-Engine-Schnittstelle, ist aber nicht mehr der moderne Pfad.
 - Konfiguration via `/etc/ssl/openssl.cnf` oder per `-engine pkcs11 -keyform engine`.
-- Keys werden per **PKCS#11-URI** (RFC 7512) angesprochen.
+- Keys werden per **PKCS#11-URI** angesprochen. libp11 akzeptiert in der Praxis auch die Kurzform mit `pin-value` im Pfad.
 
 ```bash
 KEY_URI="pkcs11:token=$TOKEN;object=signing-key;type=private;pin-value=$PIN"
@@ -222,11 +257,20 @@ openssl req -new -x509 -engine pkcs11 -keyform engine \
 - Konfig in `openssl.cnf`:
 
 ```ini
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+
 [provider_sect]
 default = default_sect
 pkcs11 = pkcs11_sect
 
+[default_sect]
+activate = 1
+
 [pkcs11_sect]
+module = /usr/lib/x86_64-linux-gnu/ossl-modules/pkcs11.so
 pkcs11-module-path = /usr/lib/softhsm/libsofthsm2.so
 activate = 1
 ```
@@ -242,12 +286,22 @@ openssl pkeyutl -sign \
 ### 4.3 PKCS#11-URI nach RFC 7512
 
 ```
-pkcs11:[token=<label>][;object=<label>][;id=<%hex>][;type=public|private|cert][;pin-value=<pin>][;pin-source=<file:|env:>]
+pkcs11:token=<label>;object=<label>;type=private;id=%01?pin-source=file:/run/secrets/pkcs11-pin
 ```
 
 - `object=`/`id=` selektiert das Objekt
-- `pin-value=` ist für Demos okay, in Produktion `pin-source=env:PKCS11_PIN` o. ä. nutzen
+- `id=` ist percent-encoded Binary nach RFC 7512, also z. B. `%01` für die Byte-ID `01`
+- `pin-value=`/`pin-source=` sind Query-Attribute und stehen nach `?`
+- `pin-value=` ist für Demos okay, in Produktion besser `pin-source=file:...`, Secret-Manager oder eine interaktive PIN-Abfrage nutzen
 - URI ist auch das stabile Interface gegenüber CI/CD-Pipelines
+
+Viele libp11/OpenSSL-Beispiele, auch im Lab, nutzen aus Kompatibilitätsgründen die verbreitete Kurzform:
+
+```bash
+pkcs11:token=$TOKEN;object=signing-key;type=private;pin-value=$PIN
+```
+
+Das ist praktisch, aber nicht die portable RFC-7512-Schreibweise.
 
 ---
 
@@ -263,7 +317,9 @@ library = /usr/lib/softhsm/libsofthsm2.so
 slotListIndex = 0
 ```
 
-Der finale Providername wird `SunPKCS11-SoftHSM`. Statt `slotListIndex` ist `tokenLabel` in der Praxis robuster.
+Der finale Providername wird `SunPKCS11-SoftHSM`. `slotListIndex` ist für das Lab einfach, in echten Setups aber fragil, weil sich Slot-Reihenfolgen ändern können.
+
+Wichtig: Die Standard-SunPKCS11-Config in OpenJDK kennt `slot` und `slotListIndex`, aber kein portables `tokenLabel`-Property. Wenn du Token-Labels nutzen willst, brauchst du eine vorgelagerte Slot-Ermittlung oder einen Stack/Provider, der Label-Auswahl explizit unterstützt.
 
 ### Initialisierung (Java 9+)
 
