@@ -57,8 +57,10 @@ Dieselbe Operation hat in jedem Tool einen anderen Namen. Diese Tabelle spart vi
 |---|---|---|---|
 | `CKM_RSA_PKCS` | `RSA-PKCS` | `-sigopt rsa_padding_mode:pkcs1` | `NONEwithRSA` (raw) |
 | `CKM_SHA256_RSA_PKCS` | `SHA256-RSA-PKCS` | `-sha256` (default Padding) | `SHA256withRSA` |
-| `CKM_RSA_PKCS_PSS` | `RSA-PKCS-PSS` + `--hash-algorithm SHA256 --mgf MGF1-SHA256` | `-sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:-1` | `RSASSA-PSS` mit `PSSParameterSpec` |
-| `CKM_ECDSA_SHA256` | `ECDSA-SHA256` | `-sha256` (auf EC-Key) | `SHA256withECDSA` |
+| `CKM_RSA_PKCS_PSS` | `RSA-PKCS-PSS` + `--hash-algorithm SHA256 --mgf MGF1-SHA256` (Input ist Hash) | `-sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:-1` | `RSASSA-PSS` mit `PSSParameterSpec` |
+| `CKM_SHA256_RSA_PKCS_PSS` | `SHA256-RSA-PKCS-PSS` + `--mgf MGF1-SHA256` (Token hasht) | `-sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:-1` | `RSASSA-PSS` mit `PSSParameterSpec` |
+| `CKM_ECDSA` | `ECDSA` + `--signature-format openssl` (Input ist Hash der Curve-Order-Laenge) | `-sha256` (auf EC-Key) + manuelle Hash-Vorstufe | `NONEwithECDSA` (raw, selten genutzt) |
+| `CKM_ECDSA_SHA256` | `ECDSA-SHA256` + `--signature-format openssl` | `-sha256` (auf EC-Key) | `SHA256withECDSA` |
 
 ## Debugging-Reihenfolge
 
@@ -92,6 +94,74 @@ library = /usr/lib/x86_64-linux-gnu/pkcs11/pkcs11-spy.so
 und `PKCS11SPY` zeigt aus dem Java-Prozess auf das echte Modul. `PKCS11SPY_OUTPUT` ist optional; ohne Setzung schreibt der Spy nach stderr, nicht in eine Datei.
 
 Mächtig, aber gefährlich: Logs können sensitive Metadaten enthalten. Nicht in Produktion anschalten, außer du weißt genau, was du tust.
+
+### Beispiel-Ausgabe
+
+Ein typischer Mini-Trace fuer eine Signatur sieht etwa so aus:
+
+```text
+*************** OpenSC PKCS#11 spy *****************
+Loaded: "/usr/lib/softhsm/libsofthsm2.so"
+
+0: C_GetFunctionList
+Returned: 0 CKR_OK
+
+1: C_Initialize
+[in] pInitArgs = (nil)
+Returned: 0 CKR_OK
+
+2: C_GetSlotList
+[in] tokenPresent = 0x1
+[out] pSlotList[1]: 0x5f6c2d11
+[out] *pulCount = 0x1
+Returned: 0 CKR_OK
+
+3: C_OpenSession
+[in] slotID = 0x5f6c2d11
+[in] flags = 0x6 ( CKF_RW_SESSION | CKF_SERIAL_SESSION )
+[out] *phSession = 0x1
+Returned: 0 CKR_OK
+
+4: C_Login
+[in] hSession = 0x1
+[in] userType = CKU_USER
+[in] pPin[ulPinLen=6] = [REDACTED — PIN]
+Returned: 0 CKR_OK
+
+5: C_FindObjectsInit
+[in] hSession = 0x1
+[in] pTemplate[2]:
+    CKA_CLASS    type=00000000 ulValueLen=8 = CKO_PRIVATE_KEY
+    CKA_ID       type=00000102 ulValueLen=1 = 01
+Returned: 0 CKR_OK
+
+6: C_FindObjects
+[in] ulMaxObjectCount = 0x1
+[out] phObject[0] = 0x2
+[out] *pulObjectCount = 0x1
+Returned: 0 CKR_OK
+
+7: C_SignInit
+[in] hSession = 0x1
+[in] pMechanism->type = CKM_SHA256_RSA_PKCS
+[in] hKey = 0x2
+Returned: 0 CKR_OK
+
+8: C_Sign
+[in] hSession = 0x1
+[in] pData[ulDataLen=13] = "hello pkcs11\n"
+[out] pSignature[*pulSignatureLen=256] = [256-byte RSA signature]
+Returned: 0 CKR_OK
+
+9: C_Logout / C_CloseSession / C_Finalize
+Returned: 0 CKR_OK
+```
+
+Was man daraus lernt:
+
+- `CKA_ID` zeigt die *Bytefolge*, nicht die hex-String-Darstellung — `01` ist hier ein 1-Byte-Wert mit Zahl 0x01, nicht der ASCII-String "01" (`0x30 0x31`).
+- Der PIN-Wert wird unzensiert geloggt — Grund Nr. 1, `pkcs11-spy` niemals dauerhaft in Produktion aktiv zu haben.
+- Wenn ein `C_*`-Call ein Non-Zero-`CKR_*` zurueckgibt, ist der Trace **die** schnellste Diagnose. Bei `CKR_KEY_HANDLE_INVALID` siehst du z. B. exakt, mit welchem Handle das `C_SignInit` lief und ob es zur Session passt.
 
 ## Gute Debug-Frage
 

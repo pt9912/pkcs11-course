@@ -56,6 +56,63 @@ GET /health/pkcs11
 - Integrationstest im Container
 - Audit-Log fuer Signaturversuche ohne Payload-Daten
 
+## Audit-Log-Schema
+
+Das Audit-Log haelt fest, *was* an einem Schluessel passiert ist, ohne die Rohdaten oder die PIN zu enthalten. Empfohlene Minimal-Felder (JSON Lines, ein Event pro Zeile):
+
+```json
+{
+  "ts": "2026-05-29T08:14:55.137Z",
+  "event": "sign.attempt",
+  "trace_id": "5f2c…",
+  "actor": {
+    "principal": "service-account://signing-api",
+    "client_ip": "10.0.4.17"
+  },
+  "key": {
+    "alias": "signing-key",
+    "ckaId": "01",
+    "algorithm": "SHA256withRSA"
+  },
+  "request": {
+    "data_sha256": "f7c3b3…",
+    "data_len": 128
+  },
+  "result": {
+    "status": "ok",
+    "signature_len": 256,
+    "duration_ms": 42
+  }
+}
+```
+
+Bei Fehlern:
+
+```json
+{
+  "ts": "2026-05-29T08:14:56.041Z",
+  "event": "sign.error",
+  "trace_id": "5f2c…",
+  "actor": { "principal": "service-account://signing-api" },
+  "key": { "alias": "signing-key", "ckaId": "01", "algorithm": "SHA256withRSA" },
+  "result": {
+    "status": "error",
+    "error_class": "ProviderException",
+    "ckr_code": "CKR_MECHANISM_PARAM_INVALID",
+    "duration_ms": 3
+  }
+}
+```
+
+Regeln:
+
+- **Kein Klartext der Payload** — nur Hash und Laenge.
+- **Keine PIN, kein PIN-Hash** — selbst der PIN-Hash ist unter PKCS#11 sinnlos und ein Compliance-Risiko.
+- **CKR-Code in `error.ckr_code` aus der Exception-Kette extrahieren** — `ProviderException.getCause().getMessage()` enthaelt bei SunPKCS11 typischerweise `CKR_*` als Textfragment.
+- **Trace-ID** korrelieren mit dem APM/OTLP-Stack.
+- **Append-only Sink** (z. B. journald, S3 mit Object Lock, Splunk-Index ohne Edit-Recht). Audit-Log darf vom Service selbst nicht ueberschreibbar sein.
+- **Rotation und Aufbewahrung** richten sich nach Compliance (eIDAS QSig oft 35 Jahre, intern oft 90 Tage).
+
 ## Akzeptanzkriterien
 
 - Private Key ist nicht exportierbar.

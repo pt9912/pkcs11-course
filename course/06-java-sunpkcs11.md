@@ -27,10 +27,14 @@ Java greift nicht direkt auf `libsofthsm2.so` zu. Java lädt den `SunPKCS11` Pro
 Datei: `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg`
 
 ```text
+# slotListIndex ist fragil, wenn sich Slot-Reihenfolgen aendern.
+# Hintergrund und Alternativen: course/06-java-sunpkcs11.md
 name = SoftHSM
 library = /usr/lib/softhsm/libsofthsm2.so
 slotListIndex = 0
 ```
+
+Die `softhsm.cfg`-Dateien in `lab/java/pkcs11-demo` und `lab/kotlin/pkcs11-demo` tragen genau diesen Lab-Disclaimer als Kopfkommentar — d. h. die getrackte Config ist *bewusst* nicht produktionsreif, und der Demo-Code (siehe `buildConfigArgument` weiter unten) erlaubt einen Override per ENV, ohne die Datei zu veraendern.
 
 Das Format ist die NSS-aehnliche Config-Sprache von SunPKCS11 (Oracle PKCS#11 Reference Guide §Configuration File), nicht das Java-`.properties`-Format — Strings werden anders escaped und `attributes = { ... }`-Bloecke sind erlaubt.
 

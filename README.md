@@ -10,6 +10,8 @@ Der Kurs ist absichtlich hands-on. Du liest ein kurzes Kapitel, fuehrst das pass
 - Docker und Docker Compose fuer den Betrieb ausserhalb eines Devcontainers
 - Optional: VS Code Dev Containers
 
+> `apply.sh` ist ein Hilfsskript, das den Kurs in ein Zielverzeichnis kopiert (`./apply.sh pkcs11-course`). Wer den Kurs bereits direkt eingecheckt hat, braucht es nicht.
+
 ## Schnellstart ausserhalb des Devcontainers
 
 ```bash
@@ -60,6 +62,8 @@ Technisch setzt `.devcontainer/devcontainer.json` die Variable `PKCS11_IN_DEVCON
 | `make clean` | generierte Lab-Artefakte entfernen |
 
 ## Kursstruktur
+
+Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didaktisch empfohlene Lernpfad** weicht davon ab (Debugging und ECDSA/PSS werden frueher gezogen, Service-Integration und Produktionscheckliste spaeter). Siehe `course/00-kursuebersicht.md` fuer die Reihenfolge, die der Kurs zum Lesen vorgibt.
 
 | Datei | Inhalt | Uebung |
 |---|---|---|

@@ -19,6 +19,9 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
+# chmod 0777 unten ist ausschliesslich fuer das Lab gedacht, damit Bind-Mounts
+# mit abweichender Host-UID das Token-Verzeichnis beschreiben koennen.
+# In Produktion: Dedizierte UID/GID, Mode 0700 oder 0750, kein World-Write.
 RUN groupadd --gid 1000 course \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash course \
     && usermod --append --groups softhsm course \

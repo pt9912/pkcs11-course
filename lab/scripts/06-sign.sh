@@ -17,6 +17,9 @@ pkcs11-tool \
   --input-file lab/work/data.txt \
   --output-file lab/work/data.sig
 
+# Pubkey-Export ohne Login: SoftHSM gibt Public Keys ohne Login frei. Echte HSMs
+# koennen Public Keys mit CKA_PRIVATE=TRUE schuetzen, dann ist hier zusaetzlich
+# --login --pin "$PIN" noetig. Siehe docs/cheatsheet.md "Haeufige Stolperer".
 pkcs11-tool \
   --module "$MODULE" \
   --token-label "$LABEL" \

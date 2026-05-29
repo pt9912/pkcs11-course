@@ -45,11 +45,18 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --sign --mechanism SHA256-RSA-PKCS --id 01 \
   --input-file data.txt --output-file data.sig
 
-# RSA-PSS
+# RSA-PSS (Token hasht — entspricht make sign-pss im Lab)
+pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
+  --sign --mechanism SHA256-RSA-PKCS-PSS \
+  --mgf MGF1-SHA256 --id 01 \
+  --input-file data.txt --output-file data.sig
+
+# RSA-PSS (Anwendung hasht — falls das Token CKM_SHA256_RSA_PKCS_PSS nicht kann)
+openssl dgst -binary -sha256 data.txt > data.hash
 pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --sign --mechanism RSA-PKCS-PSS \
   --hash-algorithm SHA256 --mgf MGF1-SHA256 --id 01 \
-  --input-file data.txt --output-file data.sig
+  --input-file data.hash --output-file data.sig
 
 # ECDSA (OpenSSL-kompatibles DER-Encoding!)
 pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \

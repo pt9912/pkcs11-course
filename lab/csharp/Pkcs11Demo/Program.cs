@@ -19,7 +19,16 @@ using var library = factories.Pkcs11LibraryFactory.LoadPkcs11Library(factories, 
 var slot = FindSlot(library, tokenLabel);
 
 using var session = slot.OpenSession(SessionType.ReadWrite);
-session.Login(CKU.CKU_USER, pinBytes);
+try
+{
+    session.Login(CKU.CKU_USER, pinBytes);
+}
+finally
+{
+    // PIN-Material so frueh wie moeglich aus dem Speicher tilgen — analog zu
+    // Arrays.fill(pin, '\0') in der Java/Kotlin-Demo.
+    Array.Clear(pinBytes, 0, pinBytes.Length);
+}
 try
 {
     var key = FindPrivateKey(session, factories, keyId);
