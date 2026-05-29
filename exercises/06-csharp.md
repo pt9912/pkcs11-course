@@ -4,6 +4,13 @@
 
 Voraussetzung: Der Token `dev-token` ist initialisiert und der RSA-Key `signing-key` mit ID `01` existiert (`make init-token`, `make gen-rsa`).
 
+.NET-Container starten (Default `pkcs11-lab` enthält kein dotnet-SDK):
+
+```bash
+docker compose -f lab/docker-compose.yml run --rm pkcs11-csharp bash
+# alternativ pkcs11-dev mit allen Sprachen
+```
+
 1. Erstelle eine kleine .NET-Console-App mit `Pkcs11Interop`.
 2. Lade das Modul aus `PKCS11_MODULE` oder nutze `/usr/lib/softhsm/libsofthsm2.so` als Default.
 3. Finde den Slot über das Token-Label `dev-token`.

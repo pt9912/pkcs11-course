@@ -4,6 +4,13 @@
 
 Voraussetzung: Der Token `dev-token`, der RSA-Key `signing-key` und ein Zertifikat mit derselben `CKA_ID=01` existieren (`make init-token`, `make gen-rsa`, `make import-cert`).
 
+Kotlin-Container starten (enthält `kotlinc` zusätzlich zu JDK/Maven):
+
+```bash
+docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash
+# alternativ pkcs11-dev mit allen Sprachen
+```
+
 1. Erstelle ein kleines Kotlin/JVM-Programm, das den Java-Provider `SunPKCS11` nutzt.
 2. Lade die bestehende Config `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg`.
 3. Registriere den Provider über `Security.getProvider("SunPKCS11").configure(...)`.

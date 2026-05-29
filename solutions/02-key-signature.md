@@ -7,10 +7,11 @@ make sign
 make verify
 ```
 
-Bonus:
+Bonus — direkt im `make shell`:
 
 ```bash
-docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'echo changed >> lab/work/data.txt && lab/scripts/07-verify.sh'
+echo changed >> lab/work/data.txt
+lab/scripts/07-verify.sh
 ```
 
 Die Verifikation muss fehlschlagen, weil die Signatur zu den ursprünglichen Daten gehört.

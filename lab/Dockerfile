@@ -34,6 +34,17 @@ RUN apt-get update && apt-get install -y \
 
 FROM pkcs11-java AS pkcs11-kotlin
 
+ARG KOTLIN_VERSION=2.1.0
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    && curl -fsSL -o /tmp/kotlin.zip \
+        https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip \
+    && unzip -q /tmp/kotlin.zip -d /opt \
+    && rm /tmp/kotlin.zip \
+    && rm -rf /var/lib/apt/lists/*
+ENV PATH="/opt/kotlinc/bin:${PATH}"
+
 FROM pkcs11-base AS pkcs11-go
 
 RUN apt-get update && apt-get install -y \
@@ -73,8 +84,16 @@ CMD ["bash"]
 
 FROM pkcs11-csharp AS pkcs11-dev
 
+ARG KOTLIN_VERSION=2.1.0
 RUN apt-get update && apt-get install -y \
+    curl \
     golang-go \
     maven \
     openjdk-17-jdk-headless \
+    unzip \
+    && curl -fsSL -o /tmp/kotlin.zip \
+        https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip \
+    && unzip -q /tmp/kotlin.zip -d /opt \
+    && rm /tmp/kotlin.zip \
     && rm -rf /var/lib/apt/lists/*
+ENV PATH="/opt/kotlinc/bin:${PATH}"

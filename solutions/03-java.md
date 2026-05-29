@@ -13,6 +13,7 @@ make java-demo
 
 ```
 Provider: SunPKCS11-SoftHSM
+Mechanismus: SHA256withRSA
 Aliase im PKCS#11-KeyStore:
 - signing-key key=true cert=true
 Alias: signing-key
@@ -43,8 +44,16 @@ docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs
 
 ## Bonus (EC)
 
-Java-Demo um EC zu erweitern:
+`Pkcs11Demo` nimmt Mechanismus und Alias inzwischen über Env-Variablen. Damit reicht für den EC-Lauf:
 
-1. `make gen-ec` + Cert mit derselben `CKA_ID` wie der EC-Key importieren (Skript anpassen oder zweites Cert mit ID `02`).
-2. In `Pkcs11Demo` einen zweiten Durchlauf hinzufügen, der den EC-Alias sucht und `Signature.getInstance("SHA256withECDSA", provider)` benutzt.
-3. Verifizieren mit Default-Provider funktioniert auch hier, weil der EC-Public-Key über X.509 extrahierbar ist.
+1. EC-Key erzeugen und Cert mit derselben `CKA_ID` wie der EC-Key importieren (Skript `08-import-cert.sh` anpassen oder ein zweites Cert mit ID `02` von Hand erzeugen).
+2. Demo mit den passenden Env-Variablen starten:
+   ```bash
+   docker compose -f lab/docker-compose.yml run --rm \
+     -e PKCS11_MECHANISM=SHA256withECDSA \
+     -e PKCS11_KEY_ALIAS=ec-signing-key \
+     pkcs11-lab \
+     bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+   ```
+
+Verifizieren mit Default-Provider funktioniert auch hier, weil der EC-Public-Key über X.509 extrahierbar ist.

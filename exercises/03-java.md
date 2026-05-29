@@ -13,7 +13,7 @@
    make java-demo
    ```
 3. Prüfe:
-   - Der Output enthält genau einen Alias mit `key=true cert=true`.
+   - Der Output enthält mindestens einen Alias mit `key=true cert=true` (genau einen, solange du keinen zweiten Key + Cert importierst).
    - `Verifikation: true` steht am Ende.
    - Exit-Code ist `0` (`echo $?` direkt nach dem Lauf).
 
