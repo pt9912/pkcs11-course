@@ -40,7 +40,7 @@ Das Format ist die NSS-aehnliche Config-Sprache von SunPKCS11 (Oracle PKCS#11 Re
 
 Der finale Provider-Name wird daraus `SunPKCS11-SoftHSM`. In echten Setups ist `slotListIndex` fragil. Besser ist eine Token-Label-basierte Auswahl — OpenJDKs SunPKCS11 kennt dafür kein portables Property, also entweder vorgelagerte Slot-Ermittlung (`C_GetSlotList`/`C_GetTokenInfo` mit Label-Match) oder ein Stack mit eigener Label-Auswahl wie der IAIK-PKCS11-Provider. Siehe [docs/api.md §5](../docs/api.md#5-java-sunpkcs11).
 
-Die Lab-Demo nimmt die Datei wahlweise als Pfad oder, wenn `PKCS11_SLOT_ID` bzw. `PKCS11_LIBRARY` gesetzt sind, als Inline-Config-Override (siehe `Pkcs11Demo.java` → `buildConfigArgument`). Damit laesst sich der Slot wechseln, ohne `softhsm.cfg` zu veraendern.
+Die Lab-Demo nimmt die Datei wahlweise als Pfad oder, wenn `PKCS11_SLOT_ID` bzw. `PKCS11_LIBRARY` gesetzt sind, als Inline-Config-Override (siehe `Pkcs11Demo.java` → `buildConfigArgument`). Damit laesst sich der Slot wechseln, ohne `softhsm.cfg` zu veraendern. SunPKCS11-Regel beim Override: `slot = <ID>` und `slotListIndex = <N>` schliessen sich aus, und die explizite Slot-ID (`slot =`) hat Vorrang. Die Demo haengt `slot = ...` deshalb hinter das in der Datei stehende `slotListIndex` an.
 
 ## Voraussetzungen
 

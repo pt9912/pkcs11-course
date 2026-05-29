@@ -11,7 +11,10 @@ var data = Encoding.UTF8.GetBytes("hello from csharp pkcs11");
 var keyId = new byte[] { 0x01 };
 
 // PIN als byte[] (UTF-8) an C_Login uebergeben — entspricht dem PKCS#11-Vertrag
-// und passt zu den anderen Demos.
+// und passt zu den anderen Demos. Hinweis: die `pin`-String-Variable bleibt
+// unveraenderlich im CLR-String-Pool und kann nicht zuverlaessig getilgt werden;
+// das ist eine bekannte CLR-Limitierung. In Produktion daher PIN als SecureString
+// halten oder direkt aus einem byte[]-Quelle (z.B. Vault-Client) lesen.
 var pinBytes = Encoding.UTF8.GetBytes(pin);
 
 var factories = new Pkcs11InteropFactories();

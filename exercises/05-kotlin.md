@@ -6,11 +6,7 @@ Du verwendest aus Kotlin denselben Java-Sicherheitsstack wie in der Java-Demo un
 
 ## Vorbereitung
 
-```bash
-make init-token
-make gen-rsa
-make import-cert
-```
+Keine. `make kotlin-demo` haengt an `import-cert -> gen-rsa -> init-token` und stellt den Zustand her, falls noch nicht vorhanden.
 
 ## Aufgabe
 
@@ -18,6 +14,7 @@ make import-cert
    ```bash
    make kotlin-demo
    ```
+   (Die einzelnen Vorstufen `make init-token`, `make gen-rsa`, `make import-cert` brauchst du nur, wenn du eine Stufe gezielt isoliert testen willst.)
 2. Lies `lab/kotlin/pkcs11-demo/src/main/kotlin/dev/course/pkcs11/KotlinPkcs11Demo.kt`.
 3. Vergleiche den Ablauf mit der Java-Demo:
    - Provider konfigurieren

@@ -108,7 +108,7 @@ Regeln:
 
 - **Kein Klartext der Payload** — nur Hash und Laenge.
 - **Keine PIN, kein PIN-Hash** — selbst der PIN-Hash ist unter PKCS#11 sinnlos und ein Compliance-Risiko.
-- **CKR-Code in `error.ckr_code` aus der Exception-Kette extrahieren** — `ProviderException.getCause().getMessage()` enthaelt bei SunPKCS11 typischerweise `CKR_*` als Textfragment.
+- **CKR-Code in `error.ckr_code` aus der Exception-Kette extrahieren** — SunPKCS11 verpackt den `CKR_*`-Code typischerweise zwei bis drei Ebenen tief in der Cause-Kette (`ProviderException` -> `sun.security.pkcs11.wrapper.PKCS11Exception`). Statt nur `getCause().getMessage()` zu nehmen, wie in `Pkcs11Demo.java#reportFailure` durch die gesamte Kette walken und nach dem ersten `CKR_`-Token suchen.
 - **Trace-ID** korrelieren mit dem APM/OTLP-Stack.
 - **Append-only Sink** (z. B. journald, S3 mit Object Lock, Splunk-Index ohne Edit-Recht). Audit-Log darf vom Service selbst nicht ueberschreibbar sein.
 - **Rotation und Aufbewahrung** richten sich nach Compliance (eIDAS QSig oft 35 Jahre, intern oft 90 Tage).

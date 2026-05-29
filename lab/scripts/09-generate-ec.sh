@@ -8,7 +8,14 @@ EC_ID="${PKCS11_EC_ID:-02}"
 CURVE="${PKCS11_EC_CURVE:-secp256r1}"
 
 if pkcs11-tool --module "$MODULE" --login --pin "$PIN" --token-label "$LABEL" --list-objects 2>/dev/null \
-   | awk '/^Private Key Object/,/^$/' | grep -q "label:[[:space:]]*${EC_LABEL}$"; then
+   | awk -v want="$EC_LABEL" '
+       /^Private Key Object/,/^$/ {
+         if (match($0, /label:[[:space:]]*/)) {
+           value = substr($0, RSTART + RLENGTH)
+           sub(/[[:space:]]+$/, "", value)
+           if (value == want) { print "match"; exit }
+         }
+       }' | grep -q match; then
   echo "EC-Key '$EC_LABEL' existiert bereits."
   exit 0
 fi

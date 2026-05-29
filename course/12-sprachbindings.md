@@ -37,12 +37,14 @@ Der Unterschied liegt in der Abstraktionsebene.
 
 ## Vergleich
 
-| Sprache | Library/API | Abstraktion | Key-Auswahl | Zertifikat noetig? |
+| Sprache | Library/API | Abstraktion | Key-Auswahl | Zertifikat noetig?¹ |
 |---|---|---|---|---|
 | Java | JCA/JCE `SunPKCS11` | hoch | Java-KeyStore-Alias | ja, fuer Private-Key-Alias |
 | Kotlin | JCA/JCE `SunPKCS11` | hoch | Java-KeyStore-Alias | ja, wie Java |
 | Go | `github.com/miekg/pkcs11` | niedrig | Attribute wie `CKA_ID` | nein |
 | C# | Pkcs11Interop | niedrig bis mittel | Attribute wie `CKA_ID` | nein |
+
+¹ Bezug ist die Sichtbarkeit eines Private-Key-Alias im Java-`KeyStore`-Modell, nicht die PKCS#11-Signatur selbst. Auch ohne Zertifikat liesse sich der Key per nativem Provider/IAIK ueber `CKA_ID` ansprechen — die JCA-Konvention `KeyStore.getInstance("PKCS11")` macht es aber zur Pflicht.
 
 ## Java und Kotlin
 

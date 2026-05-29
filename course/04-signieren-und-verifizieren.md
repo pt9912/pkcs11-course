@@ -46,6 +46,8 @@ Die Verifikation passiert mit OpenSSL außerhalb des Tokens. Das ist wichtig: Si
 
 Wenn du mit `SHA256-RSA-PKCS` signierst, darfst du nicht noch einmal anders hashen oder mit falschem Padding verifizieren. Anwendung und Token müssen dieselbe Signatursemantik verwenden.
 
+Bei RSA-PSS verschiebt sich die Aufteilung: ob die Anwendung oder das Token hasht, haengt davon ab, ob `CKM_RSA_PKCS_PSS` (Anwendung hasht) oder `CKM_SHA256_RSA_PKCS_PSS` (Token hasht) gewaehlt wird. Details in [11 — ECDSA und RSA-PSS](11-ec-und-pss.md).
+
 ## Eigenexperiment
 
 Ändere den Mechanism testweise auf einen nicht unterstützten oder falschen Mechanism. Beobachte die Fehlermeldung. Genau so sieht HSM-Debugging im echten Leben aus. Strukturierte Aufgaben dazu findest du in [`exercises/02-key-signature.md`](../exercises/02-key-signature.md).

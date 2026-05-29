@@ -115,13 +115,14 @@ Die Lab-Demo (`lab/java/pkcs11-demo`) setzt diese Parameter automatisch, sobald 
 | `secp521r1` (P-521, NIST) | ~256 bit | ECDSA | `CKM_ECDSA`, `CKM_ECDSA_SHA512` | meist vorhanden, FIPS-zugelassen |
 | `secp256k1` | ~128 bit | ECDSA | `CKM_ECDSA` | Bitcoin/Ethereum-Kontext, viele Enterprise-HSMs sperren das per Default |
 | `brainpoolP256r1` / `P384r1` | ~128/192 bit | ECDSA | `CKM_ECDSA_*` | europaeische HSMs (eIDAS-Kontext), in US-Cloud-HSMs oft nicht aktiviert |
-| `Ed25519` | ~128 bit | EdDSA | `CKM_EDDSA` (PKCS#11 v3.0+) | neuere HSMs/SoftHSM v2.6+; FIPS 186-5 zugelassen, in FIPS-Mode aber haeufig noch nicht freigeschaltet |
+| `Ed25519` | ~128 bit | EdDSA | `CKM_EDDSA` (PKCS#11 v3.0+) | neuere HSMs/SoftHSM v2.6+; in FIPS 186-5 (Signaturstandard) spezifiziert, in FIPS-140-2-zertifizierten Modulen aber **nicht** erlaubt, in FIPS-140-3-Modulen uneinheitlich aktiviert |
 | `Ed448` | ~224 bit | EdDSA | `CKM_EDDSA` | seltener, neue HSMs |
 
 Praktische Hinweise:
 
 - **PKCS#11 v3.0** hat EdDSA standardisiert; SoftHSM v2.6+ kann es, aeltere Builds nicht. Vor Festlegung `--list-mechanisms` lesen.
 - **EdDSA** signiert nicht ueber Hashes wie ECDSA, sondern hat einen festen internen Hash. Die Signatur ist deterministisch — kein Salt, kein Mismatch wie bei PSS.
+- **Im Kurs-Lab nicht ausgefuehrt**: das im Image gebaute SoftHSM v2 (Debian-Default) listet kein `CKM_EDDSA`. Ein eigener Build oder ein produktives HSM mit `CKM_EDDSA` ist Voraussetzung, um die Demo zu reproduzieren — deshalb gibt es kein `make sign-eddsa`-Target.
 - **brainpool-Kurven** kommen oft in eIDAS-Kontexten vor; nicht jedes HSM hat sie freigeschaltet.
 - **secp256k1** ist die Bitcoin-Kurve, fuer klassische PKI selten relevant und in vielen Enterprise-HSMs aus Compliance-Gruenden deaktiviert.
 

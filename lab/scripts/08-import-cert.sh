@@ -11,11 +11,20 @@ DAYS="${PKCS11_CERT_DAYS:-365}"
 mkdir -p lab/work
 
 if pkcs11-tool --module "$MODULE" --login --pin "$PIN" --token-label "$LABEL" --list-objects 2>/dev/null \
-   | awk '/^Certificate Object/,/^$/' | grep -q "label:[[:space:]]*$KEY_LABEL"; then
+   | awk -v want="$KEY_LABEL" '
+       /^Certificate Object/,/^$/ {
+         if (match($0, /label:[[:space:]]*/)) {
+           value = substr($0, RSTART + RLENGTH)
+           sub(/[[:space:]]+$/, "", value)
+           if (value == want) { print "match"; exit }
+         }
+       }' | grep -q match; then
   echo "Zertifikat mit Label '$KEY_LABEL' existiert bereits im Token."
   exit 0
 fi
 
+# libp11-Kurzform: pin-value im Pfad statt nach ?. Bequem, aber nicht streng
+# RFC-7512-konform — Details siehe docs/api.md §4.3.
 KEY_URI="pkcs11:token=${LABEL};object=${KEY_LABEL};type=private;pin-value=${PIN}"
 
 # pkcs11.so liegt distributions-abhaengig (Debian/Ubuntu: engines-3 unter triplet,

@@ -14,7 +14,12 @@ if [ ! -w "$TOKEN_DIR" ]; then
   exit 1
 fi
 
-if softhsm2-util --show-slots | grep -q "Label:[[:space:]]*$LABEL"; then
+if softhsm2-util --show-slots | awk -v want="$LABEL" '
+     /Label:/ {
+       sub(/^[[:space:]]*Label:[[:space:]]*/, "")
+       sub(/[[:space:]]+$/, "")
+       if ($0 == want) { print "match"; exit }
+     }' | grep -q match; then
   echo "Token '$LABEL' existiert bereits."
   exit 0
 fi

@@ -51,7 +51,8 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --mgf MGF1-SHA256 --id 01 \
   --input-file data.txt --output-file data.sig
 
-# RSA-PSS (Anwendung hasht — falls das Token CKM_SHA256_RSA_PKCS_PSS nicht kann)
+# RSA-PSS (Anwendung hasht — falls das Token `CKM_SHA256_RSA_PKCS_PSS` nicht
+# anbietet; pkcs11-tool-Mechanismus heisst dann `RSA-PKCS-PSS`)
 openssl dgst -binary -sha256 data.txt > data.hash
 pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --sign --mechanism RSA-PKCS-PSS \
