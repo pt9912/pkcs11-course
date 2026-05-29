@@ -4,12 +4,12 @@
 
 Das Lab enthält:
 
-- Debian 12
+- Debian 13
 - SoftHSM2
 - OpenSC mit `pkcs11-tool`
 - OpenSSL 3 mit `libengine-pkcs11-openssl`
-- JDK 17
-- Maven
+- JDK 21
+- Gradle
 
 ## Start
 

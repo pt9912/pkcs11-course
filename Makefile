@@ -43,7 +43,7 @@ sign-pss:
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/12-sign-pss.sh'
 
 java-demo: import-cert
-	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
 
 go-demo: gen-rsa
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-go bash -lc 'lab/scripts/13-go-demo.sh'
@@ -56,4 +56,4 @@ csharp-demo: gen-rsa
 
 clean:
 	docker compose -f lab/docker-compose.yml down -v
-	rm -rf lab/work/* lab/java/pkcs11-demo/target lab/kotlin/pkcs11-demo/target lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj
+	rm -rf lab/work/* lab/java/pkcs11-demo/build lab/java/pkcs11-demo/target lab/kotlin/pkcs11-demo/build lab/kotlin/pkcs11-demo/target lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj

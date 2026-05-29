@@ -1,5 +1,5 @@
 module dev.course/pkcs11-go-demo
 
-go 1.19
+go 1.26.3
 
-require github.com/miekg/pkcs11 v1.1.1
+require github.com/miekg/pkcs11 v1.1.2

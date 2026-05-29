@@ -26,13 +26,13 @@
     bash -lc 'pkcs11-tool --module "$PKCS11_MODULE" --login --pin "$PKCS11_USER_PIN" --token-label "$PKCS11_TOKEN_LABEL" --delete-object --type cert --id 01'
 
   docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
-    bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+    bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
   ```
   Erwartet: Exit-Code `2` mit Hinweis auf `make import-cert`.
 - Starte die Java-Demo direkt mit falscher PIN, damit vorher kein `import-cert`-Schritt scheitert:
   ```bash
   docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs11-lab \
-    bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+    bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
   ```
   Erwartet: `CKR_PIN_INCORRECT` beim KeyStore-Load.
 

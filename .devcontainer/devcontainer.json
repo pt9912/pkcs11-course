@@ -3,6 +3,11 @@
   "dockerComposeFile": "../lab/docker-compose.yml",
   "service": "pkcs11-dev",
   "workspaceFolder": "/workspace",
+  "remoteEnv": {
+    "GRADLE_USER_HOME": "/workspace/.gradle",
+    "GOROOT": "/usr/local/go",
+    "PATH": "/usr/local/go/bin:${containerEnv:PATH}"
+  },
   "customizations": {
     "vscode": {
       "extensions": [

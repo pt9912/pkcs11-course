@@ -2,11 +2,18 @@
 lab/work/*
 !lab/work/.gitkeep
 
-# Maven
+# Java/Kotlin builds
 lab/java/pkcs11-demo/target/
+lab/java/pkcs11-demo/build/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 *.class
+
+# Gradle
+.gradle/
+lab/java/pkcs11-demo/.gradle/
+lab/kotlin/pkcs11-demo/build/
+lab/kotlin/pkcs11-demo/.gradle/
 
 # Go
 lab/go/pkcs11-demo/pkcs11-demo

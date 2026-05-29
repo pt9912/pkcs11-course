@@ -36,10 +36,10 @@ docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
   bash -lc 'pkcs11-tool --module "$PKCS11_MODULE" --login --pin "$PKCS11_USER_PIN" --token-label "$PKCS11_TOKEN_LABEL" --delete-object --type cert --id 01'
 
 docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
-  bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+  bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
 
 docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs11-lab \
-  bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+  bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
 ```
 
 ## Bonus (EC)
@@ -53,7 +53,7 @@ docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs
      -e PKCS11_MECHANISM=SHA256withECDSA \
      -e PKCS11_KEY_ALIAS=ec-signing-key \
      pkcs11-lab \
-     bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+     bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
    ```
 
 Verifizieren mit Default-Provider funktioniert auch hier, weil der EC-Public-Key über X.509 extrahierbar ist.

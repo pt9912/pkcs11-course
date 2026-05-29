@@ -5,10 +5,15 @@
 *.iml
 lab/work/*
 lab/java/pkcs11-demo/target
+lab/java/pkcs11-demo/build
+lab/java/pkcs11-demo/.gradle
 lab/kotlin/pkcs11-demo/target
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
+lab/kotlin/pkcs11-demo/build
+lab/kotlin/pkcs11-demo/.gradle
 lab/go/pkcs11-demo/pkcs11-demo
 lab/csharp/Pkcs11Demo/bin
 lab/csharp/Pkcs11Demo/obj
+.gradle
 *.log
 .DS_Store

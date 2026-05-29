@@ -99,12 +99,13 @@ public final class Pkcs11Demo {
     }
 
     private static boolean matchesMechanism(java.security.Key key, String mechanism) {
+        String algorithm = key.getAlgorithm().toUpperCase();
         String m = mechanism.toUpperCase();
         if (m.contains("RSA")) {
-            return key instanceof RSAKey;
+            return key instanceof RSAKey || algorithm.contains("RSA") || algorithm.equals("PRIVATE");
         }
         if (m.contains("ECDSA") || m.contains("WITHECDSA")) {
-            return key instanceof ECKey;
+            return key instanceof ECKey || algorithm.contains("EC") || algorithm.equals("PRIVATE");
         }
         return true;
     }

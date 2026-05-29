@@ -1,4 +1,4 @@
-FROM debian:12 AS pkcs11-base
+FROM debian:13 AS pkcs11-base
 
 RUN apt-get update && apt-get install -y \
     bash \
@@ -25,75 +25,80 @@ ENV PKCS11_SO_PIN=1234
 WORKDIR /workspace
 CMD ["bash"]
 
-FROM pkcs11-base AS pkcs11-java
+FROM pkcs11-base AS pkcs11-gradle
 
-RUN apt-get update && apt-get install -y \
-    maven \
-    openjdk-17-jdk-headless \
-    && rm -rf /var/lib/apt/lists/*
-
-FROM pkcs11-java AS pkcs11-kotlin
-
-ARG KOTLIN_VERSION=2.1.0
+ARG GRADLE_VERSION=8.12.1
 RUN apt-get update && apt-get install -y \
     curl \
+    openjdk-21-jdk-headless \
     unzip \
-    && curl -fsSL -o /tmp/kotlin.zip \
-        https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip \
-    && unzip -q /tmp/kotlin.zip -d /opt \
-    && rm /tmp/kotlin.zip \
+    && curl -fsSL -o /tmp/gradle.zip \
+        https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+    && unzip -q /tmp/gradle.zip -d /opt \
+    && ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
+    && rm /tmp/gradle.zip \
     && rm -rf /var/lib/apt/lists/*
-ENV PATH="/opt/kotlinc/bin:${PATH}"
+ENV GRADLE_USER_HOME=/workspace/.gradle
+
+FROM pkcs11-gradle AS pkcs11-java
+
+FROM pkcs11-gradle AS pkcs11-kotlin
 
 FROM pkcs11-base AS pkcs11-go
 
+ARG GO_VERSION=1.26.3
 RUN apt-get update && apt-get install -y \
-    golang-go \
-    && rm -rf /var/lib/apt/lists/*
-
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS pkcs11-csharp
-
-RUN apt-get update && apt-get install -y \
-    bash \
-    ca-certificates \
-    findutils \
+    curl \
+    gcc \
     libc6-dev \
-    libengine-pkcs11-openssl \
-    make \
-    opensc \
-    openssl \
-    p11-kit \
-    softhsm2 \
+    tar \
+    && curl -fsSL -o /tmp/go.tgz \
+        https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf /tmp/go.tgz \
+    && ln -sf /usr/local/go/bin/go /usr/local/bin/go \
+    && ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt \
+    && rm /tmp/go.tgz \
+    && rm -rf /var/lib/apt/lists/*
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+FROM pkcs11-base AS pkcs11-csharp
+
+RUN apt-get update && apt-get install -y \
+    libc6-dev \
+    curl \
+    && curl -fsSL -o /tmp/packages-microsoft-prod.deb \
+        https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb \
+    && dpkg -i /tmp/packages-microsoft-prod.deb \
+    && rm /tmp/packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y dotnet-sdk-10.0 \
     && ln -sf /usr/lib/x86_64-linux-gnu/libdl.so.2 /usr/lib/x86_64-linux-gnu/libdl.so \
     && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /var/lib/softhsm/tokens /workspace/lab/work
-
-COPY softhsm2.conf /etc/softhsm/softhsm2.conf
-
-ENV SOFTHSM2_CONF=/etc/softhsm/softhsm2.conf
-ENV PKCS11_MODULE=/usr/lib/softhsm/libsofthsm2.so
-ENV PKCS11_TOKEN_LABEL=dev-token
-ENV PKCS11_USER_PIN=987654
-ENV PKCS11_SO_PIN=1234
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_NOLOGO=1
 
-WORKDIR /workspace
-CMD ["bash"]
-
 FROM pkcs11-csharp AS pkcs11-dev
 
-ARG KOTLIN_VERSION=2.1.0
+ARG GRADLE_VERSION=8.12.1
+ARG GO_VERSION=1.26.3
 RUN apt-get update && apt-get install -y \
     curl \
-    golang-go \
-    maven \
-    openjdk-17-jdk-headless \
+    gcc \
+    libc6-dev \
+    openjdk-21-jdk-headless \
+    tar \
     unzip \
-    && curl -fsSL -o /tmp/kotlin.zip \
-        https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip \
-    && unzip -q /tmp/kotlin.zip -d /opt \
-    && rm /tmp/kotlin.zip \
+    && curl -fsSL -o /tmp/gradle.zip \
+        https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+    && unzip -q /tmp/gradle.zip -d /opt \
+    && ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
+    && rm /tmp/gradle.zip \
+    && curl -fsSL -o /tmp/go.tgz \
+        https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf /tmp/go.tgz \
+    && ln -sf /usr/local/go/bin/go /usr/local/bin/go \
+    && ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt \
+    && rm /tmp/go.tgz \
     && rm -rf /var/lib/apt/lists/*
-ENV PATH="/opt/kotlinc/bin:${PATH}"
+ENV GRADLE_USER_HOME=/workspace/.gradle
+ENV PATH="/usr/local/go/bin:${PATH}"

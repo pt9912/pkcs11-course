@@ -4,7 +4,7 @@
 
 Voraussetzung: Der Token `dev-token`, der RSA-Key `signing-key` und ein Zertifikat mit derselben `CKA_ID=01` existieren (`make init-token`, `make gen-rsa`, `make import-cert`).
 
-Kotlin-Container starten (enthält `kotlinc` zusätzlich zu JDK/Maven):
+Kotlin-Container starten (enthält JDK und Gradle):
 
 ```bash
 docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash
