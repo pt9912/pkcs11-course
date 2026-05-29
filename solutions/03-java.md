@@ -25,8 +25,21 @@ Verifikation: true
 | Manipulation | Erwarteter Fehler |
 |---|---|
 | `library = /nicht/da` in `softhsm.cfg` | `Provider configure` wirft `ProviderException` mit `UnsatisfiedLinkError`-Hinweis |
-| Cert gelöscht (`--delete-object --type cert --id 01`) | Exit-Code `2`, Meldung „Kein Private-Key-Alias … sichtbar" |
-| `PKCS11_USER_PIN=000000` | `KeyStore.load` wirft `LoginException`, Ursache `CKR_PIN_INCORRECT` |
+| Cert gelöscht und Java direkt gestartet, nicht über `make java-demo` | Exit-Code `2`, Meldung „Kein Private-Key-Alias … sichtbar" |
+| Java direkt mit `PKCS11_USER_PIN=000000` gestartet | `KeyStore.load` wirft `LoginException`, Ursache `CKR_PIN_INCORRECT` |
+
+Direkter Java-Aufruf für die Fehlertests:
+
+```bash
+docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
+  bash -lc 'pkcs11-tool --module "$PKCS11_MODULE" --login --pin "$PKCS11_USER_PIN" --token-label "$PKCS11_TOKEN_LABEL" --delete-object --type cert --id 01'
+
+docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
+  bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+
+docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs11-lab \
+  bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
+```
 
 ## Bonus (EC)
 
