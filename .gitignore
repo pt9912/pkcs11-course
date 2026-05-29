@@ -23,6 +23,7 @@ lab/csharp/Pkcs11Demo/bin/
 lab/csharp/Pkcs11Demo/obj/
 .nuget/
 .dotnet/
+dotnet/
 
 # IDEs
 .idea/

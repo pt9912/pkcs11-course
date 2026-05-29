@@ -16,6 +16,7 @@ lab/csharp/Pkcs11Demo/bin
 lab/csharp/Pkcs11Demo/obj
 .nuget
 .dotnet
+dotnet
 .gradle
 *.log
 .DS_Store

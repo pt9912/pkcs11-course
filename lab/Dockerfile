@@ -1,16 +1,23 @@
 FROM debian:13 AS pkcs11-base
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     bash \
     ca-certificates \
     findutils \
     libengine-pkcs11-openssl \
+    locales \
     make \
     opensc \
     openssl \
     p11-kit \
     softhsm2 \
+    && sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen \
+    && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 RUN groupadd --gid 1000 course \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash course \
@@ -32,7 +39,7 @@ CMD ["bash"]
 FROM pkcs11-base AS pkcs11-gradle
 
 ARG GRADLE_VERSION=8.12.1
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     openjdk-21-jdk-headless \
     unzip \
@@ -51,7 +58,7 @@ FROM pkcs11-gradle AS pkcs11-kotlin
 FROM pkcs11-base AS pkcs11-go
 
 ARG GO_VERSION=1.26.3
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     gcc \
     libc6-dev \
@@ -67,7 +74,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 
 FROM pkcs11-base AS pkcs11-csharp
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libc6-dev \
     curl \
     && curl -fsSL -o /tmp/packages-microsoft-prod.deb \
@@ -75,7 +82,7 @@ RUN apt-get update && apt-get install -y \
     && dpkg -i /tmp/packages-microsoft-prod.deb \
     && rm /tmp/packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y dotnet-sdk-10.0 \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y dotnet-sdk-10.0 \
     && ln -sf /usr/lib/x86_64-linux-gnu/libdl.so.2 /usr/lib/x86_64-linux-gnu/libdl.so \
     && rm -rf /var/lib/apt/lists/*
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -87,7 +94,7 @@ FROM pkcs11-csharp AS pkcs11-dev
 
 ARG GRADLE_VERSION=8.12.1
 ARG GO_VERSION=1.26.3
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     gcc \
     libc6-dev \
