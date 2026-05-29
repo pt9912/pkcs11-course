@@ -15,31 +15,31 @@ list-slots:
 list-mechanisms:
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/03-list-mechanisms.sh'
 
-gen-rsa:
+gen-rsa: init-token
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/04-generate-rsa.sh'
 
-list-objects:
+list-objects: init-token
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/05-list-objects.sh'
 
-sign:
+sign: gen-rsa
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/06-sign.sh'
 
-verify:
+verify: sign
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/07-verify.sh'
 
-import-cert:
+import-cert: gen-rsa
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/08-import-cert.sh'
 
-gen-ec:
+gen-ec: init-token
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/09-generate-ec.sh'
 
-sign-ec:
+sign-ec: gen-ec
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/10-sign-ec.sh'
 
-verify-ec:
+verify-ec: sign-ec
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/11-verify-ec.sh'
 
-sign-pss:
+sign-pss: gen-rsa
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'lab/scripts/12-sign-pss.sh'
 
 java-demo: import-cert

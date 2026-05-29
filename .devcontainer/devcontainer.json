@@ -3,8 +3,11 @@
   "dockerComposeFile": "../lab/docker-compose.yml",
   "service": "pkcs11-dev",
   "workspaceFolder": "/workspace",
+  "remoteUser": "course",
   "remoteEnv": {
     "GRADLE_USER_HOME": "/workspace/.gradle",
+    "NUGET_PACKAGES": "/workspace/.nuget/packages",
+    "DOTNET_CLI_HOME": "/workspace/.dotnet",
     "GOROOT": "/usr/local/go",
     "PATH": "/usr/local/go/bin:${containerEnv:PATH}"
   },

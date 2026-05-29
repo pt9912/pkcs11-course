@@ -14,6 +14,8 @@ lab/kotlin/pkcs11-demo/.gradle
 lab/go/pkcs11-demo/pkcs11-demo
 lab/csharp/Pkcs11Demo/bin
 lab/csharp/Pkcs11Demo/obj
+.nuget
+.dotnet
 .gradle
 *.log
 .DS_Store

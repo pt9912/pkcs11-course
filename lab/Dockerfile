@@ -12,7 +12,11 @@ RUN apt-get update && apt-get install -y \
     softhsm2 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /var/lib/softhsm/tokens /workspace/lab/work
+RUN groupadd --gid 1000 course \
+    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash course \
+    && usermod --append --groups softhsm course \
+    && mkdir -p /workspace/lab/work/tokens \
+    && chmod 0777 /workspace/lab/work /workspace/lab/work/tokens
 
 COPY softhsm2.conf /etc/softhsm/softhsm2.conf
 
@@ -76,6 +80,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_NOLOGO=1
+ENV NUGET_PACKAGES=/workspace/.nuget/packages
+ENV DOTNET_CLI_HOME=/workspace/.dotnet
 
 FROM pkcs11-csharp AS pkcs11-dev
 

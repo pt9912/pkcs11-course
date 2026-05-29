@@ -4,9 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
       target: pkcs11-java
+    user: "${PKCS11_LAB_USER:-course}"
+    group_add:
+      - softhsm
     volumes:
       - ..:/workspace
-      - softhsm-tokens:/var/lib/softhsm/tokens
     working_dir: /workspace
     tty: true
     stdin_open: true
@@ -38,6 +40,3 @@ services:
       context: .
       dockerfile: Dockerfile
       target: pkcs11-dev
-
-volumes:
-  softhsm-tokens:

@@ -31,7 +31,7 @@ lab/scripts/02-list-slots.sh
 |---|---|
 | `/usr/lib/softhsm/libsofthsm2.so` | PKCS#11-Modul für SoftHSM |
 | `/etc/softhsm/softhsm2.conf` | SoftHSM-Konfiguration |
-| `/var/lib/softhsm/tokens` | Token-Speicher |
+| `/workspace/lab/work/tokens` | Token-Speicher |
 | `lab/work` | Arbeitsdateien für Signaturen/Public Keys |
 
 ## PINs im Kurs

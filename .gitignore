@@ -21,6 +21,8 @@ lab/go/pkcs11-demo/pkcs11-demo
 # .NET
 lab/csharp/Pkcs11Demo/bin/
 lab/csharp/Pkcs11Demo/obj/
+.nuget/
+.dotnet/
 
 # IDEs
 .idea/
