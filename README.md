@@ -44,6 +44,7 @@ Technisch setzt `.devcontainer/devcontainer.json` die Variable `PKCS11_IN_DEVCON
 |---|---|
 | `make build` | Docker-Images bauen, ausserhalb des Devcontainers |
 | `make shell` | Lab-Shell oeffnen |
+| `make restore` | C#-NuGet-Abhaengigkeiten fuer Editor/Language Server wiederherstellen |
 | `make init-token` | SoftHSM-Token `dev-token` initialisieren |
 | `make list-slots` | Slots und Token anzeigen |
 | `make list-mechanisms` | unterstuetzte Mechanismen anzeigen |

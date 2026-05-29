@@ -1,4 +1,4 @@
-.PHONY: build shell init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -49,6 +49,11 @@ ifeq ($(PKCS11_IN_DEVCONTAINER),1)
 else
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash
 endif
+
+restore: csharp-restore
+
+csharp-restore:
+	$(RUN_CSHARP) 'dotnet restore lab/csharp/Pkcs11Demo/Pkcs11Demo.csproj'
 
 init-token:
 	$(RUN_LAB) 'lab/scripts/01-init-token.sh'

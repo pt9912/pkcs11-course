@@ -5,8 +5,10 @@ lab/work/*
 # Java/Kotlin builds
 lab/java/pkcs11-demo/target/
 lab/java/pkcs11-demo/build/
+lab/java/pkcs11-demo/bin/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
+lab/kotlin/pkcs11-demo/bin/
 *.class
 
 # Gradle

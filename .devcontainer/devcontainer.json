@@ -4,6 +4,7 @@
   "service": "pkcs11-dev",
   "workspaceFolder": "/workspace",
   "remoteUser": "course",
+  "postCreateCommand": "PKCS11_IN_DEVCONTAINER=1 NUGET_PACKAGES=/workspace/.nuget/packages DOTNET_CLI_HOME=/workspace/.dotnet make restore",
   "remoteEnv": {
     "GRADLE_USER_HOME": "/workspace/.gradle",
     "NUGET_PACKAGES": "/workspace/.nuget/packages",
