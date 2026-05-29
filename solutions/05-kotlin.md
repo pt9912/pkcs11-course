@@ -9,7 +9,7 @@ make import-cert
 make kotlin-demo
 ```
 
-Erwartet:
+Erwartet (gekuerzt — die Demo druckt zusaetzlich `Mechanismus: ...`, `Aliase im PKCS#11-KeyStore:` und `Signatur (Base64): ...`):
 
 ```text
 Provider: SunPKCS11-SoftHSM
@@ -32,10 +32,27 @@ Verifikation: true
 
 ## Fehler pruefen
 
+`make kotlin-demo` haengt an `import-cert -> gen-rsa -> init-token`. Sobald du eine ENV-Variable umstellst, kann eine dieser Vorstufen scheitern, bevor Kotlin gestartet wird. Deshalb Vorstufe wie gewohnt laufen lassen und die Demo direkt mit der Manipulation aufrufen.
+
+Falsche PIN:
+
 ```bash
-PKCS11_USER_PIN=000000 make kotlin-demo
+make init-token gen-rsa import-cert
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_USER_PIN=000000 \
+  pkcs11-kotlin bash -lc 'cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run'
 ```
 
-Erwartet: Login-Fehler beim `KeyStore.load`.
+Erwartet: `reportFailure` druckt eine `ProviderException`-Kette inklusive `CKR_PIN_INCORRECT`.
+
+Falsche Library:
+
+```bash
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_LIBRARY=/nicht/da \
+  pkcs11-kotlin bash -lc 'cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run'
+```
+
+Erwartet: Provider-Load schlaegt mit `IOException`/`CKR_GENERAL_ERROR` fehl.
 
 Wenn das Zertifikat fehlt, ist der private Key fuer den Java-KeyStore nicht als Private-Key-Alias nutzbar. `make kotlin-demo` repariert das ueber die Abhaengigkeit `import-cert` automatisch; fuer den Fehlerfall musst du die Demo direkt starten.

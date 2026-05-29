@@ -22,14 +22,16 @@ if [ ! -f lab/work/public.pem ] || [ lab/work/public.der -nt lab/work/public.pem
   openssl rsa -pubin -inform DER -in lab/work/public.der -out lab/work/public.pem 2>/dev/null
 fi
 
+# SHA256-RSA-PKCS-PSS = CKM_SHA256_RSA_PKCS_PSS: das Token hasht selbst.
+# Bei dieser Variante laesst pkcs11-tool das --hash-algorithm-Flag weg
+# (das gilt nur fuer CKM_RSA_PKCS_PSS mit vorgehashtem Input). MGF bleibt sinnvoll.
 pkcs11-tool \
   --module "$MODULE" \
   --login \
   --pin "$PIN" \
   --token-label "$LABEL" \
   --sign \
-  --mechanism RSA-PKCS-PSS \
-  --hash-algorithm SHA256 \
+  --mechanism SHA256-RSA-PKCS-PSS \
   --mgf MGF1-SHA256 \
   --id "$KEY_ID" \
   --input-file lab/work/data-pss.txt \

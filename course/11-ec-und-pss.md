@@ -45,6 +45,8 @@ make sign-ec
 
 Wichtig: `pkcs11-tool` gibt ECDSA-Signaturen standardmäßig als rohe `r || s`-Konkatenation aus. OpenSSL erwartet DER-codiertes `SEQUENCE { r, s }`. Deshalb steht im Skript `--signature-format openssl`. Wer das vergisst, bekommt eine korrekte Signatur, die OpenSSL trotzdem ablehnt — ein klassischer Stolperer.
 
+Eine weitere Falle bei `CKM_ECDSA` (ohne `_SHA*`-Suffix): der Mechanismus erwartet einen bereits gehashten Input genau in Curve-Order-Laenge. Wer SHA-512 auf P-256 anwendet, muss den Hash selbst linksbuendig kuerzen — sonst antwortet das Token mit `CKR_DATA_LEN_RANGE`. `CKM_ECDSA_SHA256` umgeht das, weil dort das Token hasht.
+
 Verifizieren:
 
 ```bash
@@ -77,6 +79,17 @@ Wenn HSM und Anwendung unterschiedliche Salt-Längen oder unterschiedliche MGF-H
 | `RSA-PKCS-PSS` (SHA256/MGF1-SHA256/SaltLen=32) | `RSASSA-PSS` mit `PSSParameterSpec` |
 | `ECDSA-SHA256` | `SHA256withECDSA` |
 | `ECDSA-SHA384` | `SHA384withECDSA` |
+
+In JCA muss die `PSSParameterSpec` explizit gesetzt werden, sonst greifen Defaults, die nicht zu den `CK_RSA_PKCS_PSS_PARAMS` auf der Token-Seite passen und `CKR_MECHANISM_PARAM_INVALID` ausloesen:
+
+```java
+Signature sig = Signature.getInstance("RSASSA-PSS", provider);
+sig.setParameter(new PSSParameterSpec(
+        "SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1));
+sig.initSign(privateKey);
+```
+
+Die Lab-Demo (`lab/java/pkcs11-demo`) setzt diese Parameter automatisch, sobald `PKCS11_MECHANISM=RSASSA-PSS` gesetzt ist.
 
 ## Wann was?
 

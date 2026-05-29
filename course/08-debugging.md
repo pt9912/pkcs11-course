@@ -34,7 +34,7 @@ make verify
 | `CKR_KEY_TYPE_INCONSISTENT` | Algorithmus passt nicht zum Key |
 | `CKR_ATTRIBUTE_VALUE_INVALID` | Objektattribute nicht erlaubt |
 | `CKR_OBJECT_HANDLE_INVALID` | Objekt nicht in dieser Session gültig |
-| `CKR_SIGNATURE_INVALID` | Signaturprüfung gescheitert — tritt nur bei Verify auf, nie beim Signer |
+| `CKR_SIGNATURE_INVALID` | Signaturprüfung gescheitert — laut Spec ein Rueckgabewert von `C_Verify`/`C_VerifyFinal`, also typischerweise auf der Verifier-Seite sichtbar |
 | `CKR_TEMPLATE_INCONSISTENT` | Attribute widersprechen sich (z. B. `CKA_KEY_TYPE=CKK_RSA` zusammen mit `CKA_EC_PARAMS`, oder Nutzungsflags, die der Mechanismus nicht erlaubt) |
 
 ## Praxisfaelle
@@ -85,11 +85,11 @@ PKCS11SPY_OUTPUT=/tmp/spy.log \
 
 Für Java entsprechend in der SunPKCS11-Config:
 
-```properties
+```text
 library = /usr/lib/x86_64-linux-gnu/pkcs11/pkcs11-spy.so
 ```
 
-und `PKCS11SPY` zeigt aus dem Java-Prozess auf das echte Modul.
+und `PKCS11SPY` zeigt aus dem Java-Prozess auf das echte Modul. `PKCS11SPY_OUTPUT` ist optional; ohne Setzung schreibt der Spy nach stderr, nicht in eine Datei.
 
 Mächtig, aber gefährlich: Logs können sensitive Metadaten enthalten. Nicht in Produktion anschalten, außer du weißt genau, was du tust.
 

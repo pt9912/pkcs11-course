@@ -4,11 +4,11 @@ MODULE="${PKCS11_MODULE:-/usr/lib/softhsm/libsofthsm2.so}"
 LABEL="${PKCS11_TOKEN_LABEL:-dev-token}"
 KEY_ID="${PKCS11_KEY_ID:-01}"
 
+PROJECT_ROOT="$(pwd)"
 mkdir -p lab/work
-cd lab/csharp/Pkcs11Demo
-PKCS11_OUTPUT_DIR=/workspace/lab/work dotnet run --configuration Release
+( cd lab/csharp/Pkcs11Demo && PKCS11_OUTPUT_DIR="$PROJECT_ROOT/lab/work" dotnet run --configuration Release )
 
-cd /workspace
+cd "$PROJECT_ROOT"
 pkcs11-tool \
   --module "$MODULE" \
   --token-label "$LABEL" \

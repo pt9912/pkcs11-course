@@ -4,11 +4,11 @@ MODULE="${PKCS11_MODULE:-/usr/lib/softhsm/libsofthsm2.so}"
 LABEL="${PKCS11_TOKEN_LABEL:-dev-token}"
 KEY_ID="${PKCS11_KEY_ID:-01}"
 
+PROJECT_ROOT="$(pwd)"
 mkdir -p lab/work
-cd lab/go/pkcs11-demo
-PKCS11_OUTPUT_DIR=/workspace/lab/work go run .
+( cd lab/go/pkcs11-demo && PKCS11_OUTPUT_DIR="$PROJECT_ROOT/lab/work" go run . )
 
-cd /workspace
+cd "$PROJECT_ROOT"
 pkcs11-tool \
   --module "$MODULE" \
   --token-label "$LABEL" \

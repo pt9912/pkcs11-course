@@ -22,8 +22,10 @@ make verify
 ## Signieren
 
 ```bash
-lab/scripts/06-sign.sh
+make sign
 ```
+
+(Direktaufruf `lab/scripts/06-sign.sh` funktioniert ebenfalls, umgeht aber die `init-token` / `gen-rsa`-Dependency-Kette aus dem Makefile.)
 
 Das Skript:
 
@@ -35,7 +37,7 @@ Das Skript:
 ## Verifizieren
 
 ```bash
-lab/scripts/07-verify.sh
+make verify
 ```
 
 Die Verifikation passiert mit OpenSSL außerhalb des Tokens. Das ist wichtig: Signieren braucht den privaten Schlüssel. Verifizieren braucht nur den Public Key.
@@ -44,6 +46,6 @@ Die Verifikation passiert mit OpenSSL außerhalb des Tokens. Das ist wichtig: Si
 
 Wenn du mit `SHA256-RSA-PKCS` signierst, darfst du nicht noch einmal anders hashen oder mit falschem Padding verifizieren. Anwendung und Token müssen dieselbe Signatursemantik verwenden.
 
-## Naechste Uebung
+## Eigenexperiment
 
-Ändere den Mechanism testweise auf einen nicht unterstützten oder falschen Mechanism. Beobachte die Fehlermeldung. Genau so sieht HSM-Debugging im echten Leben aus.
+Ändere den Mechanism testweise auf einen nicht unterstützten oder falschen Mechanism. Beobachte die Fehlermeldung. Genau so sieht HSM-Debugging im echten Leben aus. Strukturierte Aufgaben dazu findest du in [`exercises/02-key-signature.md`](../exercises/02-key-signature.md).

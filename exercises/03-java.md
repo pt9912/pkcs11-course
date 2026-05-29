@@ -6,11 +6,7 @@ Du bindest denselben Token ueber Java JCA/JCE an und siehst, warum Java fuer Pri
 
 ## Vorbereitung
 
-```bash
-make init-token
-make gen-rsa
-make import-cert
-```
+Keine. `make java-demo` haengt selbst an `import-cert -> gen-rsa -> init-token` und stellt den Zustand her, falls noch nicht vorhanden.
 
 ## Aufgabe
 
@@ -34,11 +30,17 @@ make import-cert
 
 ## Fehlerfall
 
-1. Setze in `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg` testweise einen falschen `library`-Pfad.
-2. Starte `make java-demo`.
-3. Stelle den korrekten Pfad danach wieder her.
+Setze `PKCS11_LIBRARY` auf einen nicht existierenden Pfad und starte die Java-Demo direkt — so bleibt die getrackte `softhsm.cfg` unveraendert und die `import-cert`-Kette wird umgangen:
 
-Erwartet: Der Fehler tritt bereits beim Provider-Load auf, nicht erst beim Signieren.
+```bash
+PKCS11_LIBRARY=/nicht/da docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_LIBRARY \
+  pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run'
+```
+
+(Im Devcontainer reicht `PKCS11_LIBRARY=/nicht/da (cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run)`.)
+
+Erwartet: Der Fehler tritt bereits beim Provider-Load auf, nicht erst beim Signieren — der `reportFailure`-Helper im Demo druckt die `ProviderException`-Kette inklusive `CKR_*`-Code.
 
 Optional: Loesche das Zertifikat direkt und starte die Java-Demo ohne das Make-Target, damit `import-cert` nicht automatisch repariert. Die genaue Befehlsfolge steht in `solutions/03-java.md`.
 

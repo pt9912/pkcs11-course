@@ -10,12 +10,16 @@ var outputDir = Env("PKCS11_OUTPUT_DIR", "/workspace/lab/work");
 var data = Encoding.UTF8.GetBytes("hello from csharp pkcs11");
 var keyId = new byte[] { 0x01 };
 
+// PIN als byte[] (UTF-8) an C_Login uebergeben — entspricht dem PKCS#11-Vertrag
+// und passt zu den anderen Demos.
+var pinBytes = Encoding.UTF8.GetBytes(pin);
+
 var factories = new Pkcs11InteropFactories();
 using var library = factories.Pkcs11LibraryFactory.LoadPkcs11Library(factories, modulePath, AppType.MultiThreaded);
 var slot = FindSlot(library, tokenLabel);
 
 using var session = slot.OpenSession(SessionType.ReadWrite);
-session.Login(CKU.CKU_USER, pin);
+session.Login(CKU.CKU_USER, pinBytes);
 try
 {
     var key = FindPrivateKey(session, factories, keyId);

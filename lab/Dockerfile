@@ -93,25 +93,19 @@ ENV DOTNET_CLI_HOME=/workspace/.dotnet
 FROM pkcs11-csharp AS pkcs11-dev
 
 ARG GRADLE_VERSION=8.12.1
-ARG GO_VERSION=1.26.3
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    curl \
     gcc \
     libc6-dev \
     openjdk-21-jdk-headless \
-    tar \
-    unzip \
-    && curl -fsSL -o /tmp/gradle.zip \
-        https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
-    && unzip -q /tmp/gradle.zip -d /opt \
-    && ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
-    && rm /tmp/gradle.zip \
-    && curl -fsSL -o /tmp/go.tgz \
-        https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf /tmp/go.tgz \
-    && ln -sf /usr/local/go/bin/go /usr/local/bin/go \
-    && ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt \
-    && rm /tmp/go.tgz \
     && rm -rf /var/lib/apt/lists/*
+
+# Gradle und Go aus den vorgelagerten Stages uebernehmen, damit der Layer
+# nicht ein zweites Mal heruntergeladen/installiert wird.
+COPY --from=pkcs11-gradle /opt/gradle-${GRADLE_VERSION} /opt/gradle-${GRADLE_VERSION}
+COPY --from=pkcs11-go /usr/local/go /usr/local/go
+RUN ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
+    && ln -sf /usr/local/go/bin/go /usr/local/bin/go \
+    && ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+
 ENV GRADLE_USER_HOME=/workspace/.gradle
 ENV PATH="/usr/local/go/bin:${PATH}"

@@ -60,7 +60,7 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
 ## Verifizieren (OpenSSL)
 
 ```bash
-# Public Key aus Token holen
+# Public Key aus Token holen (Login je nach Token-Policy noetig)
 pkcs11-tool --module $MODULE --token-label $TOKEN \
   --read-object --type pubkey --id 01 --output-file public.der
 
@@ -73,7 +73,9 @@ openssl dgst -sha256 \
   -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:-1 \
   -verify public.pem -signature data.sig data.txt
 
-# EC
+# EC — vorher Public Key des EC-Slots extrahieren
+pkcs11-tool --module $MODULE --token-label $TOKEN \
+  --read-object --type pubkey --id 02 --output-file public-ec.der
 openssl ec -pubin -inform DER -in public-ec.der -out public-ec.pem
 openssl dgst -sha256 -verify public-ec.pem -signature data.sig data.txt
 ```
@@ -96,3 +98,4 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
 - ECDSA-Signaturen brauchen `--signature-format openssl` für OpenSSL-Verifikation.
 - PSS: Hash und MGF müssen auf beiden Seiten identisch sein.
 - Private Key und Zertifikat müssen dieselbe `CKA_ID` haben, sonst kein Java-Alias.
+- `--read-object --type pubkey` kann auf Tokens mit `CKA_PRIVATE=TRUE`-Pubkeys ein `--login --pin $PIN` erfordern.

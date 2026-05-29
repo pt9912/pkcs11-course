@@ -32,14 +32,22 @@ Verified OK
 
 ## Fehler pruefen
 
+`make csharp-demo` haengt an `gen-rsa -> init-token`. Wenn ENV-Werte umgestellt werden, kann eine Vorstufe stoppen, bevor .NET ueberhaupt laeuft. Daher Vorstufe sauber rendern und nur die Demo direkt starten:
+
 ```bash
-PKCS11_MODULE=/does/not/exist.so make csharp-demo
+make init-token gen-rsa
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_MODULE=/does/not/exist.so \
+  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
 ```
 
 Erwartet: Library-Load-Fehler vor Login oder Signatur.
 
 ```bash
-PKCS11_USER_PIN=000000 make csharp-demo
+make init-token gen-rsa
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_USER_PIN=000000 \
+  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
 ```
 
-Erwartet: `CKR_PIN_INCORRECT`.
+Erwartet: `CKR_PIN_INCORRECT` aus `Session.Login`.

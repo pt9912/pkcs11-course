@@ -18,6 +18,17 @@ fi
 
 KEY_URI="pkcs11:token=${LABEL};object=${KEY_LABEL};type=private;pin-value=${PIN}"
 
+# pkcs11.so liegt distributions-abhaengig (Debian/Ubuntu: engines-3 unter triplet,
+# Fedora/Suse: engines-3 unter lib64). Erste Treffer-Datei gewinnt.
+PKCS11_ENGINE="${PKCS11_ENGINE_PATH:-}"
+if [ -z "$PKCS11_ENGINE" ]; then
+  PKCS11_ENGINE="$(find /usr/lib /usr/lib64 -maxdepth 5 -type f -name pkcs11.so -path '*engines*' 2>/dev/null | head -n 1 || true)"
+fi
+if [ -z "$PKCS11_ENGINE" ]; then
+  echo "pkcs11-Engine nicht gefunden. PKCS11_ENGINE_PATH explizit setzen." >&2
+  exit 1
+fi
+
 OPENSSL_CONF="$(mktemp)"
 trap 'rm -f "$OPENSSL_CONF"' EXIT
 cat > "$OPENSSL_CONF" <<EOF
@@ -31,7 +42,7 @@ pkcs11 = pkcs11_section
 
 [pkcs11_section]
 engine_id = pkcs11
-dynamic_path = /usr/lib/x86_64-linux-gnu/engines-3/pkcs11.so
+dynamic_path = ${PKCS11_ENGINE}
 MODULE_PATH = ${MODULE}
 init = 0
 EOF

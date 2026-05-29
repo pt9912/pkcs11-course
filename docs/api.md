@@ -105,6 +105,8 @@ CHECK(p11->C_Initialize(NULL));
 initialized = CK_TRUE;
 
 CK_SLOT_ID slot = 0;            /* echter Wert via C_GetSlotList ermitteln */
+/* CKF_SERIAL_SESSION ist von der Spec vorgeschrieben (Legacy-Bit, muss immer gesetzt sein),
+ * CKF_RW_SESSION nur, wenn schreibende Operationen wie Login als USER + Objekterzeugung kommen. */
 CHECK(p11->C_OpenSession(slot, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL, NULL, &s));
 sessionOpen = CK_TRUE;
 CHECK(p11->C_Login(s, CKU_USER, (CK_UTF8CHAR*)"987654", 6));
@@ -179,10 +181,11 @@ Für RSA-PSS braucht `mech.pParameter` zusätzlich eine `CK_RSA_PKCS_PSS_PARAMS`
 |---|---|---|
 | `CKM_RSA_PKCS_KEY_PAIR_GEN` | RSA-Keypair erzeugen | `CKA_MODULUS_BITS`, `CKA_PUBLIC_EXPONENT` setzen |
 | `CKM_EC_KEY_PAIR_GEN` | EC-Keypair erzeugen | `CKA_EC_PARAMS` = DER-OID der Kurve |
-| `CKM_RSA_PKCS` | RSA-PKCS#1 v1.5, **ohne Hashing** | Anwendung muss DigestInfo selbst bauen |
+| `CKM_RSA_PKCS` | RSA-PKCS#1 v1.5, **ohne Hashing** | Input <= Modulus-Laenge minus 11 Bytes; fuer "SHA-x-with-RSA" baut die Anwendung die DigestInfo selbst |
 | `CKM_SHA256_RSA_PKCS` | RSA-PKCS#1 v1.5, Token hasht | Bevorzugen |
-| `CKM_RSA_PKCS_PSS`, `CKM_SHA256_RSA_PKCS_PSS` | RSA-PSS | `CK_RSA_PKCS_PSS_PARAMS` ist Pflicht |
-| `CKM_ECDSA` | ECDSA über vorgehashte Daten | Ergebnis ist `r\|\|s`, **nicht** DER |
+| `CKM_RSA_PKCS_PSS` | RSA-PSS auf vorgehashtem Input | Hash mit Anwendung; `CK_RSA_PKCS_PSS_PARAMS` ist Pflicht |
+| `CKM_SHA256_RSA_PKCS_PSS` | RSA-PSS, Token hasht | bevorzugen; `CK_RSA_PKCS_PSS_PARAMS` ist Pflicht |
+| `CKM_ECDSA` | ECDSA über vorgehashte Daten | Input-Laenge = Curve-Order-Laenge (links truncated/zero-padded liegt in der Verantwortung der Anwendung); Ergebnis ist `r\|\|s`, **nicht** DER |
 | `CKM_ECDSA_SHA256` | ECDSA inkl. Hashing | Ergebnis ist `r\|\|s` |
 | `CKM_AES_GCM` | AES-GCM | Parameter `CK_GCM_PARAMS` |
 | `CKM_SHA256` | reines Hashing | für Digest-Operationen |
@@ -321,11 +324,13 @@ Java spricht nicht direkt mit dem nativen Modul, sondern registriert einen JCA-P
 
 ### Konfigurationsdatei
 
-```properties
+```text
 name = SoftHSM
 library = /usr/lib/softhsm/libsofthsm2.so
 slotListIndex = 0
 ```
+
+Das Format ist die NSS-aehnliche SunPKCS11-Config (Oracle PKCS#11 Reference Guide §Configuration File), nicht das Java-`.properties`-Format — `attributes = { ... }`-Bloecke sind erlaubt, Escaping ist anders.
 
 Der finale Providername wird `SunPKCS11-SoftHSM`. `slotListIndex` ist für das Lab einfach, in echten Setups aber fragil, weil sich Slot-Reihenfolgen ändern können.
 

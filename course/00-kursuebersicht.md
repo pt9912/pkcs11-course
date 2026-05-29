@@ -32,8 +32,9 @@ Am Ende kannst du:
 | 7 | `12-sprachbindings.md` | Java, Go, Kotlin und C# vergleichen |
 | 8 | `08-debugging.md` | Fehler systematisch isolieren |
 | 9 | `11-ec-und-pss.md` | ECDSA und RSA-PSS ergaenzen |
-| 10 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
-| 11 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 10 | `07-service-integration.md` | Signatur-Service als Architektur-Skizze |
+| 11 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
+| 12 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

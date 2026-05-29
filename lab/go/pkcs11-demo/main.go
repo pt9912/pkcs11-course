@@ -33,7 +33,7 @@ func run() error {
 	if err := p11.Initialize(); err != nil {
 		return fmt.Errorf("C_Initialize: %w", err)
 	}
-	defer p11.Finalize()
+	defer func() { logIfError("C_Finalize", p11.Finalize()) }()
 
 	slot, err := findSlot(p11, tokenLabel)
 	if err != nil {
@@ -44,12 +44,12 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("C_OpenSession: %w", err)
 	}
-	defer p11.CloseSession(session)
+	defer func() { logIfError("C_CloseSession", p11.CloseSession(session)) }()
 
 	if err := p11.Login(session, pkcs11.CKU_USER, pin); err != nil {
 		return fmt.Errorf("C_Login: %w", err)
 	}
-	defer p11.Logout(session)
+	defer func() { logIfError("C_Logout", p11.Logout(session)) }()
 
 	key, err := findPrivateKey(p11, session, keyID)
 	if err != nil {
@@ -126,4 +126,12 @@ func env(name, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+// logIfError druckt Teardown-Fehler nach stderr, damit CKR_-Codes
+// nicht in defer-Aufrufen verschwinden. Der Hauptpfad behaelt seinen Exit-Code.
+func logIfError(op string, err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warnung: %s: %v\n", op, err)
+	}
 }

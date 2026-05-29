@@ -18,3 +18,7 @@ Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 3. Existiert fuer Java/Kotlin ein Zertifikat mit derselben `CKA_ID`?
 4. Passt der Mechanism zur Verifikation?
 5. Laeuft der Befehl im Devcontainer oder ausserhalb ueber Docker Compose?
+
+Hinweis: Die Sprach-Demos haben unterschiedliche Output-Konventionen. Java und Kotlin verifizieren die Signatur intern in der JVM (`Verifikation: true`); Go und C# delegieren die Verifikation an einen anschliessenden `openssl dgst -verify`-Aufruf im Lab-Skript (`Verified OK`). Es ist also normal, dass die Logzeilen nicht identisch aussehen.
+
+Wenn eine Aufgabe einen Fehlerfall ueber eine ENV-Variable (z. B. `PKCS11_USER_PIN=000000`) ausloest, fuehre die Vorstufe (`make init-token gen-rsa [import-cert]`) zuerst mit den echten Werten aus und starte erst dann die Sprach-Demo direkt — sonst stoppt schon die Make-Dependency-Kette und der Fehler erscheint nicht in der Sprache, in der er beobachtet werden soll.

@@ -36,21 +36,29 @@ make gen-rsa
 
 ## Fehlerfall
 
-Nutze einen falschen Modulpfad:
+Modul- oder PIN-Manipulation ueber `make csharp-demo` wuerde an der Dependency-Kette `gen-rsa -> init-token` scheitern, bevor C# laeuft. Vorstufe daher mit echten Werten starten und nur die .NET-Demo umschalten.
+
+Falscher Modulpfad:
 
 ```bash
-PKCS11_MODULE=/does/not/exist.so make csharp-demo
+make init-token gen-rsa
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_MODULE=/does/not/exist.so \
+  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
 ```
 
-Erwartet: Ein klarer Library-Load-Fehler vor Login oder Signatur.
+Erwartet: Klarer Library-Load-Fehler vor Login oder Signatur.
 
-Optional:
+Falsche PIN:
 
 ```bash
-PKCS11_USER_PIN=000000 make csharp-demo
+make init-token gen-rsa
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_USER_PIN=000000 \
+  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
 ```
 
-Erwartet: `CKR_PIN_INCORRECT`.
+Erwartet: `CKR_PIN_INCORRECT` als Pkcs11Exception aus `Session.Login`.
 
 ## Reflexionsfragen
 

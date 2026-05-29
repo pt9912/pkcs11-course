@@ -35,13 +35,18 @@ make import-cert
 
 ## Fehlerfall
 
-Nutze eine falsche PIN:
+`PKCS11_USER_PIN=000000 make kotlin-demo` wuerde schon in der Dependency-Kette `import-cert -> gen-rsa -> init-token` aussteigen. Damit der Fehler in der Kotlin-Demo selbst sichtbar wird, Vorstufe mit echter PIN laufen lassen und nur die Demo umschalten:
 
 ```bash
-PKCS11_USER_PIN=000000 make kotlin-demo
+make init-token gen-rsa import-cert
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_USER_PIN=000000 \
+  pkcs11-kotlin bash -lc 'cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run'
 ```
 
-Erwartet: Login-Fehler beim `KeyStore.load`.
+(Im Devcontainer: `make init-token gen-rsa import-cert && PKCS11_USER_PIN=000000 (cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run)`.)
+
+Erwartet: Der `reportFailure`-Helper druckt eine `ProviderException`-Kette mit `CKR_PIN_INCORRECT` beim `KeyStore.load`.
 
 Optional: Loesche das Zertifikat, aber lasse den privaten Key im Token. Erwartet: Der Alias ist nicht mehr als Private-Key-Alias sichtbar.
 
