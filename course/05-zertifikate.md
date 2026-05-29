@@ -27,7 +27,7 @@ make import-cert
 
 Wichtige Bausteine im Skript:
 
-- PKCS#11-URI nach RFC 7512: `pkcs11:token=dev-token;object=signing-key;type=private;pin-value=...`
+- PKCS#11-URI: `pkcs11:token=dev-token;object=signing-key;type=private;pin-value=...` — libp11-Kurzform mit `pin-value` im Pfad, nicht streng RFC 7512 (portabel wäre `?pin-source=…` nach dem `?`). Siehe [docs/api.md §4.3](../docs/api.md#43-pkcs11-uri-nach-rfc-7512).
 - OpenSSL 3 lädt die Engine `pkcs11` über eine `openssl.cnf`-Section, die das Skript temporär anlegt.
 
 In Produktion erzeugst du normalerweise keinen Self-Signed-Cert, sondern einen CSR im HSM, lässt ihn von einer CA signieren und importierst dann das CA-signierte Zertifikat.

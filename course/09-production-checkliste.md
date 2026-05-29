@@ -30,7 +30,7 @@
 ## Sicherheitsregeln
 
 - Keine PINs in Git.
-- Keine Private Keys exportieren (`CKA_SENSITIVE=true`, `CKA_EXTRACTABLE=false`).
+- Keine Private Keys exportieren (`CKA_SENSITIVE=TRUE`, `CKA_EXTRACTABLE=FALSE`).
 - Mechanisms begrenzen (nur erlaubte `CKM_*`).
 - Rollen trennen: Admin, Operator, Anwendung, Auditor.
 - Test- und Produktions-HSM strikt trennen.
@@ -50,7 +50,7 @@
 |---|---|---|
 | AWS CloudHSM | PKCS#11, JCE, KMIP | Cluster, Mandant pro VPC |
 | Azure Managed HSM | PKCS#11 über `azure-keyvault-pkcs11`, REST | Rollenmodell über Azure RBAC |
-| Google Cloud HSM | KMS-API mit PKCS#11-Bridge | Keys nur über KMS-API ansprechbar |
+| Google Cloud HSM | PKCS#11-Provider (`libkmsp11`) als Wrapper über die KMS-API | Auth über Service-Account, Keys leben in Cloud KMS |
 | Thales DPoD | PKCS#11 | Subscription, Cloud-natives Partitionsmodell |
 
 Bei Cloud-HSMs ist die PKCS#11-Bibliothek meist proprietär und braucht zusätzliche Auth-Schritte (Cluster-Cert, IAM-Token). Tests auf SoftHSM übertragen sich nicht 1:1.

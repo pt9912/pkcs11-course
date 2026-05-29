@@ -14,7 +14,7 @@ library = /usr/lib/softhsm/libsofthsm2.so
 slotListIndex = 0
 ```
 
-Der finale Provider-Name wird daraus `SunPKCS11-SoftHSM`. In echten Setups ist `slotListIndex` fragil. Besser ist oft eine Token-Label-basierte Auswahl, sofern der Provider/Stack das sauber unterstützt.
+Der finale Provider-Name wird daraus `SunPKCS11-SoftHSM`. In echten Setups ist `slotListIndex` fragil. Besser ist eine Token-Label-basierte Auswahl — OpenJDKs SunPKCS11 kennt dafür kein portables Property, also entweder vorgelagerte Slot-Ermittlung (`C_GetSlotList`/`C_GetTokenInfo` mit Label-Match) oder ein Stack mit eigener Label-Auswahl wie der IAIK-PKCS11-Provider. Siehe [docs/api.md §5](../docs/api.md#5-java-sunpkcs11).
 
 ## Voraussetzungen
 

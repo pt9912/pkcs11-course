@@ -14,7 +14,7 @@ Wichtig: PKCS#11 ist kein Zertifikatsformat und kein Keystore-Format. Es ist ein
 | Slot | Logischer Steckplatz, in dem ein Token vorhanden sein kann |
 | Token | Kryptografischer Container mit Objekten |
 | Session | Verbindung einer Anwendung zu einem Slot/Token |
-| Login | Authentifizierung an einer Session mit User-PIN |
+| Login | Authentifizierung mit User-PIN — gilt pro Slot, nicht pro Session (andere Sessions auf demselben Slot erben den Login-State) |
 | Object | Key, Zertifikat oder Datenobjekt im Token |
 | Mechanism | Kryptografischer Algorithmus/Modus, z. B. `SHA256-RSA-PKCS` |
 | Attribute | Eigenschaften eines Objekts, z. B. `CKA_SIGN`, `CKA_ID`, `CKA_LABEL` |
@@ -38,7 +38,7 @@ Anwendung
 
 ## Wichtige Unterscheidung
 
-- `CKM_RSA_PKCS`: rohes RSA-PKCS#1-v1.5-Signieren. Hashing musst du selbst machen.
+- `CKM_RSA_PKCS`: rohes RSA-PKCS#1-v1.5-Signieren. Die Anwendung muss eine vollständige DigestInfo (`SEQUENCE { algorithm OID, OCTET STRING hash }`) liefern — nicht nur den nackten Hash.
 - `CKM_SHA256_RSA_PKCS`: Token hasht und signiert.
 - `CKM_RSA_PKCS_PSS`: RSA-PSS, moderne Signaturvariante, aber Details wie Salt-Länge und MGF-Hash müssen passen.
 - `CKM_ECDSA_SHA256`: ECDSA mit SHA-256 auf einer EC-Kurve, kleiner und schneller als RSA.

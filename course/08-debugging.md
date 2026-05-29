@@ -13,8 +13,8 @@
 | `CKR_KEY_TYPE_INCONSISTENT` | Algorithmus passt nicht zum Key |
 | `CKR_ATTRIBUTE_VALUE_INVALID` | Objektattribute nicht erlaubt |
 | `CKR_OBJECT_HANDLE_INVALID` | Objekt nicht in dieser Session gültig |
-| `CKR_SIGNATURE_INVALID` | Signaturprüfung im Token gescheitert |
-| `CKR_TEMPLATE_INCONSISTENT` | Attribut-Kombination ist ungültig (z. B. `CKA_SIGN` und `CKA_DECRYPT`) |
+| `CKR_SIGNATURE_INVALID` | Signaturprüfung gescheitert — tritt nur bei Verify auf, nie beim Signer |
+| `CKR_TEMPLATE_INCONSISTENT` | Attribute widersprechen sich (z. B. `CKA_KEY_TYPE=CKK_RSA` zusammen mit `CKA_EC_PARAMS`, oder Nutzungsflags, die der Mechanismus nicht erlaubt) |
 
 ## Mechanism-Namen über Stacks hinweg
 
@@ -41,13 +41,22 @@ Dieselbe Operation hat in jedem Tool einen anderen Namen. Diese Tabelle spart vi
 
 ## OpenSC Spy
 
-OpenSC bietet `pkcs11-spy`, um PKCS#11-Aufrufe zu protokollieren:
+OpenSC bietet `pkcs11-spy`, um PKCS#11-Aufrufe zu protokollieren. Die Mechanik: Die Anwendung lädt `pkcs11-spy.so` **als Modul**, `PKCS11SPY` zeigt auf das echte Backend, das der Spy dann durchreicht und mitprotokolliert.
 
 ```bash
+# CLI-Beispiel
 PKCS11SPY=/usr/lib/softhsm/libsofthsm2.so \
 PKCS11SPY_OUTPUT=/tmp/spy.log \
-  java -Dsun.security.pkcs11.allowSingleThreadedModules=true ...
+  pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/pkcs11-spy.so --list-slots
 ```
+
+Für Java entsprechend in der SunPKCS11-Config:
+
+```properties
+library = /usr/lib/x86_64-linux-gnu/pkcs11/pkcs11-spy.so
+```
+
+und `PKCS11SPY` zeigt aus dem Java-Prozess auf das echte Modul.
 
 Mächtig, aber gefährlich: Logs können sensitive Metadaten enthalten. Nicht in Produktion anschalten, außer du weißt genau, was du tust.
 
