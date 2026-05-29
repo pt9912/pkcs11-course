@@ -30,6 +30,9 @@ make sign
 make verify
 make import-cert
 make java-demo
+make go-demo
+make kotlin-demo
+make csharp-demo
 
 # Optional: moderne Mechanismen
 make gen-ec

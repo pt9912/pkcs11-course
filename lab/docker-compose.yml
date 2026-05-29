@@ -1,14 +1,43 @@
 services:
-  pkcs11-lab:
+  pkcs11-lab: &pkcs11-lab
     build:
       context: .
       dockerfile: Dockerfile
+      target: pkcs11-java
     volumes:
       - ..:/workspace
       - softhsm-tokens:/var/lib/softhsm/tokens
     working_dir: /workspace
     tty: true
     stdin_open: true
+
+  pkcs11-go:
+    <<: *pkcs11-lab
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: pkcs11-go
+
+  pkcs11-kotlin:
+    <<: *pkcs11-lab
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: pkcs11-kotlin
+
+  pkcs11-csharp:
+    <<: *pkcs11-lab
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: pkcs11-csharp
+
+  pkcs11-dev:
+    <<: *pkcs11-lab
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: pkcs11-dev
 
 volumes:
   softhsm-tokens:

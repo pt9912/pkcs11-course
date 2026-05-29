@@ -4,7 +4,16 @@ lab/work/*
 
 # Maven
 lab/java/pkcs11-demo/target/
+lab/kotlin/pkcs11-demo/target/
+lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 *.class
+
+# Go
+lab/go/pkcs11-demo/pkcs11-demo
+
+# .NET
+lab/csharp/Pkcs11Demo/bin/
+lab/csharp/Pkcs11Demo/obj/
 
 # IDEs
 .idea/

@@ -1,11 +1,14 @@
 {
   "name": "PKCS11 Course",
   "dockerComposeFile": "../lab/docker-compose.yml",
-  "service": "pkcs11-lab",
+  "service": "pkcs11-dev",
   "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
       "extensions": [
+        "golang.go",
+        "fwcd.kotlin",
+        "ms-dotnettools.csharp",
         "vscjava.vscode-java-pack",
         "redhat.vscode-yaml"
       ]

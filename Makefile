@@ -1,4 +1,4 @@
-.PHONY: build shell init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo clean
+.PHONY: build shell init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo clean
 
 build:
 	docker compose -f lab/docker-compose.yml build
@@ -45,6 +45,15 @@ sign-pss:
 java-demo: import-cert
 	docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && mvn -q package && java -jar target/pkcs11-demo-1.0.0.jar'
 
+go-demo: gen-rsa
+	docker compose -f lab/docker-compose.yml run --rm pkcs11-go bash -lc 'lab/scripts/13-go-demo.sh'
+
+kotlin-demo: import-cert
+	docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash -lc 'lab/scripts/14-kotlin-demo.sh'
+
+csharp-demo: gen-rsa
+	docker compose -f lab/docker-compose.yml run --rm pkcs11-csharp bash -lc 'lab/scripts/15-csharp-demo.sh'
+
 clean:
 	docker compose -f lab/docker-compose.yml down -v
-	rm -rf lab/work/* lab/java/pkcs11-demo/target
+	rm -rf lab/work/* lab/java/pkcs11-demo/target lab/kotlin/pkcs11-demo/target lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj
