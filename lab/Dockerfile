@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
     openssl \
     p11-kit \
     softhsm2 \
-    tree \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/lib/softhsm/tokens /workspace/lab/work

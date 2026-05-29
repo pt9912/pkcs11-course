@@ -7,6 +7,21 @@ KEY_ID="${PKCS11_KEY_ID:-01}"
 mkdir -p lab/work
 printf 'hello pkcs11 pss\n' > lab/work/data-pss.txt
 
+# Public Key self-contained besorgen: aus dem Token exportieren und in PEM wandeln,
+# damit das Skript unabhaengig von 'make sign'/'make verify' laeuft.
+if [ ! -f lab/work/public.der ]; then
+  pkcs11-tool \
+    --module "$MODULE" \
+    --token-label "$LABEL" \
+    --read-object \
+    --type pubkey \
+    --id "$KEY_ID" \
+    --output-file lab/work/public.der
+fi
+if [ ! -f lab/work/public.pem ] || [ lab/work/public.der -nt lab/work/public.pem ]; then
+  openssl rsa -pubin -inform DER -in lab/work/public.der -out lab/work/public.pem 2>/dev/null
+fi
+
 pkcs11-tool \
   --module "$MODULE" \
   --login \

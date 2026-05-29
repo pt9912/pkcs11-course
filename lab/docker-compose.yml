@@ -8,6 +8,7 @@ services:
       - softhsm-tokens:/var/lib/softhsm/tokens
     working_dir: /workspace
     tty: true
+    stdin_open: true
 
 volumes:
   softhsm-tokens:

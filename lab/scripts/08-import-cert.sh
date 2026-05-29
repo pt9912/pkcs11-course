@@ -19,6 +19,7 @@ fi
 KEY_URI="pkcs11:token=${LABEL};object=${KEY_LABEL};type=private;pin-value=${PIN}"
 
 OPENSSL_CONF="$(mktemp)"
+trap 'rm -f "$OPENSSL_CONF"' EXIT
 cat > "$OPENSSL_CONF" <<EOF
 openssl_conf = openssl_init
 
@@ -42,8 +43,6 @@ OPENSSL_CONF="$OPENSSL_CONF" openssl req \
   -sha256 \
   -subj "$SUBJECT" \
   -out lab/work/cert.pem
-
-rm -f "$OPENSSL_CONF"
 
 openssl x509 -in lab/work/cert.pem -outform DER -out lab/work/cert.der
 

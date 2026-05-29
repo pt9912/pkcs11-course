@@ -8,6 +8,8 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.cert.Certificate;
+import java.security.interfaces.ECKey;
+import java.security.interfaces.RSAKey;
 import java.util.Base64;
 import java.util.Enumeration;
 
@@ -20,6 +22,8 @@ public final class Pkcs11Demo {
                 "PKCS11_JAVA_CONFIG",
                 "src/main/resources/softhsm.cfg"
         );
+        String mechanism = System.getenv().getOrDefault("PKCS11_MECHANISM", "SHA256withRSA");
+        String preferredAlias = System.getenv("PKCS11_KEY_ALIAS");
 
         Provider base = Security.getProvider("SunPKCS11");
         if (base == null) {
@@ -30,15 +34,18 @@ public final class Pkcs11Demo {
         Security.addProvider(provider);
 
         System.out.println("Provider: " + provider.getName());
+        System.out.println("Mechanismus: " + mechanism);
 
         KeyStore keyStore = KeyStore.getInstance("PKCS11", provider);
         keyStore.load(null, pin.toCharArray());
 
-        String alias = findPrivateKeyAlias(keyStore);
+        String alias = findPrivateKeyAlias(keyStore, mechanism, preferredAlias);
         if (alias == null) {
-            System.err.println("Kein Private-Key-Alias im PKCS#11-KeyStore sichtbar.");
-            System.err.println("Ein Zertifikat mit derselben CKA_ID wie der Private Key fehlt im Token.");
-            System.err.println("Importiere zuerst: make import-cert");
+            System.err.println("Kein passender Private-Key-Alias im PKCS#11-KeyStore sichtbar.");
+            System.err.println("Moegliche Ursachen:");
+            System.err.println("- Kein Zertifikat mit derselben CKA_ID wie der Private Key (make import-cert)");
+            System.err.println("- Key-Typ passt nicht zum Mechanismus '" + mechanism + "'");
+            System.err.println("- PKCS11_KEY_ALIAS zeigt auf einen nicht existierenden Alias");
             System.exit(2);
         }
 
@@ -52,8 +59,8 @@ public final class Pkcs11Demo {
 
         byte[] data = "hello from java pkcs11".getBytes(StandardCharsets.UTF_8);
 
-        byte[] signature = sign(provider, privateKey, data);
-        boolean ok = verify(publicKey, data, signature);
+        byte[] signature = sign(provider, privateKey, mechanism, data);
+        boolean ok = verify(publicKey, mechanism, data, signature);
 
         System.out.println("Alias: " + alias);
         System.out.println("Signatur (Base64): " + Base64.getEncoder().encodeToString(signature));
@@ -64,7 +71,7 @@ public final class Pkcs11Demo {
         }
     }
 
-    private static String findPrivateKeyAlias(KeyStore keyStore) throws Exception {
+    private static String findPrivateKeyAlias(KeyStore keyStore, String mechanism, String preferred) throws Exception {
         System.out.println("Aliase im PKCS#11-KeyStore:");
         Enumeration<String> aliases = keyStore.aliases();
         String found = null;
@@ -75,7 +82,13 @@ public final class Pkcs11Demo {
             boolean isKey = keyStore.isKeyEntry(alias);
             boolean isCert = keyStore.isCertificateEntry(alias);
             System.out.println("- " + alias + " key=" + isKey + " cert=" + isCert);
-            if (found == null && isKey) {
+            if (!isKey) {
+                continue;
+            }
+            if (preferred != null && preferred.equals(alias)) {
+                return alias;
+            }
+            if (preferred == null && found == null && matchesMechanism(keyStore.getKey(alias, null), mechanism)) {
                 found = alias;
             }
         }
@@ -85,15 +98,26 @@ public final class Pkcs11Demo {
         return found;
     }
 
-    private static byte[] sign(Provider provider, PrivateKey privateKey, byte[] data) throws Exception {
-        Signature signature = Signature.getInstance("SHA256withRSA", provider);
+    private static boolean matchesMechanism(java.security.Key key, String mechanism) {
+        String m = mechanism.toUpperCase();
+        if (m.contains("RSA")) {
+            return key instanceof RSAKey;
+        }
+        if (m.contains("ECDSA") || m.contains("WITHECDSA")) {
+            return key instanceof ECKey;
+        }
+        return true;
+    }
+
+    private static byte[] sign(Provider provider, PrivateKey privateKey, String mechanism, byte[] data) throws Exception {
+        Signature signature = Signature.getInstance(mechanism, provider);
         signature.initSign(privateKey);
         signature.update(data);
         return signature.sign();
     }
 
-    private static boolean verify(PublicKey publicKey, byte[] data, byte[] signature) throws Exception {
-        Signature verifier = Signature.getInstance("SHA256withRSA");
+    private static boolean verify(PublicKey publicKey, String mechanism, byte[] data, byte[] signature) throws Exception {
+        Signature verifier = Signature.getInstance(mechanism);
         verifier.initVerify(publicKey);
         verifier.update(data);
         return verifier.verify(signature);

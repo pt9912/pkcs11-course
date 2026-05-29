@@ -33,7 +33,7 @@ make verify-ec
 
 ## RSA-PSS im Lab
 
-Voraussetzung: RSA-Key existiert (`make gen-rsa`). Für die spätere OpenSSL-Verifikation wird zusätzlich der Public Key als DER-Datei in `lab/work/` benötigt — `make sign` erzeugt diesen Export als Nebenprodukt, also vorher einmal `make sign` laufen lassen.
+Voraussetzung: RSA-Key existiert (`make gen-rsa`). Das Skript exportiert den Public Key bei Bedarf selbst aus dem Token und konvertiert ihn nach PEM für die OpenSSL-Verifikation.
 
 ```bash
 make sign-pss

@@ -7,7 +7,8 @@ EC_LABEL="${PKCS11_EC_LABEL:-ec-signing-key}"
 EC_ID="${PKCS11_EC_ID:-02}"
 CURVE="${PKCS11_EC_CURVE:-secp256r1}"
 
-if pkcs11-tool --module "$MODULE" --login --pin "$PIN" --token-label "$LABEL" --list-objects 2>/dev/null | grep -q "$EC_LABEL"; then
+if pkcs11-tool --module "$MODULE" --login --pin "$PIN" --token-label "$LABEL" --list-objects 2>/dev/null \
+   | awk '/^Private Key Object/,/^$/' | grep -q "label:[[:space:]]*${EC_LABEL}$"; then
   echo "EC-Key '$EC_LABEL' existiert bereits."
   exit 0
 fi
