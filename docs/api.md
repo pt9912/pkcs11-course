@@ -96,17 +96,21 @@ CK_BBOOL initialized = CK_FALSE;
 CK_BBOOL sessionOpen = CK_FALSE;
 CK_BBOOL loggedIn = CK_FALSE;
 
+/* Zu signierende Daten — von der Anwendung bereitgestellt */
+CK_BYTE *data;
+CK_ULONG dataLen;
+
 CHECK(C_GetFunctionList(&p11));
 CHECK(p11->C_Initialize(NULL));
 initialized = CK_TRUE;
 
-CK_SLOT_ID slot;                /* via C_GetSlotList ermittelt */
+CK_SLOT_ID slot = 0;            /* echter Wert via C_GetSlotList ermitteln */
 CHECK(p11->C_OpenSession(slot, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL, NULL, &s));
 sessionOpen = CK_TRUE;
 CHECK(p11->C_Login(s, CKU_USER, (CK_UTF8CHAR*)"987654", 6));
 loggedIn = CK_TRUE;
 
-/* Privaten Key per Label/ID suchen */
+/* Privaten Key per ID suchen */
 CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
 CK_BYTE id[] = { 0x01 };
 CK_ATTRIBUTE tmpl[] = {
@@ -127,13 +131,14 @@ if (n != 1) {
 CK_MECHANISM mech = { CKM_SHA256_RSA_PKCS, NULL, 0 };
 CHECK(p11->C_SignInit(s, &mech, key));
 
+/* Zweistufiges Sign-Idiom: erst Länge ermitteln (Operation bleibt aktiv),
+ * dann mit echtem Buffer signieren (Operation wird terminiert). */
 CK_ULONG sigLen = 0;
 CHECK(p11->C_Sign(s, data, dataLen, NULL_PTR, &sigLen));
 sig = malloc(sigLen);
 if (sig == NULL) {
     goto cleanup;
 }
-CHECK(p11->C_SignInit(s, &mech, key));
 CHECK(p11->C_Sign(s, data, dataLen, sig, &sigLen));
 
 cleanup:
@@ -149,7 +154,7 @@ if (p11 != NULL_PTR && initialized) {
 }
 ```
 
-Für RSA-PSS braucht `mech.pParameter` zusätzlich eine `CK_RSA_PKCS_PSS_PARAMS`-Struktur mit Hash, MGF und Salt-Länge. Für ECDSA gibt es keine Parameter, das Encoding ist aber roh `r||s` — DER-Wrap erledigt der Wrapper (`pkcs11-tool --signature-format openssl`).
+Für RSA-PSS braucht `mech.pParameter` zusätzlich eine `CK_RSA_PKCS_PSS_PARAMS`-Struktur mit Hash, MGF und Salt-Länge. Für ECDSA gibt es keine Parameter, das Encoding ist aber roh `r||s` — die DER-Verpackung übernimmt die jeweils darüberliegende Schicht (`pkcs11-tool --signature-format openssl`, OpenSSL-Engine/Provider, Java-Provider).
 
 ### 2.4 Objektattribute (Auszug)
 
@@ -197,7 +202,7 @@ Tipp: `C_GetMechanismList` plus `C_GetMechanismInfo` ist der ehrliche Weg, herau
 | `CKR_MECHANISM_PARAM_INVALID` | PSS-Parameter falsch, MGF/Salt passt nicht |
 | `CKR_KEY_TYPE_INCONSISTENT` | Key-Typ passt nicht zum Mechanismus |
 | `CKR_ATTRIBUTE_VALUE_INVALID` | z. B. `CKA_EC_PARAMS` ist keine valide DER-OID |
-| `CKR_TEMPLATE_INCONSISTENT` | Attribute widersprechen sich (z. B. `CKA_SENSITIVE=FALSE` plus `CKA_EXTRACTABLE=FALSE`) |
+| `CKR_TEMPLATE_INCONSISTENT` | Attribute widersprechen sich (z. B. `CKA_KEY_TYPE=CKK_RSA` zusammen mit `CKA_EC_PARAMS`, oder Nutzungsflags, die der Mechanismus nicht erlaubt) |
 | `CKR_FUNCTION_NOT_SUPPORTED` | Funktion existiert in dieser Modulversion nicht |
 | `CKR_DEVICE_ERROR` | Generisches HSM-Problem, ins Log des HSM schauen |
 
@@ -244,6 +249,8 @@ OpenSSL kennt zwei Wege zu PKCS#11:
 - Keys werden per **PKCS#11-URI** angesprochen. libp11 akzeptiert in der Praxis auch die Kurzform mit `pin-value` im Pfad.
 
 ```bash
+# libp11-Kurzform mit pin-value im Pfad — bequem, aber nicht streng RFC 7512.
+# Portable Variante siehe Abschnitt 4.3.
 KEY_URI="pkcs11:token=$TOKEN;object=signing-key;type=private;pin-value=$PIN"
 
 openssl req -new -x509 -engine pkcs11 -keyform engine \
@@ -319,7 +326,7 @@ slotListIndex = 0
 
 Der finale Providername wird `SunPKCS11-SoftHSM`. `slotListIndex` ist für das Lab einfach, in echten Setups aber fragil, weil sich Slot-Reihenfolgen ändern können.
 
-Wichtig: Die Standard-SunPKCS11-Config in OpenJDK kennt `slot` und `slotListIndex`, aber kein portables `tokenLabel`-Property. Wenn du Token-Labels nutzen willst, brauchst du eine vorgelagerte Slot-Ermittlung oder einen Stack/Provider, der Label-Auswahl explizit unterstützt.
+Wichtig: Die Standard-SunPKCS11-Config in OpenJDK kennt `slot` und `slotListIndex`, aber kein portables `tokenLabel`-Property. Wenn du Token-Labels nutzen willst, brauchst du entweder eine vorgelagerte Slot-Ermittlung (per `C_GetSlotList`/`C_GetTokenInfo` und passendem Label-Match) oder einen Stack mit eigener Label-Auswahl wie den IAIK-PKCS11-Provider.
 
 ### Initialisierung (Java 9+)
 
@@ -362,7 +369,7 @@ Weitere Details: [course/06-java-sunpkcs11.md](../course/06-java-sunpkcs11.md).
 - **PIN nie im Quellcode** — Env, Secret-Manager, oder `pin-source=` in der URI.
 - **Mechanismus erst prüfen** (`C_GetMechanismInfo` oder `--list-mechanisms`), bevor du dich auf einen Algorithmus festlegst. Echte HSMs unterstützen nicht alles, was SoftHSM kann.
 - **ECDSA-Encoding klären**: `r\|\|s` (PKCS#11 nativ) vs. DER (OpenSSL, Java). Falscher Wrapper → kaputte Signatur ohne sichtbaren Grund.
-- **PSS-Parameter müssen synchron sein**: Hash, MGF-Hash, Salt-Länge bei Signer und Verifier identisch, sonst `CKR_SIGNATURE_INVALID` / `BadPaddingException`.
+- **PSS-Parameter müssen synchron sein**: Hash, MGF-Hash, Salt-Länge bei Signer und Verifier identisch. Inkonsistente Parameter beim Signer liefern `CKR_MECHANISM_PARAM_INVALID`, beim Verifier `CKR_SIGNATURE_INVALID` bzw. `BadPaddingException`.
 - **`CKA_ID` als Bindeglied**: Private Key, Public Key und Zertifikat sollten dieselbe ID tragen. Sonst sehen weder Java noch viele OpenSSL-Pfade die volle Kette.
 - **Sessions kosten**: in Servern Session-Pooling implementieren, nicht pro Request `C_OpenSession`/`C_Login`/`C_CloseSession`.
 - **Login-State ist pro Slot**, nicht pro Session — andere Sessions auf demselben Slot sehen den Login auch. Praktisch und manchmal überraschend.
