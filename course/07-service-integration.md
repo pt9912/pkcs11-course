@@ -1,5 +1,23 @@
 # 07 — Service-Integration
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- einen Signatur-Service fachlich zuschneiden.
+- PKCS#11-Details hinter einer kleinen Service-Schicht kapseln.
+- Healthchecks, Fehlerabbildung und Secret-Handling sinnvoll planen.
+- entscheiden, welche Operationen synchron im Request laufen und welche in Betrieb/Provisioning gehoeren.
+
+## Lab-Bezug
+
+Passende Grundlage:
+
+```bash
+make import-cert
+make java-demo
+```
+
 ## Zielarchitektur
 
 ```text

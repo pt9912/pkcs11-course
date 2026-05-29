@@ -1,5 +1,23 @@
 # 01 — Grundlagen
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- die Begriffe Module, Slot, Token, Session, Object und Mechanism unterscheiden.
+- erklaeren, warum private Schluessel im Token bleiben.
+- die typische PKCS#11-Aufrufkette grob einordnen.
+- Mechanism-Namen wie `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS` und `CKM_ECDSA_SHA256` auseinanderhalten.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make list-slots
+make list-mechanisms
+```
+
 ## Was ist PKCS#11?
 
 PKCS#11, auch Cryptoki genannt, ist eine API für kryptografische Tokens. Eine Anwendung spricht nicht direkt mit einem privaten Schlüssel in einer Datei, sondern mit einer PKCS#11-Bibliothek. Diese Bibliothek leitet Operationen an ein Token oder HSM weiter.

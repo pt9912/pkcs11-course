@@ -6,10 +6,11 @@ RUN_GO = bash -lc
 RUN_KOTLIN = bash -lc
 RUN_CSHARP = bash -lc
 else
-RUN_LAB = docker compose -f lab/docker-compose.yml run --rm pkcs11-lab bash -lc
-RUN_GO = docker compose -f lab/docker-compose.yml run --rm pkcs11-go bash -lc
-RUN_KOTLIN = docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash -lc
-RUN_CSHARP = docker compose -f lab/docker-compose.yml run --rm pkcs11-csharp bash -lc
+DOCKER_ENV = -e PKCS11_MODULE=$${PKCS11_MODULE:-/usr/lib/softhsm/libsofthsm2.so} -e PKCS11_TOKEN_LABEL=$${PKCS11_TOKEN_LABEL:-dev-token} -e PKCS11_USER_PIN=$${PKCS11_USER_PIN:-987654} -e PKCS11_SO_PIN=$${PKCS11_SO_PIN:-1234}
+RUN_LAB = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-lab bash -lc
+RUN_GO = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-go bash -lc
+RUN_KOTLIN = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-kotlin bash -lc
+RUN_CSHARP = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-csharp bash -lc
 endif
 
 build:

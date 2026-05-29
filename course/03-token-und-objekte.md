@@ -1,5 +1,26 @@
 # 03 — Token und Objekte
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- einen SoftHSM-Token initialisieren.
+- Slots und Token-Labels unterscheiden.
+- RSA-Keypairs im Token erzeugen.
+- Public Key, Private Key und Zertifikat als PKCS#11-Objekte einordnen.
+- `CKA_LABEL` und `CKA_ID` fuer Anwendungen erklaeren.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make init-token
+make list-slots
+make gen-rsa
+make list-objects
+```
+
 ## Token initialisieren
 
 ```bash

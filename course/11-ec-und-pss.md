@@ -1,5 +1,25 @@
 # 11 — ECDSA und RSA-PSS
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- RSA-PKCS#1-v1.5, RSA-PSS und ECDSA unterscheiden.
+- PSS-Parameter wie Hash, MGF und Salt-Laenge konsistent setzen.
+- ECDSA-Signaturencoding fuer OpenSSL korrekt behandeln.
+- entscheiden, welcher Mechanism fuer neue Systeme sinnvoll ist.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make gen-ec
+make sign-ec
+make verify-ec
+make sign-pss
+```
+
 ## Warum nicht nur RSA-PKCS#1-v1.5?
 
 `SHA256-RSA-PKCS` ist weit verbreitet, aber für neue Systeme empfehlen NIST und BSI in der Regel:

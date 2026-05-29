@@ -1,5 +1,18 @@
 # 09 — Produktionscheckliste
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- SoftHSM-Lab-Annahmen von echtem HSM-Betrieb trennen.
+- Sicherheits-, Betriebs- und Compliance-Fragen vor Projektstart stellen.
+- Mechanism-, Session-, Backup- und Audit-Risiken benennen.
+- Cloud-HSMs als eigene Integrationsklasse einordnen.
+
+## Lab-Bezug
+
+Nutze das Lab, um Mechanisms, Objekte und Fehlerszenarien vorzubereiten. Uebertrage keine SoftHSM-Annahme ungeprueft auf Produktion.
+
 ## Lokales SoftHSM vs. echtes HSM
 
 | Thema | SoftHSM | Echtes HSM |

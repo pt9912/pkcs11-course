@@ -1,30 +1,55 @@
-# Übung 05 — Kotlin über SunPKCS11
+# Uebung 05 - Kotlin ueber SunPKCS11
+
+## Ziel
+
+Du verwendest aus Kotlin denselben Java-Sicherheitsstack wie in der Java-Demo und erkennst, welche Teile sprachunabhaengig JCA/JCE sind.
+
+## Vorbereitung
+
+```bash
+make init-token
+make gen-rsa
+make import-cert
+```
 
 ## Aufgabe
 
-Voraussetzung: Der Token `dev-token`, der RSA-Key `signing-key` und ein Zertifikat mit derselben `CKA_ID=01` existieren (`make init-token`, `make gen-rsa`, `make import-cert`).
+1. Starte die Kotlin-Demo:
+   ```bash
+   make kotlin-demo
+   ```
+2. Lies `lab/kotlin/pkcs11-demo/src/main/kotlin/dev/course/pkcs11/KotlinPkcs11Demo.kt`.
+3. Vergleiche den Ablauf mit der Java-Demo:
+   - Provider konfigurieren
+   - `KeyStore` laden
+   - Alias finden
+   - Private Key holen
+   - Signatur erzeugen
+   - mit Public Key aus Zertifikat verifizieren
 
-Kotlin-Container starten (enthält JDK und Gradle):
-
-```bash
-docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash
-# alternativ pkcs11-dev mit allen Sprachen
-```
-
-1. Erstelle ein kleines Kotlin/JVM-Programm, das den Java-Provider `SunPKCS11` nutzt.
-2. Lade die bestehende Config `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg`.
-3. Registriere den Provider über `Security.getProvider("SunPKCS11").configure(...)`.
-4. Öffne `KeyStore.getInstance("PKCS11", provider)` und lade ihn mit `PKCS11_USER_PIN`.
-5. Finde den Alias `signing-key`, lies den privaten Key und signiere `hello from kotlin pkcs11` mit `SHA256withRSA`.
-6. Verifiziere die Signatur mit dem Public Key aus dem Zertifikat.
-
-## Erwartung
+## Erwartete Ausgabe
 
 - Der Providername ist `SunPKCS11-SoftHSM`.
-- Der Alias `signing-key` ist als Key-Entry sichtbar.
+- Der Alias `signing-key` ist sichtbar.
 - Die Verifikation liefert `true`.
 
-## Fehler erzwingen
+## Fehlerfall
 
-- Lösche das Zertifikat, aber lasse den privaten Key im Token. Erwartet: Der Alias ist nicht mehr als Private-Key-Alias sichtbar.
-- Nutze eine falsche PIN. Erwartet: Login-Fehler beim `KeyStore.load`.
+Nutze eine falsche PIN:
+
+```bash
+PKCS11_USER_PIN=000000 make kotlin-demo
+```
+
+Erwartet: Login-Fehler beim `KeyStore.load`.
+
+Optional: Loesche das Zertifikat, aber lasse den privaten Key im Token. Erwartet: Der Alias ist nicht mehr als Private-Key-Alias sichtbar.
+
+## Reflexionsfragen
+
+- Welche Unterschiede zwischen Java und Kotlin sind fuer PKCS#11 wirklich relevant?
+- Warum bleibt das Zertifikat auch bei Kotlin entscheidend?
+
+## Musterloesung
+
+Siehe `solutions/05-kotlin.md`.

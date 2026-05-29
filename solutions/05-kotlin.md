@@ -1,19 +1,15 @@
-# Lösung 05 — Kotlin über SunPKCS11
+# Loesung 05 - Kotlin ueber SunPKCS11
 
-## Kernablauf
+## Lauf
 
-Kotlin/JVM nutzt denselben Stack wie die Java-Demo:
+```bash
+make init-token
+make gen-rsa
+make import-cert
+make kotlin-demo
+```
 
-1. `Security.getProvider("SunPKCS11")` holen.
-2. Provider mit `softhsm.cfg` konfigurieren.
-3. `KeyStore.getInstance("PKCS11", provider)` öffnen.
-4. `load(null, pin.toCharArray())` ausführen.
-5. Alias `signing-key` suchen.
-6. `PrivateKey` und Zertifikat aus dem KeyStore lesen.
-7. Mit `Signature.getInstance("SHA256withRSA", provider)` signieren.
-8. Mit dem Public Key aus dem Zertifikat verifizieren.
-
-## Erwarteter Output
+Erwartet:
 
 ```text
 Provider: SunPKCS11-SoftHSM
@@ -21,60 +17,25 @@ Alias: signing-key
 Verifikation: true
 ```
 
-## Typische Fehler
+## Kernablauf im Code
 
-| Fehler | Ursache |
-|---|---|
-| Kein Alias sichtbar | Zertifikat fehlt oder `CKA_ID` passt nicht zum privaten Key |
-| Login-Fehler | Falsche User-PIN |
-| Provider-Load scheitert | Falscher `library`-Pfad in `softhsm.cfg` |
+`lab/kotlin/pkcs11-demo/src/main/kotlin/dev/course/pkcs11/KotlinPkcs11Demo.kt` nutzt denselben JCA-Fluss wie Java:
 
-## Minimalbeispiel
+1. `Security.getProvider("SunPKCS11")`.
+2. Provider mit `softhsm.cfg` konfigurieren.
+3. `KeyStore.getInstance("PKCS11", provider)`.
+4. `load(null, pin.toCharArray())`.
+5. Alias `signing-key` suchen.
+6. `PrivateKey` und Zertifikat aus dem KeyStore lesen.
+7. Mit `Signature.getInstance("SHA256withRSA", provider)` signieren.
+8. Mit dem Public Key aus dem Zertifikat verifizieren.
 
-`Pkcs11Kotlin.kt`:
-
-```kotlin
-import java.security.KeyStore
-import java.security.PrivateKey
-import java.security.Security
-import java.security.Signature
-import java.security.cert.X509Certificate
-
-fun main() {
-    val pin = (System.getenv("PKCS11_USER_PIN") ?: "987654").toCharArray()
-    val configPath = System.getenv("PKCS11_JAVA_CONFIG")
-        ?: "lab/java/pkcs11-demo/src/main/resources/softhsm.cfg"
-
-    val base = Security.getProvider("SunPKCS11")
-        ?: error("SunPKCS11 nicht verfuegbar")
-    val provider = base.configure(configPath)
-    Security.addProvider(provider)
-    println("Provider: ${provider.name}")
-
-    val ks = KeyStore.getInstance("PKCS11", provider).apply { load(null, pin) }
-    val alias = "signing-key"
-    val key = ks.getKey(alias, null) as PrivateKey
-    val cert = ks.getCertificate(alias) as X509Certificate
-
-    val data = "hello from kotlin pkcs11".toByteArray()
-    val signer = Signature.getInstance("SHA256withRSA", provider).apply {
-        initSign(key); update(data)
-    }
-    val sig = signer.sign()
-
-    val verifier = Signature.getInstance("SHA256withRSA").apply {
-        initVerify(cert.publicKey); update(data)
-    }
-    println("Alias: $alias")
-    println("Verifikation: ${verifier.verify(sig)}")
-}
-```
-
-Build und Lauf im Kotlin-Container (`kotlinc` ist auf dem `PATH`):
+## Fehler pruefen
 
 ```bash
-docker compose -f lab/docker-compose.yml run --rm pkcs11-kotlin bash
-# im Container:
-kotlinc Pkcs11Kotlin.kt -include-runtime -d pkcs11-kotlin.jar
-java -jar pkcs11-kotlin.jar
+PKCS11_USER_PIN=000000 make kotlin-demo
 ```
+
+Erwartet: Login-Fehler beim `KeyStore.load`.
+
+Wenn das Zertifikat fehlt, ist der private Key fuer den Java-KeyStore nicht als Private-Key-Alias nutzbar. `make kotlin-demo` repariert das ueber die Abhaengigkeit `import-cert` automatisch; fuer den Fehlerfall musst du die Demo direkt starten.

@@ -1,41 +1,52 @@
-# Übung 03 — Java über SunPKCS11
+# Uebung 03 - Java ueber SunPKCS11
+
+## Ziel
+
+Du bindest denselben Token ueber Java JCA/JCE an und siehst, warum Java fuer Private-Key-Aliase ein Zertifikat mit passender `CKA_ID` braucht.
+
+## Vorbereitung
+
+```bash
+make init-token
+make gen-rsa
+make import-cert
+```
 
 ## Aufgabe
 
-1. Token initialisieren, RSA-Key erzeugen, Zertifikat importieren:
-   ```bash
-   make init-token
-   make gen-rsa
-   make import-cert
-   ```
-2. Java-Demo starten:
+1. Starte die Java-Demo:
    ```bash
    make java-demo
    ```
-3. Prüfe:
-   - Der Output enthält mindestens einen Alias mit `key=true cert=true` (genau einen, solange du keinen zweiten Key + Cert importierst).
-   - `Verifikation: true` steht am Ende.
-   - Exit-Code ist `0` (`echo $?` direkt nach dem Lauf).
+2. Pruefe den Output:
+   - Providername
+   - sichtbarer Alias
+   - Key- und Zertifikatsstatus
+   - Signaturverifikation
+3. Oeffne `lab/java/pkcs11-demo/src/main/java/dev/course/pkcs11/Pkcs11Demo.java` und verfolge den JCA-Fluss von Provider-Konfiguration bis `Signature.verify`.
 
-## Fehler erzwingen
+## Erwartete Ausgabe
 
-- Setze in `softhsm.cfg` einen falschen `library`-Pfad. Erwartet: klare Fehlermeldung beim Provider-Load, nicht erst beim Signieren.
-- Lösche das Zertifikat und starte die Java-Demo danach direkt, ohne `make java-demo`, weil dieses Target das Zertifikat automatisch neu importiert:
-  ```bash
-  docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
-    bash -lc 'pkcs11-tool --module "$PKCS11_MODULE" --login --pin "$PKCS11_USER_PIN" --token-label "$PKCS11_TOKEN_LABEL" --delete-object --type cert --id 01'
+- Der Provider heisst `SunPKCS11-SoftHSM`.
+- Mindestens ein Alias zeigt `key=true cert=true`.
+- Die Verifikation liefert `true`.
+- Der Exit-Code ist `0`.
 
-  docker compose -f lab/docker-compose.yml run --rm pkcs11-lab \
-    bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
-  ```
-  Erwartet: Exit-Code `2` mit Hinweis auf `make import-cert`.
-- Starte die Java-Demo direkt mit falscher PIN, damit vorher kein `import-cert`-Schritt scheitert:
-  ```bash
-  docker compose -f lab/docker-compose.yml run --rm -e PKCS11_USER_PIN=000000 pkcs11-lab \
-    bash -lc 'cd lab/java/pkcs11-demo && gradle --quiet run'
-  ```
-  Erwartet: `CKR_PIN_INCORRECT` beim KeyStore-Load.
+## Fehlerfall
 
-## Bonus
+1. Setze in `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg` testweise einen falschen `library`-Pfad.
+2. Starte `make java-demo`.
+3. Stelle den korrekten Pfad danach wieder her.
 
-- Lass die Java-Demo zusätzlich mit dem EC-Key signieren. Welche Änderungen am Java-Code sind nötig?
+Erwartet: Der Fehler tritt bereits beim Provider-Load auf, nicht erst beim Signieren.
+
+Optional: Loesche das Zertifikat direkt und starte die Java-Demo ohne das Make-Target, damit `import-cert` nicht automatisch repariert. Die genaue Befehlsfolge steht in `solutions/03-java.md`.
+
+## Reflexionsfragen
+
+- Warum sieht Java den privaten Key nicht sauber, wenn das Zertifikat fehlt?
+- Warum wird mit dem PKCS#11-Provider signiert, aber mit dem Default-Provider verifiziert?
+
+## Musterloesung
+
+Siehe `solutions/03-java.md`.

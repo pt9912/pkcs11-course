@@ -1,5 +1,24 @@
 # 04 — Signieren und Verifizieren
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- Daten mit einem privaten Key im Token signieren.
+- den Public Key aus dem Token exportieren.
+- eine Signatur mit OpenSSL ausserhalb des Tokens verifizieren.
+- Hashing, Padding und Mechanism-Wahl als zusammenhaengendes Problem behandeln.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make gen-rsa
+make sign
+make verify
+```
+
 ## Signieren
 
 ```bash
@@ -25,6 +44,6 @@ Die Verifikation passiert mit OpenSSL außerhalb des Tokens. Das ist wichtig: Si
 
 Wenn du mit `SHA256-RSA-PKCS` signierst, darfst du nicht noch einmal anders hashen oder mit falschem Padding verifizieren. Anwendung und Token müssen dieselbe Signatursemantik verwenden.
 
-## Übung
+## Naechste Uebung
 
 Ändere den Mechanism testweise auf einen nicht unterstützten oder falschen Mechanism. Beobachte die Fehlermeldung. Genau so sieht HSM-Debugging im echten Leben aus.

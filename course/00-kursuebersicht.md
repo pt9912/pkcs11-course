@@ -1,37 +1,57 @@
-# 00 — Kursübersicht
+# 00 - Kursuebersicht
 
 ## Zielgruppe
 
-Dieser Kurs richtet sich an Entwickler, die PKCS#11 praktisch verstehen müssen: für Signaturen, TLS-Keys, Smartcards, HSMs, Java-Anwendungen oder Backend-Services.
+Dieser Kurs richtet sich an Entwickler, die PKCS#11 praktisch verstehen muessen: fuer Signaturen, TLS-Keys, Smartcards, HSMs, Java-Anwendungen oder Backend-Services.
 
-## Was du am Ende kannst
+## Kursziel
 
-Du kannst:
+Am Ende kannst du:
 
-- PKCS#11-Begriffe sauber erklären.
+- PKCS#11-Begriffe sauber erklaeren.
 - SoftHSM lokal als Test-HSM verwenden.
 - Slots, Tokens und Objekte mit `pkcs11-tool` untersuchen.
-- RSA-Schlüssel im Token erzeugen.
-- Daten über PKCS#11 signieren.
-- Signaturen außerhalb des Tokens verifizieren.
-- Java über `SunPKCS11` anbinden.
+- RSA- und EC-Schluessel im Token erzeugen.
+- Daten ueber PKCS#11 signieren.
+- Signaturen ausserhalb des Tokens verifizieren.
+- Zertifikate mit privaten Keys ueber `CKA_ID` koppeln.
+- Java, Kotlin, Go und C# gegen dasselbe Token anbinden.
 - typische `CKR_*`-Fehler einordnen.
-- einschätzen, was sich bei echten HSMs ändert.
+- abschaetzen, was sich bei echten HSMs aendert.
 
 ## Lernpfad
 
-1. Begriffe verstehen.
-2. Lab starten.
-3. Token initialisieren.
-4. Schlüssel erzeugen.
-5. Signieren/verifizieren.
-6. Zertifikate hinzufügen.
-7. Java anbinden.
-8. Debuggen.
-9. Produktionscheckliste durcharbeiten.
-10. Abschlussprojekt bauen.
-11. ECDSA und RSA-PSS ergänzen.
+| Schritt | Kapitel | Praxis |
+|---|---|---|
+| 1 | `01-grundlagen.md` | Begriffe und Ablaufmodell verstehen |
+| 2 | `02-lab-setup.md` | Lab starten, Devcontainer-Modus verstehen |
+| 3 | `03-token-und-objekte.md` | Token initialisieren, Objekte ansehen |
+| 4 | `04-signieren-und-verifizieren.md` | RSA signieren und mit OpenSSL verifizieren |
+| 5 | `05-zertifikate.md` | Zertifikat mit gleicher `CKA_ID` importieren |
+| 6 | `06-java-sunpkcs11.md` | Java ueber JCA/SunPKCS11 anbinden |
+| 7 | `12-sprachbindings.md` | Java, Go, Kotlin und C# vergleichen |
+| 8 | `08-debugging.md` | Fehler systematisch isolieren |
+| 9 | `11-ec-und-pss.md` | ECDSA und RSA-PSS ergaenzen |
+| 10 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
+| 11 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 
-Lies ein Kapitel, führe danach die passende Übung aus. Nicht schummeln: Wenn du `CKR_*`-Fehler bekommst, bist du im richtigen Lernmodus.
+Jedes Kapitel folgt demselben Muster:
+
+- **Lernziele**: Was du danach verstanden haben solltest.
+- **Lab-Bezug**: Welche Targets oder Skripte du ausfuehrst.
+- **Kernaussagen**: Was fuer reale Systeme wichtig ist.
+- **Uebung**: Ein reproduzierbarer Auftrag mit Fehlerfall.
+
+## Devcontainer vs. Docker Compose
+
+Ausserhalb eines Devcontainers startet `make` die passenden Docker-Compose-Services. Im Devcontainer setzt die Umgebung `PKCS11_IN_DEVCONTAINER=1`; `make` fuehrt die Skripte dann direkt im aktuellen Container aus. Dadurch brauchst du im Devcontainer keinen Docker-Socket und kein Docker-in-Docker.
+
+## Uebungs- und Loesungsstruktur
+
+- Aufgaben liegen in `exercises/`.
+- Musterloesungen liegen in `solutions/`.
+- Jede Uebung beschreibt Ziel, Vorbereitung, Aufgabe, erwartete Ausgabe, Fehlerfall und Reflexionsfragen.
+
+Nicht schummeln: Wenn du `CKR_*`-Fehler bekommst, bist du im richtigen Lernmodus.

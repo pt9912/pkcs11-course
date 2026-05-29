@@ -1,5 +1,24 @@
 # 05 — Zertifikate
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- erklaeren, warum Zertifikate im Token fuer manche Stacks wichtig sind.
+- Private Key und Zertifikat ueber `CKA_ID` koppeln.
+- ein selbstsigniertes Zertifikat ueber den Token-Key erzeugen.
+- Zertifikate mit `pkcs11-tool` importieren und pruefen.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make gen-rsa
+make import-cert
+make list-objects
+```
+
 ## Warum Zertifikate im Token liegen
 
 Ein Token kann private Schlüssel und zugehörige Zertifikate enthalten. Das Zertifikat ist öffentlich, aber praktisch, weil Anwendungen darüber den passenden Schlüssel finden können. Insbesondere Java-`KeyStore` macht ohne Zertifikat keinen Private-Key-Alias sichtbar.

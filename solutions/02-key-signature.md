@@ -1,4 +1,4 @@
-# Lösung 02 — Key erzeugen und signieren
+# Loesung 02 - Key erzeugen und signieren
 
 ```bash
 make gen-rsa
@@ -7,11 +7,23 @@ make sign
 make verify
 ```
 
-Bonus — direkt im `make shell`:
+Erwartete Objekte:
+
+- Public Key Object mit Label `signing-key`
+- Private Key Object mit Label `signing-key`
+- beide mit ID `01`
+
+Erwartete Verifikation:
+
+```text
+Verified OK
+```
+
+Bonus:
 
 ```bash
 echo changed >> lab/work/data.txt
-lab/scripts/07-verify.sh
+make verify
 ```
 
-Die Verifikation muss fehlschlagen, weil die Signatur zu den ursprünglichen Daten gehört.
+Die Verifikation muss fehlschlagen, weil die Signatur zu den urspruenglichen Daten gehoert.

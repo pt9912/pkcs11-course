@@ -1,5 +1,26 @@
 # 08 — Debugging
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- haeufige `CKR_*`-Fehler systematisch eingrenzen.
+- Mechanism-Namen zwischen PKCS#11, `pkcs11-tool`, OpenSSL und JCA uebersetzen.
+- Slot-, Token-, PIN-, Objekt- und Mechanism-Probleme voneinander trennen.
+- `pkcs11-spy` gezielt einsetzen.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make list-slots
+make list-mechanisms
+make list-objects
+make sign
+make verify
+```
+
 ## Typische Fehler
 
 | Fehler | Wahrscheinliche Ursache |
@@ -15,6 +36,18 @@
 | `CKR_OBJECT_HANDLE_INVALID` | Objekt nicht in dieser Session gültig |
 | `CKR_SIGNATURE_INVALID` | Signaturprüfung gescheitert — tritt nur bei Verify auf, nie beim Signer |
 | `CKR_TEMPLATE_INCONSISTENT` | Attribute widersprechen sich (z. B. `CKA_KEY_TYPE=CKK_RSA` zusammen mit `CKA_EC_PARAMS`, oder Nutzungsflags, die der Mechanismus nicht erlaubt) |
+
+## Praxisfaelle
+
+| Symptom | Erst pruefen | Naechster Schritt |
+|---|---|---|
+| Kein Token sichtbar | `make list-slots` | Token initialisieren oder falsches `SOFTHSM2_CONF` suchen |
+| Token sichtbar, Login scheitert | `PKCS11_USER_PIN` | PIN gegen Lab-Doku pruefen, nicht SO-PIN verwenden |
+| Key nicht gefunden | `make list-objects` | `CKA_ID`, `CKA_LABEL` und Objektklasse vergleichen |
+| Java-KeyStore leer | Zertifikat im Token | `make import-cert`, gleiche `CKA_ID` sicherstellen |
+| OpenSSL Verify scheitert | Daten, Mechanism, Encoding | Datei nach Signatur geaendert? PSS/ECDSA-Parameter korrekt? |
+| Devcontainer warnt ueber Locale | Image-Stand | Devcontainer rebuilden, damit generierte Locale im Image aktiv ist |
+| NuGet/Gradle schreibt nach `/root` | Cache-Env | `.devcontainer` rebuilden und `.nuget`, `.gradle`, `.dotnet` pruefen |
 
 ## Mechanism-Namen über Stacks hinweg
 
@@ -44,7 +77,7 @@ Dieselbe Operation hat in jedem Tool einen anderen Namen. Diese Tabelle spart vi
 OpenSC bietet `pkcs11-spy`, um PKCS#11-Aufrufe zu protokollieren. Die Mechanik: Die Anwendung lädt `pkcs11-spy.so` **als Modul**, `PKCS11SPY` zeigt auf das echte Backend, das der Spy dann durchreicht und mitprotokolliert.
 
 ```bash
-# CLI-Beispiel
+# CLI-Beispiel:
 PKCS11SPY=/usr/lib/softhsm/libsofthsm2.so \
 PKCS11SPY_OUTPUT=/tmp/spy.log \
   pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/pkcs11-spy.so --list-slots

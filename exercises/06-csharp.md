@@ -1,30 +1,62 @@
-# Übung 06 — C# über Pkcs11Interop
+# Uebung 06 - C# ueber Pkcs11Interop
+
+## Ziel
+
+Du greifst aus .NET mit Pkcs11Interop auf das PKCS#11-Modul zu, findest den Token ueber sein Label und signierst mit dem privaten RSA-Key.
+
+## Vorbereitung
+
+```bash
+make init-token
+make gen-rsa
+```
 
 ## Aufgabe
 
-Voraussetzung: Der Token `dev-token` ist initialisiert und der RSA-Key `signing-key` mit ID `01` existiert (`make init-token`, `make gen-rsa`).
+1. Starte die C#-Demo:
+   ```bash
+   make csharp-demo
+   ```
+2. Lies `lab/csharp/Pkcs11Demo/Program.cs`.
+3. Markiere im Code:
+   - Library-Load
+   - Slot-Auswahl ueber Token-Label
+   - Session-Handling
+   - Login
+   - Key-Suche per `CKA_CLASS` und `CKA_ID`
+   - Signaturmechanismus
+   - deterministisches Freigeben der Ressourcen
 
-.NET-Container starten (Default `pkcs11-lab` enthält kein dotnet-SDK):
+## Erwartete Ausgabe
+
+- Das Programm meldet das Token-Label `dev-token`.
+- Eine Signaturdatei `lab/work/csharp.sig` entsteht.
+- OpenSSL meldet `Verified OK`.
+- Session und Library werden ueber `using`/`Dispose` freigegeben.
+
+## Fehlerfall
+
+Nutze einen falschen Modulpfad:
 
 ```bash
-docker compose -f lab/docker-compose.yml run --rm pkcs11-csharp bash
-# alternativ pkcs11-dev mit allen Sprachen
+PKCS11_MODULE=/does/not/exist.so make csharp-demo
 ```
 
-1. Erstelle eine kleine .NET-Console-App mit `Pkcs11Interop`.
-2. Lade das Modul aus `PKCS11_MODULE` oder nutze `/usr/lib/softhsm/libsofthsm2.so` als Default.
-3. Finde den Slot über das Token-Label `dev-token`.
-4. Öffne eine Read/Write-Session, logge dich mit `PKCS11_USER_PIN` ein und suche den privaten Key per `CKA_CLASS=CKO_PRIVATE_KEY` und `CKA_ID=01`.
-5. Signiere die Bytes `hello from csharp pkcs11` mit `CKM_SHA256_RSA_PKCS`.
-6. Exportiere den Public Key mit `pkcs11-tool --read-object --type pubkey --id 01` und verifiziere die Signatur mit OpenSSL.
+Erwartet: Ein klarer Library-Load-Fehler vor Login oder Signatur.
 
-## Erwartung
+Optional:
 
-- Das Programm meldet Token-Label, Key-Label und Signaturlänge.
-- Die OpenSSL-Verifikation liefert `Verified OK`.
-- Session und Library werden deterministisch freigegeben (`using`/`Dispose`).
+```bash
+PKCS11_USER_PIN=000000 make csharp-demo
+```
 
-## Fehler erzwingen
+Erwartet: `CKR_PIN_INCORRECT`.
 
-- Nutze einen falschen Modulpfad. Erwartet: klarer Load-Fehler vor dem Login.
-- Nutze eine falsche PIN. Erwartet: PKCS#11-Fehler `CKR_PIN_INCORRECT`.
+## Reflexionsfragen
+
+- Warum braucht C# hier kein Zertifikat, Java aber fuer den KeyStore-Alias schon?
+- Welche Cleanup-Schritte sind bei nativen PKCS#11-Bibliotheken kritisch?
+
+## Musterloesung
+
+Siehe `solutions/06-csharp.md`.

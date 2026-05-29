@@ -1,5 +1,23 @@
 # 06 — Java mit SunPKCS11
 
+## Lernziele
+
+Nach diesem Kapitel kannst du:
+
+- den SunPKCS11-Provider konfigurieren.
+- einen PKCS#11-Token als Java-`KeyStore` laden.
+- den Zusammenhang zwischen Zertifikat, `CKA_ID` und Java-Alias erklaeren.
+- mit JCA ueber PKCS#11 signieren und mit einem Public Key verifizieren.
+
+## Lab-Bezug
+
+Passende Targets:
+
+```bash
+make import-cert
+make java-demo
+```
+
 ## Grundidee
 
 Java greift nicht direkt auf `libsofthsm2.so` zu. Java lädt den `SunPKCS11` Provider, der eine native PKCS#11-Bibliothek konfiguriert. Danach nutzt du normale JCA-Klassen wie `KeyStore`, `Signature` und `PrivateKey`.
