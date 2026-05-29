@@ -8,6 +8,7 @@
     "GRADLE_USER_HOME": "/workspace/.gradle",
     "NUGET_PACKAGES": "/workspace/.nuget/packages",
     "DOTNET_CLI_HOME": "/workspace/.dotnet",
+    "PKCS11_IN_DEVCONTAINER": "1",
     "GOROOT": "/usr/local/go",
     "PATH": "/usr/local/go/bin:${containerEnv:PATH}"
   },
