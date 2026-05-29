@@ -56,6 +56,7 @@ make sign-pss
 - `solutions/` — Musterlösungen
 - `lab/` — ausführbares Docker-Lab
 - `docs/cheatsheet.md` — schneller Spickzettel
+- `docs/api.md` — Leitfaden zur PKCS#11-API (native C-API, pkcs11-tool, OpenSSL, Java)
 
 ## Referenzen
 
