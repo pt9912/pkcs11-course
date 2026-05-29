@@ -261,6 +261,7 @@ openssl req -new -x509 -engine pkcs11 -keyform engine \
 ### 4.2 `pkcs11-provider` (OpenSSL ≥ 3.0)
 
 - Modernerer Ersatz, kein Engine-API mehr.
+- Nicht Teil des Kurscontainers; das Lab nutzt `engine_pkcs11`. Für Provider-Tests brauchst du ein System/Image, in dem das OpenSSL-3-Provider-Modul installiert ist.
 - Konfig in `openssl.cnf`:
 
 ```ini
@@ -282,13 +283,15 @@ pkcs11-module-path = /usr/lib/softhsm/libsofthsm2.so
 activate = 1
 ```
 
-- Aufruf praktisch wie gewohnt, Key kommt wieder per URI:
+- Aufruf praktisch wie gewohnt, Key kommt wieder per URI. Für normale Signaturen ist `openssl dgst` meist der bessere Einstieg, weil Hashing und Signatursemantik explizit sind:
 
 ```bash
-openssl pkeyutl -sign \
-  -inkey "pkcs11:token=$TOKEN;object=signing-key;type=private;pin-value=$PIN" \
-  -in data.txt -out data.sig
+openssl dgst -sha256 \
+  -sign "pkcs11:token=$TOKEN;object=signing-key;type=private;pin-value=$PIN" \
+  -out data.sig data.txt
 ```
+
+`openssl pkeyutl` ist dagegen ein Low-Level-Werkzeug. Nutze es nur, wenn du bewusst rohe oder exakt parametrisierte Public-Key-Operationen brauchst und Padding/Hashing selbst festlegst.
 
 ### 4.3 PKCS#11-URI nach RFC 7512
 
@@ -372,7 +375,7 @@ Weitere Details: [course/06-java-sunpkcs11.md](../course/06-java-sunpkcs11.md).
 - **PSS-Parameter müssen synchron sein**: Hash, MGF-Hash, Salt-Länge bei Signer und Verifier identisch. Inkonsistente Parameter beim Signer liefern `CKR_MECHANISM_PARAM_INVALID`, beim Verifier `CKR_SIGNATURE_INVALID` bzw. `BadPaddingException`.
 - **`CKA_ID` als Bindeglied**: Private Key, Public Key und Zertifikat sollten dieselbe ID tragen. Sonst sehen weder Java noch viele OpenSSL-Pfade die volle Kette.
 - **Sessions kosten**: in Servern Session-Pooling implementieren, nicht pro Request `C_OpenSession`/`C_Login`/`C_CloseSession`.
-- **Login-State ist pro Slot**, nicht pro Session — andere Sessions auf demselben Slot sehen den Login auch. Praktisch und manchmal überraschend.
+- **Login-State ist tokenweit innerhalb derselben Anwendung**, nicht an genau eine Session gebunden — weitere Sessions dieses Prozesses zum selben Token sehen den Login ebenfalls. Andere Prozesse sind dadurch nicht automatisch eingeloggt.
 
 Querverweise:
 
