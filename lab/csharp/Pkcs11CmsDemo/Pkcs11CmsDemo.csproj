@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- System.Security.Cryptography.Pkcs.SignedCms ist auf Linux an OpenSSLs
+         RSA-Math-Validierung gekoppelt und akzeptiert keinen HSM-RSA-Wrapper.
+         Wir gehen deshalb wie der Java/Kotlin-Pfad ueber BouncyCastle. -->
+    <PackageReference Include="Pkcs11Interop" Version="5.3.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
+  </ItemGroup>
+</Project>

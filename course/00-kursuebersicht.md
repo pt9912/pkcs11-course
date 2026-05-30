@@ -35,7 +35,8 @@ Am Ende kannst du:
 | 10 | `07-service-integration.md` | Signatur-Service als Architektur-Skizze |
 | 11 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
 | 12 | `13-verschluesselung.md` | Hybride RSA-OAEP + AES-GCM Verschluesselung |
-| 13 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 13 | `14-cms-signatur.md` | CMS/PKCS#7-Dokumentsignatur (S/MIME-Format) |
+| 14 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

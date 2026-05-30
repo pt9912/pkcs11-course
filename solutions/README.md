@@ -11,6 +11,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/05-kotlin.md` | `05-kotlin.md` | Kotlin ueber JCA/SunPKCS11 |
 | `exercises/06-csharp.md` | `06-csharp.md` | Pkcs11Interop und native Ressourcen |
 | `exercises/07-encrypt.md` | `07-encrypt.md` | Hybride Verschluesselung, OAEP-Wrap, Tampering-Erkennung |
+| `exercises/08-cms.md` | `08-cms.md` | CMS/PKCS#7-Dokumentsignatur, ASN.1-Struktur, Cross-Lib-Interop |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 

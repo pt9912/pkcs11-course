@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 14 `course/14-cms-signatur.md`: CMS/PKCS#7-Dokumentsignatur (RFC 5652), detached SignedData, signed attributes (contentType/signingTime/messageDigest), attached-vs-detached, die zwei wiederkehrenden HSM-zu-CMS-Bruecken-Probleme.
+- Uebung 08 `exercises/08-cms.md` + Loesung `solutions/08-cms.md`: vier Aufgaben (Bash-Sign/Verify, Tamper-Erkennung, Sprach-Demo, ASN.1-Lesen).
+- Lab-Skripte `lab/scripts/24-cms-sign.sh` (openssl cms -sign via pkcs11-engine, detached, signing-key ID=01) + `25-cms-verify.sh` (mit CAfile=signer-cert).
+- Sprach-Demos:
+  - `lab/go/pkcs11-cms-demo/` — digitorus/pkcs7 + crypto.Signer-Adapter, der DigestInfo wrappt und CKM_RSA_PKCS aufruft.
+  - `lab/csharp/Pkcs11CmsDemo/` — BouncyCastle.Cryptography mit eigener ISignatureFactory; .NET-SignedCms ist auf Linux nicht HSM-tauglich (OpenSSL prueft n=p*q).
+  - `lab/java/pkcs11-cms-demo/` und `lab/kotlin/pkcs11-cms-demo/` — BouncyCastle bcpkix-jdk18on, JcaContentSignerBuilder mit SunPKCS11-Provider.
+  - Wrapper-Skripte `26-29-*-cms-demo.sh` mit OpenSSL-Cross-Verify nach jeder Sprach-Demo.
+- Makefile-Targets: `cms-sign`, `cms-verify`, `go-cms-demo`, `csharp-cms-demo`, `java-cms-demo`, `kotlin-cms-demo`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle um Kapitel 14 erweitert.
+- `Makefile clean`: neue CMS-Demo-Build-Verzeichnisse aufgenommen.
+
 ## 0.5.0 - 2026-05-30
 
 ### Hinzugefügt
