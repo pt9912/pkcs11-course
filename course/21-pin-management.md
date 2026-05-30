@@ -92,6 +92,20 @@ Reale HSMs verhalten sich anders:
 
 Das Lab-Skript `61-pin-recovery-by-so.sh` zeigt deshalb nur die Flag-Transition (Count-Low) und den **SO-Reset-Workflow** — der echte Lockout-Test wuerde auf SoftHSM nichts ausloesen.
 
+### BouncyHsm als Alternative
+
+[BouncyHsm](https://github.com/harrison314/BouncyHsm) ist ein in C# geschriebener PKCS#11-Software-HSM, der explizit als Entwickler-freundlicher SoftHSM-Ersatz positioniert ist (PKCS#11 2.40/3.1/3.2, Web-UI, REST-API). Fuer das PIN-Thema interessant: BouncyHsm **hat** das Datenmodell fuer `CKF_USER_PIN_LOCKED` (`Token.IsUserPinLocked`-Property, korrekt propagiert in `GetTokenInfoHandler`), erhoeht aber im `LoginHandler` ebenfalls **keinen Retry-Counter**. Das Locked-Flag wird stattdessen **operator-driven** ueber die Web-UI bzw. REST-API gesetzt — gedacht zum deterministischen Testen, wie sich eine Anwendung gegenueber einem gelockten Token verhaelt.
+
+Praktischer Unterschied:
+
+| | SoftHSM 2.6 | BouncyHsm | Reale HSMs |
+|---|---|---|---|
+| `CKF_USER_PIN_COUNT_LOW` automatisch | ja | nein (im Login-Pfad) | ja |
+| `CKF_USER_PIN_LOCKED` Datenmodell | fehlt | vorhanden, manuell setzbar | vorhanden, counter-driven |
+| Auto-Lockout nach N Fehlversuchen | nein | nein | ja (konfigurierbar) |
+
+Wer eine Anwendung gegen einen **gelockten** Token-Status testen will (ohne ein echtes HSM zu brauchen), ist mit BouncyHsm besser bedient: einmal in der Web-UI "PIN lock" anklicken, und der Token meldet ab sofort `CKF_USER_PIN_LOCKED` und `CKR_PIN_LOCKED`. Wer das **automatische** Hochzaehlen beim Login testen will, braucht reale HSM-Hardware oder ein Cloud-HSM.
+
 ## Constant-Time-PIN-Vergleich
 
 Wer einen **eigenen** PIN-Pruefer baut (z.B. CLI-Tool, das die PIN gegen einen Vorhalt prueft, bevor es PKCS#11 anspricht): unbedingt constant-time vergleichen. `if (input == storedPin)` oder `strcmp` ist Timing-anfaellig. JCAs `MessageDigest.isEqual`, Gos `subtle.ConstantTimeCompare`, .NETs `CryptographicOperations.FixedTimeEquals`.

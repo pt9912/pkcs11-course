@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.1 - 2026-05-30
+
+### Geändert
+- `course/21-pin-management.md`: Abschnitt "BouncyHsm als Alternative" ergaenzt — der C#-PKCS#11-Software-HSM hat das Datenmodell fuer `CKF_USER_PIN_LOCKED` (operator-driven via Web-UI/REST), erhoeht aber im LoginHandler ebenfalls keinen Retry-Counter. Vergleichstabelle SoftHSM vs BouncyHsm vs reale HSMs ergaenzt. Quellcode-Analyse: `LoginHandler.cs` → `ValidatePin` macht nur `FixedTimeEquals`, `IsUserPinLocked` wird ausschliesslich in `SlotFacade.SetTokenLockState`-aehnlichen Pfaden ueber das Web-UI gesetzt.
+
 ## 0.13.0 - 2026-05-30
 
 ### Hinzugefügt
