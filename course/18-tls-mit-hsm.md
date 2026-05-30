@@ -17,6 +17,8 @@ make gen-tls-cert           # Neues self-signed Cert CN=localhost (signiert vom 
 make tls-serve              # nginx im Container starten + curl-Test
 ```
 
+Nachschlag zu TLS, Engine, Provider, PKCS#11-URI und Mechanism-Praefixen: [Glossar](../docs/glossar.md).
+
 ## Was macht der Server-Key im TLS-Handshake?
 
 Drei mögliche Rollen, abhaengig von Cipher Suite:

@@ -18,6 +18,8 @@ make go-wrap-demo     # Vollstaendiger Wrap+Unwrap+Restore-Roundtrip in Go
 make csharp-wrap-demo # Selbes in C#/Pkcs11Interop
 ```
 
+Nachschlag zu KEK, Wrap/Unwrap, `CKA_*`, `CKK_*` und `CKM_*`: [Glossar](../docs/glossar.md).
+
 ## "Wrap einen Key" ≠ "Encrypt mit dem Key"
 
 Modul 13 hat einen AES-Session-Key (Host-Speicher) per RSA-OAEP verschluesselt — das war pure **Daten**-Verschluesselung. Der "AES-Key" war fuer das Token nur ein Byte-Array.

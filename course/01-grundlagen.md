@@ -26,6 +26,8 @@ Wichtig: PKCS#11 ist kein Zertifikatsformat und kein Keystore-Format. Es ist ein
 
 ## Zentrale Begriffe
 
+Ergaenzender Nachschlag fuer Abkuerzungen und Praefixe: [Glossar](../docs/glossar.md).
+
 | Begriff | Bedeutung |
 |---|---|
 | Module | Native PKCS#11-Bibliothek, z. B. `libsofthsm2.so` |

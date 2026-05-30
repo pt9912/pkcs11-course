@@ -21,6 +21,8 @@ make sign
 make verify
 ```
 
+Nachschlag fuer `CKR_*`, `CKA_*`, `CKM_*` und weitere Praefixe: [Glossar](../docs/glossar.md).
+
 ## Typische Fehler
 
 | Fehler | Wahrscheinliche Ursache |

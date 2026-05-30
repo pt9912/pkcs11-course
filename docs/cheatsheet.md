@@ -8,6 +8,8 @@ TOKEN=dev-token
 PIN=987654
 ```
 
+Begriffe und Abkuerzungen: [glossar.md](glossar.md).
+
 ## Slots und Mechanisms
 
 ```bash

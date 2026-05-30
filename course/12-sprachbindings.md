@@ -20,6 +20,8 @@ make kotlin-demo
 make csharp-demo
 ```
 
+Nachschlag zu Abkuerzungen wie JCA, JCE, Provider, Engine und PKCS#11-Praefixen: [Glossar](../docs/glossar.md).
+
 ## Gemeinsamer Ablauf
 
 Alle Sprachbeispiele tun fachlich dasselbe:

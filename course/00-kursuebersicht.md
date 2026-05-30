@@ -61,6 +61,7 @@ Ausserhalb eines Devcontainers startet `make` die passenden Docker-Compose-Servi
 
 - Aufgaben liegen in `exercises/`.
 - Musterloesungen liegen in `solutions/`.
+- Abkuerzungen und zentrale Begriffe stehen in [docs/glossar.md](../docs/glossar.md).
 - Jede Uebung beschreibt Ziel, Vorbereitung, Aufgabe, erwartete Ausgabe, Fehlerfall und Reflexionsfragen.
 
 Nicht schummeln: Wenn du `CKR_*`-Fehler bekommst, bist du im richtigen Lernmodus.

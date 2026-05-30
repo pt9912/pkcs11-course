@@ -16,6 +16,8 @@ make ssh-pubkey       # Pubkeys aus dem Token extrahieren
 make ssh-test         # sshd starten, Login ueber HSM-Key, Cleanup
 ```
 
+Nachschlag zu SSH, PKCS#11-URI, `CKA_*` und Token-Begriffen: [Glossar](../docs/glossar.md).
+
 ## Was passiert beim SSH-Pubkey-Auth?
 
 SSH-Pubkey-Authentifizierung ist drei Schritte:

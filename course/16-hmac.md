@@ -22,6 +22,8 @@ make java-hmac-demo    # JCA Mac.doFinal + MessageDigest.isEqual
 make kotlin-hmac-demo  # Kotlin-Pendant
 ```
 
+Nachschlag zu HMAC, JWT, `CKK_*`, `CKM_*` und symmetrischen Key-Begriffen: [Glossar](../docs/glossar.md).
+
 ## MAC vs Signatur
 
 Reflex bei "etwas signieren" sind RSA/EC-Signaturen. Wenn aber **Sender und Empfaenger derselbe Trust-Boundary** angehoeren (oder beide einen geteilten HSM-Zugriff haben), ist ein MAC die einfachere, schnellere Wahl:

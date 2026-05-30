@@ -88,6 +88,7 @@ Weitere Materialien:
 - [`lab/`](lab/) - ausfuehrbares Docker-/Devcontainer-Lab
 - [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
+- [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
 
 ## Arbeitsweise
 
