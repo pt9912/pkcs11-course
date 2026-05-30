@@ -37,7 +37,8 @@ Am Ende kannst du:
 | 12 | `13-verschluesselung.md` | Hybride RSA-OAEP + AES-GCM Verschluesselung |
 | 13 | `14-cms-signatur.md` | CMS/PKCS#7-Dokumentsignatur (S/MIME-Format) |
 | 14 | `15-streaming.md` | Multi-Part-Ops fuer Grossdateien (Sign + Encrypt) |
-| 15 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 15 | `16-hmac.md` | HMAC, symmetrische Keys (GENERIC_SECRET), JWT-HS256 |
+| 16 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

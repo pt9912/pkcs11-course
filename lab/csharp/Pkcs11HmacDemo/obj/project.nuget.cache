@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "t503ITW4PwE=",
+  "success": true,
+  "projectFilePath": "/workspace/lab/csharp/Pkcs11HmacDemo/Pkcs11HmacDemo.csproj",
+  "expectedPackageFiles": [
+    "/workspace/.nuget/packages/pkcs11interop/5.3.0/pkcs11interop.5.3.0.nupkg.sha512"
+  ],
+  "logs": []
+}

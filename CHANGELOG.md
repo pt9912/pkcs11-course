@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.8.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 16 `course/16-hmac.md`: HMAC, `CKK_GENERIC_SECRET`-Keys, MAC-vs-Signatur, drei Verify-Pfade (`C_Verify` / recompute+compare / non-CT-anti-pattern), HS256-JWT als Praxis-Use-Case.
+- Uebung 10 `exercises/10-hmac.md` + Loesung `solutions/10-hmac.md`: Bash-Roundtrip, Tamper-Erkennung, Sprach-Demo + JWT, Cross-Sprach-Verifikation via pkcs11-tool, Bonus mit Hash-Familie-Wechsel.
+- Lab-Skripte `lab/scripts/39-generate-hmac-key.sh` (GENERIC:32 auf ID=05), `40-hmac-sign.sh` (`SHA256-HMAC`, 32-Byte-MAC), `41-hmac-verify.sh` (`C_Verify`-Pfad via pkcs11-tool).
+- Sprach-Demos `lab/{go,csharp,java,kotlin}/pkcs11-hmac-demo/`: Raw HMAC + HS256-JWT-Roundtrip in einem Programm.
+  - Go: `SignInit`/`Sign` + `VerifyInit`/`Verify`, JWT-Encoder mit `encoding/base64.RawURLEncoding`.
+  - C#: `session.Sign` + `session.Verify(...out bool)`, JWT-Encoder mit manuellem Base64URL (statt Microsoft.IdentityModel-Dep).
+  - Java/Kotlin: JCA `Mac.getInstance("HmacSHA256", sunPkcs11Provider)`, Verify als recompute + `MessageDigest.isEqual` (JCA-Mac hat kein eingebautes verify), minimaler JSON-Encoder ohne Lib-Dep.
+- Wrapper-Skripte `42-45-*-hmac-demo.sh`.
+- Makefile-Targets: `gen-hmac`, `hmac-sign`, `hmac-verify`, `go-hmac-demo`, `csharp-hmac-demo`, `java-hmac-demo`, `kotlin-hmac-demo`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle um Kapitel 16 erweitert.
+- `Makefile clean`: neue HMAC-Demo-Build-Verzeichnisse aufgenommen.
+
 ## 0.7.0 - 2026-05-30
 
 ### Hinzugefügt

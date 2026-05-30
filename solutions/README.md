@@ -13,6 +13,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/07-encrypt.md` | `07-encrypt.md` | Hybride Verschluesselung, OAEP-Wrap, Tampering-Erkennung |
 | `exercises/08-cms.md` | `08-cms.md` | CMS/PKCS#7-Dokumentsignatur, ASN.1-Struktur, Cross-Lib-Interop |
 | `exercises/09-streaming.md` | `09-streaming.md` | Multi-Part Sign + Encrypt von Grossdateien, pkcs11-spy Beweis |
+| `exercises/10-hmac.md` | `10-hmac.md` | HMAC-SHA256, GENERIC_SECRET-Key, HS256-JWT, MAC-vs-Signatur |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 
