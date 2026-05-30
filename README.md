@@ -40,43 +40,6 @@ make csharp-demo
 
 Technisch setzt `.devcontainer/devcontainer.json` die Variable `PKCS11_IN_DEVCONTAINER=1`. Das `Makefile` fuehrt die Lab-Skripte dann direkt aus. Ausserhalb des Devcontainers bleibt das Docker-Compose-Verhalten aktiv.
 
-## Wichtige Make-Targets
-
-### Setup und Grundlagen
-
-| Target | Zweck |
-|---|---|
-| `make build` | Docker-Images bauen, ausserhalb des Devcontainers |
-| `make shell` | Lab-Shell oeffnen |
-| `make restore` | C#-NuGet-Abhaengigkeiten fuer Editor/Language Server wiederherstellen |
-| `make init-token` | SoftHSM-Token `dev-token` initialisieren |
-| `make list-slots` / `make list-mechanisms` | Slots und unterstuetzte Mechanismen anzeigen |
-| `make gen-rsa` / `make gen-ec` | RSA- bzw. EC-Keypair erzeugen |
-| `make sign` / `make verify` / `make sign-pss` | RSA-PKCS#1-v1.5 und RSA-PSS signieren/verifizieren |
-| `make sign-ec` / `make verify-ec` | ECDSA-Pfad |
-| `make import-cert` | Self-signed Zertifikat fuer signing-key importieren |
-| `make java-demo` / `make go-demo` / `make kotlin-demo` / `make csharp-demo` | Basis-Sprach-Demos (sign + verify) |
-| `make clean` / `make clean-tokens` / `make distclean` | generierte Artefakte / Token-DB / alles entfernen |
-
-### Erweiterte Module (Kapitel 13-22)
-
-Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotlin), wo anwendbar. Java/Kotlin entfaellt in einzelnen Modulen wegen dokumentierter JCA-Limitierungen.
-
-| Modul | Targets | Inhalt |
-|---|---|---|
-| 13 — Verschluesselung | `make encrypt` / `make decrypt` / `make {go,csharp,java,kotlin}-encrypt-demo` | Hybrid RSA-OAEP + AES-GCM, neuer wrap-key |
-| 14 — CMS-Signatur | `make cms-sign` / `make cms-verify` / `make {go,csharp,java,kotlin}-cms-demo` | Detached CMS/PKCS#7-SignedData |
-| 15 — Streaming | `make stream-sign` / `make stream-encrypt` / `make stream-decrypt` / `make {go,csharp,java,kotlin}-stream-demo` | Multi-Part Ops fuer 100MB-Files, neuer aes-stream-key |
-| 16 — HMAC | `make hmac-sign` / `make hmac-verify` / `make {go,csharp,java,kotlin}-hmac-demo` | HMAC-SHA256, GENERIC_SECRET-Key, HS256-JWT |
-| 17 — Session-Pooling | `make {go,csharp,java,kotlin}-pool-demo` | Sequential vs parallel Benchmark, Pool-Patterns |
-| 18 — HSM-TLS | `make gen-tls-cert` / `make tls-serve` | nginx mit ssl_certificate_key engine:pkcs11:... |
-| 19 — HSM-SSH | `make ssh-pubkey` / `make ssh-test` | sshd auf 2222, Login via PKCS11Provider |
-| 20 — Key Wrap | `make gen-kek` / `make wrap-backup` / `make {go,csharp}-wrap-demo` | C_WrapKey/UnwrapKey-Roundtrip; Java/Kotlin entfaellt (kein JCA-Wrap) |
-| 21 — PIN-Management | `make pin-info` / `make pin-change` / `make pin-recovery` / `make {go,csharp}-pin-demo` | C_SetPIN/InitPIN, CKF_USER_PIN_*-Flags; Java/Kotlin entfaellt (kein JCA-PIN-API) |
-| 22 — CSR + CA | `make gen-ca-key` / `make issue-ca-cert` / `make issue-leaf-cert` / `make {go,csharp,java,kotlin}-csr-demo` | Mini-CA mit HSM-CA-Key, CSR-Generierung pro Sprache |
-
-Die Make-Dependency-Kette stellt vorgelagerte Targets automatisch sicher. `make tls-serve` zieht z.B. `import-cert` → `gen-rsa` → `init-token` mit.
-
 ## Kursstruktur
 
 Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didaktisch empfohlene Lernpfad** weicht davon ab (Debugging und ECDSA/PSS werden frueher gezogen, Service-Integration und Produktionscheckliste spaeter). Siehe [`course/00-kursuebersicht.md`](course/00-kursuebersicht.md) fuer die Reihenfolge, die der Kurs zum Lesen vorgibt.
@@ -117,6 +80,43 @@ Weitere Materialien:
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
 - [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (C_GenerateRandom, ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
+
+## Wichtige Make-Targets
+
+### Setup und Grundlagen
+
+| Target | Zweck |
+|---|---|
+| `make build` | Docker-Images bauen, ausserhalb des Devcontainers |
+| `make shell` | Lab-Shell oeffnen |
+| `make restore` | C#-NuGet-Abhaengigkeiten fuer Editor/Language Server wiederherstellen |
+| `make init-token` | SoftHSM-Token `dev-token` initialisieren |
+| `make list-slots` / `make list-mechanisms` | Slots und unterstuetzte Mechanismen anzeigen |
+| `make gen-rsa` / `make gen-ec` | RSA- bzw. EC-Keypair erzeugen |
+| `make sign` / `make verify` / `make sign-pss` | RSA-PKCS#1-v1.5 und RSA-PSS signieren/verifizieren |
+| `make sign-ec` / `make verify-ec` | ECDSA-Pfad |
+| `make import-cert` | Self-signed Zertifikat fuer signing-key importieren |
+| `make java-demo` / `make go-demo` / `make kotlin-demo` / `make csharp-demo` | Basis-Sprach-Demos (sign + verify) |
+| `make clean` / `make clean-tokens` / `make distclean` | generierte Artefakte / Token-DB / alles entfernen |
+
+### Erweiterte Module (Kapitel 13-22)
+
+Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotlin), wo anwendbar. Java/Kotlin entfaellt in einzelnen Modulen wegen dokumentierter JCA-Limitierungen.
+
+| Modul | Targets | Inhalt |
+|---|---|---|
+| 13 — Verschluesselung | `make encrypt` / `make decrypt` / `make {go,csharp,java,kotlin}-encrypt-demo` | Hybrid RSA-OAEP + AES-GCM, neuer wrap-key |
+| 14 — CMS-Signatur | `make cms-sign` / `make cms-verify` / `make {go,csharp,java,kotlin}-cms-demo` | Detached CMS/PKCS#7-SignedData |
+| 15 — Streaming | `make stream-sign` / `make stream-encrypt` / `make stream-decrypt` / `make {go,csharp,java,kotlin}-stream-demo` | Multi-Part Ops fuer 100MB-Files, neuer aes-stream-key |
+| 16 — HMAC | `make hmac-sign` / `make hmac-verify` / `make {go,csharp,java,kotlin}-hmac-demo` | HMAC-SHA256, GENERIC_SECRET-Key, HS256-JWT |
+| 17 — Session-Pooling | `make {go,csharp,java,kotlin}-pool-demo` | Sequential vs parallel Benchmark, Pool-Patterns |
+| 18 — HSM-TLS | `make gen-tls-cert` / `make tls-serve` | nginx mit ssl_certificate_key engine:pkcs11:... |
+| 19 — HSM-SSH | `make ssh-pubkey` / `make ssh-test` | sshd auf 2222, Login via PKCS11Provider |
+| 20 — Key Wrap | `make gen-kek` / `make wrap-backup` / `make {go,csharp}-wrap-demo` | C_WrapKey/UnwrapKey-Roundtrip; Java/Kotlin entfaellt (kein JCA-Wrap) |
+| 21 — PIN-Management | `make pin-info` / `make pin-change` / `make pin-recovery` / `make {go,csharp}-pin-demo` | C_SetPIN/InitPIN, CKF_USER_PIN_*-Flags; Java/Kotlin entfaellt (kein JCA-PIN-API) |
+| 22 — CSR + CA | `make gen-ca-key` / `make issue-ca-cert` / `make issue-leaf-cert` / `make {go,csharp,java,kotlin}-csr-demo` | Mini-CA mit HSM-CA-Key, CSR-Generierung pro Sprache |
+
+Die Make-Dependency-Kette stellt vorgelagerte Targets automatisch sicher. `make tls-serve` zieht z.B. `import-cert` → `gen-rsa` → `init-token` mit.
 
 ## Arbeitsweise
 
