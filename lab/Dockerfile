@@ -3,13 +3,16 @@ FROM debian:13 AS pkcs11-base
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     bash \
     ca-certificates \
+    curl \
     findutils \
     libengine-pkcs11-openssl \
     locales \
     make \
+    nginx-light \
     opensc \
     openssl \
     p11-kit \
+    procps \
     python3 \
     python3-cryptography \
     softhsm2 \

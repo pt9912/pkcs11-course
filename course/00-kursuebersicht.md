@@ -39,7 +39,8 @@ Am Ende kannst du:
 | 14 | `15-streaming.md` | Multi-Part-Ops fuer Grossdateien (Sign + Encrypt) |
 | 15 | `16-hmac.md` | HMAC, symmetrische Keys (GENERIC_SECRET), JWT-HS256 |
 | 16 | `17-session-pooling.md` | Pool-Pattern, Thread-Safety, fork-Falle |
-| 17 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 17 | `18-tls-mit-hsm.md` | nginx mit HSM-Key via openssl pkcs11-engine |
+| 18 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

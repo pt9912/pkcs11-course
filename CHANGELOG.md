@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.10.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 18 `course/18-tls-mit-hsm.md`: TLS-Handshake-Rolle des Server-Keys (TLS 1.3 CertificateVerify-Signature, TLS 1.2 Varianten), `libengine-pkcs11-openssl` Bruecke, nginx+HAProxy+Apache-Configs, pkcs11-provider als modernere Alternative.
+- Uebung 12 `exercises/12-tls-mit-hsm.md` + Loesung `solutions/12-tls-mit-hsm.md`: TLS-Cert ausstellen, nginx-Roundtrip, Cipher-Suite ueber openssl s_client, PIN-im-Config-Risiko, pkcs11-spy-Trace beim Handshake.
+- Lab-Skripte `lab/scripts/50-issue-tls-cert.sh` (self-signed CN=localhost+SAN, signiert vom HSM-Signing-Key) und `lab/scripts/51-tls-serve-and-test.sh` (nginx mit pkcs11-Engine starten, curl-Verify, Cleanup).
+- `lab/nginx/nginx-pkcs11.conf.template`: vollstaendige nginx-Config mit `ssl_certificate_key "engine:pkcs11:..."` (Quotes Pflicht wegen Semikolons in der URI), Runtime-Pfade nach /tmp umgeleitet fuer rootless-User.
+- Makefile-Targets: `gen-tls-cert`, `tls-serve`.
+- `lab/Dockerfile`: `curl`, `nginx-light`, `procps` ergaenzt.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 18 erweitert.
+
 ## 0.9.0 - 2026-05-30
 
 ### Hinzugefügt

@@ -15,6 +15,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/09-streaming.md` | `09-streaming.md` | Multi-Part Sign + Encrypt von Grossdateien, pkcs11-spy Beweis |
 | `exercises/10-hmac.md` | `10-hmac.md` | HMAC-SHA256, GENERIC_SECRET-Key, HS256-JWT, MAC-vs-Signatur |
 | `exercises/11-session-pooling.md` | `11-session-pooling.md` | Pool-Pattern, Speedup-Messung, CKR_OPERATION_ACTIVE provozieren |
+| `exercises/12-tls-mit-hsm.md` | `12-tls-mit-hsm.md` | TLS-Handshake mit HSM-Key, nginx+curl, Cipher-Suite-Beobachtung |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 
