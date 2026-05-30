@@ -17,6 +17,7 @@ lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 lab/kotlin/pkcs11-demo/bin/
 lab/kotlin/pkcs11-encrypt-demo/build/
 lab/kotlin/pkcs11-cms-demo/build/
+lab/kotlin/pkcs11-stream-demo/build/
 *.class
 
 # Gradle
@@ -35,6 +36,8 @@ lab/csharp/Pkcs11EncryptDemo/bin/
 lab/csharp/Pkcs11EncryptDemo/obj/
 lab/csharp/Pkcs11CmsDemo/bin/
 lab/csharp/Pkcs11CmsDemo/obj/
+lab/csharp/Pkcs11StreamDemo/bin/
+lab/csharp/Pkcs11StreamDemo/obj/
 .nuget/
 .dotnet/
 dotnet/

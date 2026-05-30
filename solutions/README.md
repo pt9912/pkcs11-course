@@ -12,6 +12,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/06-csharp.md` | `06-csharp.md` | Pkcs11Interop und native Ressourcen |
 | `exercises/07-encrypt.md` | `07-encrypt.md` | Hybride Verschluesselung, OAEP-Wrap, Tampering-Erkennung |
 | `exercises/08-cms.md` | `08-cms.md` | CMS/PKCS#7-Dokumentsignatur, ASN.1-Struktur, Cross-Lib-Interop |
+| `exercises/09-streaming.md` | `09-streaming.md` | Multi-Part Sign + Encrypt von Grossdateien, pkcs11-spy Beweis |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 

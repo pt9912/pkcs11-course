@@ -36,7 +36,8 @@ Am Ende kannst du:
 | 11 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
 | 12 | `13-verschluesselung.md` | Hybride RSA-OAEP + AES-GCM Verschluesselung |
 | 13 | `14-cms-signatur.md` | CMS/PKCS#7-Dokumentsignatur (S/MIME-Format) |
-| 14 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 14 | `15-streaming.md` | Multi-Part-Ops fuer Grossdateien (Sign + Encrypt) |
+| 15 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 15 `course/15-streaming.md`: PKCS#11 Multi-Part Ops (`C_*Init`/`C_*Update`/`C_*Final`), Mechanism-Eignungstabelle, Speicherbeweis fuer 100MB-Files, AES-CBC-PAD vs AES-GCM Streaming-Eigenschaften.
+- Uebung 09 `exercises/09-streaming.md` + Loesung `solutions/09-streaming.md`: Bash-Round-Trip, pkcs11-spy-Beweis (Update-Calls zaehlen), Sprach-Demo, Speicher-Messung, Chunk-Size-Experiment.
+- Lab-Skripte `lab/scripts/30-generate-aes-stream-key.sh` (AES-256 als CKO_SECRET_KEY mit `CKA_ENCRYPT`/`CKA_DECRYPT`, ID=04 zur Vermeidung von Konflikten), `31-stream-sign.sh` (`SHA256-RSA-PKCS`, Token-side Hash), `32-stream-verify.sh`, `33-stream-encrypt.sh` (`AES-CBC-PAD` mit zufaelligem IV, persistiert als Hex), `34-stream-decrypt.sh` (Round-Trip-Check via `diff`).
+- Sprach-Demos `lab/{go,csharp,java,kotlin}/pkcs11-stream-demo/`: 100MB-Sign + 100MB-Encrypt + Decrypt in einem Programm.
+  - Go: expliziter `SignUpdate`-Loop und gemeinsame `streamUpdateFinal`-Abstraktion fuer Encrypt/Decrypt.
+  - C#: nutzt `ISession.Sign(mech, key, Stream)` und `ISession.Encrypt(mech, key, in, out)` Stream-Ueberladungen.
+  - Java/Kotlin: `Signature.update(buf, off, len)` und `Cipher.update` via `CipherInputStream`-Pattern; SunPKCS11 exponiert den AES-Secret-Key direkt ueber CKA_LABEL als KeyStore-Alias.
+- Wrapper-Skripte `35-38-*-stream-demo.sh`.
+- Makefile-Targets: `gen-aes-stream`, `stream-sign`, `stream-verify`, `stream-encrypt`, `stream-decrypt`, `go-stream-demo`, `csharp-stream-demo`, `java-stream-demo`, `kotlin-stream-demo`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle um Kapitel 15 erweitert.
+- `Makefile clean`: neue Stream-Demo-Build-Verzeichnisse aufgenommen.
+
 ## 0.6.0 - 2026-05-30
 
 ### Hinzugefügt
