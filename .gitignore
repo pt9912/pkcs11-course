@@ -12,6 +12,9 @@ lab/java/pkcs11-encrypt-demo/bin/
 lab/java/pkcs11-cms-demo/build/
 lab/java/pkcs11-cms-demo/bin/
 lab/java/pkcs11-cms-demo/target/
+lab/java/pkcs11-stream-demo/build/
+lab/java/pkcs11-stream-demo/bin/
+lab/java/pkcs11-stream-demo/target/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 lab/kotlin/pkcs11-demo/bin/
