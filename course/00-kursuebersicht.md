@@ -41,7 +41,8 @@ Am Ende kannst du:
 | 16 | `17-session-pooling.md` | Pool-Pattern, Thread-Safety, fork-Falle |
 | 17 | `18-tls-mit-hsm.md` | nginx mit HSM-Key via openssl pkcs11-engine |
 | 18 | `19-ssh-mit-hsm.md` | SSH-Login ueber PKCS11Provider, Smartcard-Pattern |
-| 19 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 19 | `20-key-wrap.md` | Backup/Escrow via C_WrapKey + KEK-Strategie |
+| 20 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

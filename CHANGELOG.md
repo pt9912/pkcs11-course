@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.12.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 20 `course/20-key-wrap.md`: C_WrapKey vs C_Encrypt, CKA_EXTRACTABLE als one-way-Gate, KEK-Policy (Use-Case-Trennung), Mechanism-Vergleich RFC 3394 vs 5649, Audit-Aspekte, dokumentierte JCA-Luecke in OpenJDK 21.
+- Uebung 14 `exercises/14-key-wrap.md` + Loesung `solutions/14-key-wrap.md`: Backup-Erzeugung, Anti-Pattern ohne --extractable, Sprach-Roundtrip, KEK-Verlust-Szenario, Reflexion zu CKA_WRAP_TEMPLATE und Backup-Strategien.
+- Lab-Skripte `lab/scripts/54-generate-kek.sh` (AES-256 KEK auf ID=06 mit CKA_WRAP/UNWRAP, KEINE CKA_ENCRYPT — sortenrein wrap-only) und `55-wrap-key-backup.sh` (extractable payload-key generieren, Test-Daten encrypten, wrap unter KEK → opaque Blob).
+- Sprach-Demos `lab/go/pkcs11-wrap-demo/` und `lab/csharp/Pkcs11WrapDemo/`: vollstaendiger Round-Trip Generate → Encrypt → Wrap → Destroy → Unwrap → Decrypt → Verify. Minimal-Template beim Unwrap (kein CKA_VALUE_LEN), damit SoftHSM nicht mit CKR_ATTRIBUTE_READ_ONLY ablehnt.
+- Wrapper-Skripte `57-go-wrap-demo.sh`, `58-csharp-wrap-demo.sh`.
+- Makefile-Targets: `gen-kek`, `wrap-backup`, `go-wrap-demo`, `csharp-wrap-demo`.
+
+### Bekannte Limits
+- **Java/Kotlin-Demo entfaellt**: SunPKCS11 in OpenJDK 21.0.11 (Debian 13) registriert weder `AESWrap` noch `AES/KW/NoPadding`/`AES/KWP/NoPadding` als Cipher-Service, obwohl SoftHSM die Mechanismen advertised. JCA-`Cipher.wrap()` ist damit nicht erreichbar. Course-Modul dokumentiert die Luecke und nennt OpenJDK ≥ 23 sowie IAIK-Wrapper als Workarounds.
+- **pkcs11-tool kann nicht unwrappen mit SoftHSM**: setzt im Template CKA_VALUE_LEN, was SoftHSM mit CKR_ATTRIBUTE_READ_ONLY ablehnt. Bash-Pfad endet beim Backup-Export; Restore liegt in den Sprach-Demos.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 20 erweitert.
+- `Makefile clean`: neues Pkcs11WrapDemo bin/obj aufgenommen.
+
 ## 0.11.0 - 2026-05-30
 
 ### Hinzugefügt

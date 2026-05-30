@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -217,6 +217,18 @@ ssh-pubkey: gen-rsa
 ssh-test: ssh-pubkey
 	$(RUN_LAB) 'lab/scripts/53-ssh-start-and-test.sh'
 
+gen-kek: init-token
+	$(RUN_LAB) 'lab/scripts/54-generate-kek.sh'
+
+wrap-backup: gen-kek
+	$(RUN_LAB) 'lab/scripts/55-wrap-key-backup.sh'
+
+go-wrap-demo: gen-kek
+	$(RUN_GO) 'lab/scripts/57-go-wrap-demo.sh'
+
+csharp-wrap-demo: gen-kek
+	$(RUN_CSHARP) 'lab/scripts/58-csharp-wrap-demo.sh'
+
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token
 # komplett wegwerfen will, nutzt `make clean-tokens` oder `make distclean`.
@@ -238,7 +250,8 @@ clean:
 	       lab/csharp/Pkcs11CmsDemo/bin lab/csharp/Pkcs11CmsDemo/obj \
 	       lab/csharp/Pkcs11StreamDemo/bin lab/csharp/Pkcs11StreamDemo/obj \
 	       lab/csharp/Pkcs11HmacDemo/bin lab/csharp/Pkcs11HmacDemo/obj \
-	       lab/csharp/Pkcs11PoolDemo/bin lab/csharp/Pkcs11PoolDemo/obj
+	       lab/csharp/Pkcs11PoolDemo/bin lab/csharp/Pkcs11PoolDemo/obj \
+	       lab/csharp/Pkcs11WrapDemo/bin lab/csharp/Pkcs11WrapDemo/obj
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

@@ -17,6 +17,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/11-session-pooling.md` | `11-session-pooling.md` | Pool-Pattern, Speedup-Messung, CKR_OPERATION_ACTIVE provozieren |
 | `exercises/12-tls-mit-hsm.md` | `12-tls-mit-hsm.md` | TLS-Handshake mit HSM-Key, nginx+curl, Cipher-Suite-Beobachtung |
 | `exercises/13-ssh-mit-hsm.md` | `13-ssh-mit-hsm.md` | SSH-Pubkey-Login ueber PKCS11Provider, ssh-agent, PIN-Handling |
+| `exercises/14-key-wrap.md` | `14-key-wrap.md` | C_WrapKey, KEK-Policy, CKA_EXTRACTABLE one-way, Backup-Strategie |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 
