@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.14.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 22 `course/22-csr-und-ca-workflow.md`: CSR-Mechanik (Proof-of-Possession), Mini-CA-Aufbau mit HSM-residentem CA-Key, vollstaendiger Workflow Generate-CSR → CA-Sign → Cert-Import. Erklaert, warum `08-import-cert.sh` ein didaktischer Hack war und wie der echte Workflow aussieht. Vergleichstabelle Bridge-Pattern pro Sprache (reused aus CMS-Modul). Hinweis zu RFC 6125 / SAN-Pflicht moderner Browser.
+- Uebung 16 `exercises/16-csr-und-ca-workflow.md` + Loesung `solutions/16-csr-und-ca-workflow.md`: CA-Setup, Leaf-Cert-Workflow, Sprach-Demo, Cross-Lib-Signing (Go-CSR + Bash-CA), Bonus mit broken CSR.
+- Lab-Skripte `lab/scripts/64-generate-ca-key.sh` (CA-Key RSA-2048 auf ID=08, sortenrein CKA_SIGN), `65-issue-ca-cert.sh` (Self-signed Root CA mit `basicConstraints CA:TRUE`, `keyUsage keyCertSign,cRLSign`, SKI), `66-issue-leaf-cert.sh` (CSR via openssl + pkcs11-engine, CA signiert via CAkey=engine, Chain-Verify, Import auf separater ID=09/Label `leaf-cert` — beruehrt das Self-signed Cert auf ID=01 nicht, damit existierende CMS/TLS-Demos weiterhin funktionieren).
+- Sprach-Demos `lab/{go,csharp,java,kotlin}/pkcs11-csr-demo/`: CSR-Generierung mit dem signing-key auf ID=01 ueber jeweils sprachspezifische Bridge:
+  - Go: `crypto.Signer`-Adapter (DigestInfo + CKM_RSA_PKCS) + `x509.CreateCertificateRequest`. CKA_MODULUS/CKA_PUBLIC_EXPONENT manuell lesen, daraus `*rsa.PublicKey` bauen.
+  - C#: `ExternalRsaSha256SignatureFactory` aus dem CMS-Modul + `Pkcs10CertificationRequest` von BouncyCastle.Cryptography. Pubkey aus CKA_MODULUS/CKA_PUBLIC_EXPONENT → `RsaKeyParameters`. SAN/KeyUsage via `X509ExtensionsGenerator` im extensionRequest-Attribut.
+  - Java/Kotlin: `JcaContentSignerBuilder("SHA256withRSA").setProvider(sunPkcs11)` + `JcaPKCS10CertificationRequestBuilder` von BouncyCastle bcpkix. Pubkey aus `keyStore.getCertificate(alias).getPublicKey()` (braucht das `import-cert`-Plumbing).
+- Alle CSR-Wrapper cross-verifizieren am Ende mit `openssl req -verify` — Standard-Interop beweisen.
+- Makefile-Targets: `gen-ca-key`, `issue-ca-cert`, `issue-leaf-cert`, `go-csr-demo`, `csharp-csr-demo`, `java-csr-demo`, `kotlin-csr-demo`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 22 erweitert.
+- `Makefile clean`: neue CSR-Demo-Build-Verzeichnisse aufgenommen.
+
 ## 0.13.1 - 2026-05-30
 
 ### Geändert

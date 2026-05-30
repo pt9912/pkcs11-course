@@ -21,6 +21,9 @@ lab/java/pkcs11-hmac-demo/target/
 lab/java/pkcs11-pool-demo/build/
 lab/java/pkcs11-pool-demo/bin/
 lab/java/pkcs11-pool-demo/target/
+lab/java/pkcs11-csr-demo/build/
+lab/java/pkcs11-csr-demo/bin/
+lab/java/pkcs11-csr-demo/target/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 lab/kotlin/pkcs11-demo/bin/
@@ -29,6 +32,7 @@ lab/kotlin/pkcs11-cms-demo/build/
 lab/kotlin/pkcs11-stream-demo/build/
 lab/kotlin/pkcs11-hmac-demo/build/
 lab/kotlin/pkcs11-pool-demo/build/
+lab/kotlin/pkcs11-csr-demo/build/
 *.class
 
 # Gradle
@@ -57,6 +61,8 @@ lab/csharp/Pkcs11WrapDemo/bin/
 lab/csharp/Pkcs11WrapDemo/obj/
 lab/csharp/Pkcs11PinDemo/bin/
 lab/csharp/Pkcs11PinDemo/obj/
+lab/csharp/Pkcs11CsrDemo/bin/
+lab/csharp/Pkcs11CsrDemo/obj/
 .nuget/
 .dotnet/
 dotnet/

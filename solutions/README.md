@@ -19,6 +19,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/13-ssh-mit-hsm.md` | `13-ssh-mit-hsm.md` | SSH-Pubkey-Login ueber PKCS11Provider, ssh-agent, PIN-Handling |
 | `exercises/14-key-wrap.md` | `14-key-wrap.md` | C_WrapKey, KEK-Policy, CKA_EXTRACTABLE one-way, Backup-Strategie |
 | `exercises/15-pin-management.md` | `15-pin-management.md` | C_SetPIN/InitPIN, CKF_USER_PIN_*-Flags, SO-Recovery, Lockout-Realitaet |
+| `exercises/16-csr-und-ca-workflow.md` | `16-csr-und-ca-workflow.md` | CSR-Generierung ueber HSM, Mini-CA-Aufbau, CA-Signing, Cross-Lib-Workflow |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 
