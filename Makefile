@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -193,6 +193,18 @@ java-hmac-demo: gen-hmac
 kotlin-hmac-demo: gen-hmac
 	$(RUN_KOTLIN) 'lab/scripts/45-kotlin-hmac-demo.sh'
 
+go-pool-demo: gen-hmac
+	$(RUN_GO) 'lab/scripts/46-go-pool-demo.sh'
+
+csharp-pool-demo: gen-hmac
+	$(RUN_CSHARP) 'lab/scripts/47-csharp-pool-demo.sh'
+
+java-pool-demo: gen-hmac
+	$(RUN_LAB) 'lab/scripts/48-java-pool-demo.sh'
+
+kotlin-pool-demo: gen-hmac
+	$(RUN_KOTLIN) 'lab/scripts/49-kotlin-pool-demo.sh'
+
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token
 # komplett wegwerfen will, nutzt `make clean-tokens` oder `make distclean`.
@@ -202,16 +214,19 @@ clean:
 	       lab/java/pkcs11-cms-demo/build lab/java/pkcs11-cms-demo/.gradle \
 	       lab/java/pkcs11-stream-demo/build lab/java/pkcs11-stream-demo/.gradle \
 	       lab/java/pkcs11-hmac-demo/build lab/java/pkcs11-hmac-demo/.gradle \
+	       lab/java/pkcs11-pool-demo/build lab/java/pkcs11-pool-demo/.gradle \
 	       lab/kotlin/pkcs11-demo/build lab/kotlin/pkcs11-demo/.gradle lab/kotlin/pkcs11-demo/.kotlin \
 	       lab/kotlin/pkcs11-encrypt-demo/build lab/kotlin/pkcs11-encrypt-demo/.gradle lab/kotlin/pkcs11-encrypt-demo/.kotlin \
 	       lab/kotlin/pkcs11-cms-demo/build lab/kotlin/pkcs11-cms-demo/.gradle lab/kotlin/pkcs11-cms-demo/.kotlin \
 	       lab/kotlin/pkcs11-stream-demo/build lab/kotlin/pkcs11-stream-demo/.gradle lab/kotlin/pkcs11-stream-demo/.kotlin \
 	       lab/kotlin/pkcs11-hmac-demo/build lab/kotlin/pkcs11-hmac-demo/.gradle lab/kotlin/pkcs11-hmac-demo/.kotlin \
+	       lab/kotlin/pkcs11-pool-demo/build lab/kotlin/pkcs11-pool-demo/.gradle lab/kotlin/pkcs11-pool-demo/.kotlin \
 	       lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj \
 	       lab/csharp/Pkcs11EncryptDemo/bin lab/csharp/Pkcs11EncryptDemo/obj \
 	       lab/csharp/Pkcs11CmsDemo/bin lab/csharp/Pkcs11CmsDemo/obj \
 	       lab/csharp/Pkcs11StreamDemo/bin lab/csharp/Pkcs11StreamDemo/obj \
-	       lab/csharp/Pkcs11HmacDemo/bin lab/csharp/Pkcs11HmacDemo/obj
+	       lab/csharp/Pkcs11HmacDemo/bin lab/csharp/Pkcs11HmacDemo/obj \
+	       lab/csharp/Pkcs11PoolDemo/bin lab/csharp/Pkcs11PoolDemo/obj
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

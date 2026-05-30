@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 17 `course/17-session-pooling.md`: Thread-Safety pro Binding (SunPKCS11/miekg/pkcs11/Pkcs11Interop), Pool-Patterns, `C_Login`-Lebensdauer (anwendungsweit, nicht session-weit), fork()-Falle, realistischer Speedup-Vergleich SoftHSM vs reale HSMs.
+- Uebung 11 `exercises/11-session-pooling.md` + Loesung `solutions/11-session-pooling.md`: Baseline-Benchmark, `CKR_OPERATION_ACTIVE`-Anti-Pattern provozieren, Pool-Groesse variieren, Login-Doppelfehler, fork-Diskussion.
+- Sprach-Demos `lab/{go,csharp,java,kotlin}/pkcs11-pool-demo/`: sequenziell vs parallel mit Pool-Size 8 und 10000 HMAC-SHA256-Operationen, Speedup-Report.
+  - Go: `chan pkcs11.SessionHandle` als Pool, `atomic.Int64`-Counter.
+  - C#: `BlockingCollection<ISession>` + `Task.WhenAll`, `AppType.MultiThreaded`.
+  - Java/Kotlin: `BlockingQueue<Mac>` + `ExecutorService` (Mac-Pool statt Session-Pool, weil SunPKCS11 Sessions intern selbst poolt).
+- Wrapper-Skripte `46-49-*-pool-demo.sh`.
+- Makefile-Targets: `go-pool-demo`, `csharp-pool-demo`, `java-pool-demo`, `kotlin-pool-demo`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 17 erweitert.
+- `Makefile clean`: neue Pool-Demo-Build-Verzeichnisse aufgenommen.
+
 ## 0.8.0 - 2026-05-30
 
 ### Hinzugefügt
