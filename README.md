@@ -63,31 +63,31 @@ Technisch setzt `.devcontainer/devcontainer.json` die Variable `PKCS11_IN_DEVCON
 
 ## Kursstruktur
 
-Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didaktisch empfohlene Lernpfad** weicht davon ab (Debugging und ECDSA/PSS werden frueher gezogen, Service-Integration und Produktionscheckliste spaeter). Siehe `course/00-kursuebersicht.md` fuer die Reihenfolge, die der Kurs zum Lesen vorgibt.
+Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didaktisch empfohlene Lernpfad** weicht davon ab (Debugging und ECDSA/PSS werden frueher gezogen, Service-Integration und Produktionscheckliste spaeter). Siehe [`course/00-kursuebersicht.md`](course/00-kursuebersicht.md) fuer die Reihenfolge, die der Kurs zum Lesen vorgibt.
 
 | Datei | Inhalt | Uebung |
 |---|---|---|
-| `course/00-kursuebersicht.md` | Aufbau, Ziele, Lernpfad | alle |
-| `course/01-grundlagen.md` | Slots, Tokens, Sessions, Objects, Mechanisms | `exercises/01-token.md` |
-| `course/02-lab-setup.md` | Docker, Devcontainer, SoftHSM, OpenSC | `exercises/01-token.md` |
-| `course/03-token-und-objekte.md` | Token initialisieren, Keys erzeugen, Objekte lesen | `exercises/01-token.md`, `exercises/02-key-signature.md` |
-| `course/04-signieren-und-verifizieren.md` | Signaturen mit `pkcs11-tool` und OpenSSL | `exercises/02-key-signature.md` |
-| `course/05-zertifikate.md` | Zertifikate erzeugen, importieren und mit Keys koppeln | `exercises/03-java.md` |
-| `course/06-java-sunpkcs11.md` | Java JCA/JCE ueber SunPKCS11 | `exercises/03-java.md` |
-| `course/07-service-integration.md` | Signatur-Service als Architekturuebung | `course/10-abschlussprojekt.md` |
-| `course/08-debugging.md` | CKR-Fehler, Mechanism-Mapping, Slots, PINs | alle |
-| `course/09-production-checkliste.md` | Was bei echten HSMs anders wird | Abschlussprojekt |
-| `course/10-abschlussprojekt.md` | vollstaendiges Abschlussprojekt | Abschlussprojekt |
-| `course/11-ec-und-pss.md` | ECDSA und RSA-PSS in der Praxis | optionale Erweiterung |
-| `course/12-sprachbindings.md` | Java, Go, Kotlin und C# im Vergleich | `exercises/03-java.md` bis `06-csharp.md` |
+| [`course/00-kursuebersicht.md`](course/00-kursuebersicht.md) | Aufbau, Ziele, Lernpfad | [alle Uebungen](exercises/) |
+| [`course/01-grundlagen.md`](course/01-grundlagen.md) | Slots, Tokens, Sessions, Objects, Mechanisms | [`exercises/01-token.md`](exercises/01-token.md) |
+| [`course/02-lab-setup.md`](course/02-lab-setup.md) | Docker, Devcontainer, SoftHSM, OpenSC | [`exercises/01-token.md`](exercises/01-token.md) |
+| [`course/03-token-und-objekte.md`](course/03-token-und-objekte.md) | Token initialisieren, Keys erzeugen, Objekte lesen | [`exercises/01-token.md`](exercises/01-token.md), [`exercises/02-key-signature.md`](exercises/02-key-signature.md) |
+| [`course/04-signieren-und-verifizieren.md`](course/04-signieren-und-verifizieren.md) | Signaturen mit `pkcs11-tool` und OpenSSL | [`exercises/02-key-signature.md`](exercises/02-key-signature.md) |
+| [`course/05-zertifikate.md`](course/05-zertifikate.md) | Zertifikate erzeugen, importieren und mit Keys koppeln | [`exercises/03-java.md`](exercises/03-java.md) |
+| [`course/06-java-sunpkcs11.md`](course/06-java-sunpkcs11.md) | Java JCA/JCE ueber SunPKCS11 | [`exercises/03-java.md`](exercises/03-java.md) |
+| [`course/07-service-integration.md`](course/07-service-integration.md) | Signatur-Service als Architekturuebung | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) |
+| [`course/08-debugging.md`](course/08-debugging.md) | CKR-Fehler, Mechanism-Mapping, Slots, PINs | [alle Uebungen](exercises/) |
+| [`course/09-production-checkliste.md`](course/09-production-checkliste.md) | Was bei echten HSMs anders wird | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) |
+| [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) | vollstaendiges Abschlussprojekt | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) |
+| [`course/11-ec-und-pss.md`](course/11-ec-und-pss.md) | ECDSA und RSA-PSS in der Praxis | optionale Erweiterung |
+| [`course/12-sprachbindings.md`](course/12-sprachbindings.md) | Java, Go, Kotlin und C# im Vergleich | [`exercises/03-java.md`](exercises/03-java.md) bis [`exercises/06-csharp.md`](exercises/06-csharp.md) |
 
 Weitere Materialien:
 
-- `exercises/` - Aufgaben im einheitlichen Format
-- `solutions/` - Musterloesungen und erwartete Ergebnisse
-- `lab/` - ausfuehrbares Docker-/Devcontainer-Lab
-- `docs/cheatsheet.md` - schneller Spickzettel
-- `docs/api.md` - Leitfaden zur PKCS#11-API
+- [`exercises/`](exercises/) - Aufgaben im einheitlichen Format
+- [`solutions/`](solutions/) - Musterloesungen und erwartete Ergebnisse
+- [`lab/`](lab/) - ausfuehrbares Docker-/Devcontainer-Lab
+- [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel
+- [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 
 ## Arbeitsweise
 
