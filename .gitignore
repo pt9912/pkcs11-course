@@ -6,9 +6,13 @@ lab/work/*
 lab/java/pkcs11-demo/target/
 lab/java/pkcs11-demo/build/
 lab/java/pkcs11-demo/bin/
+lab/java/pkcs11-encrypt-demo/target/
+lab/java/pkcs11-encrypt-demo/build/
+lab/java/pkcs11-encrypt-demo/bin/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 lab/kotlin/pkcs11-demo/bin/
+lab/kotlin/pkcs11-encrypt-demo/build/
 *.class
 
 # Gradle
@@ -23,6 +27,8 @@ lab/go/pkcs11-demo/pkcs11-demo
 # .NET
 lab/csharp/Pkcs11Demo/bin/
 lab/csharp/Pkcs11Demo/obj/
+lab/csharp/Pkcs11EncryptDemo/bin/
+lab/csharp/Pkcs11EncryptDemo/obj/
 .nuget/
 .dotnet/
 dotnet/
@@ -42,3 +48,4 @@ Thumbs.db
 
 # Logs
 *.log
+

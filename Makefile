@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -103,13 +103,40 @@ kotlin-demo: import-cert
 csharp-demo: gen-rsa
 	$(RUN_CSHARP) 'lab/scripts/15-csharp-demo.sh'
 
+gen-rsa-wrap: init-token
+	$(RUN_LAB) 'lab/scripts/16-generate-rsa-wrap.sh'
+
+encrypt: gen-rsa-wrap
+	$(RUN_LAB) 'lab/scripts/17-encrypt-hybrid.sh'
+
+decrypt: encrypt
+	$(RUN_LAB) 'lab/scripts/18-decrypt-hybrid.sh'
+
+issue-wrap-cert: gen-rsa-wrap
+	$(RUN_LAB) 'lab/scripts/19-issue-wrap-cert.sh'
+
+java-encrypt-demo: issue-wrap-cert
+	$(RUN_LAB) 'lab/scripts/20-java-encrypt-demo.sh'
+
+go-encrypt-demo: gen-rsa-wrap
+	$(RUN_GO) 'lab/scripts/21-go-encrypt-demo.sh'
+
+kotlin-encrypt-demo: issue-wrap-cert
+	$(RUN_KOTLIN) 'lab/scripts/22-kotlin-encrypt-demo.sh'
+
+csharp-encrypt-demo: gen-rsa-wrap
+	$(RUN_CSHARP) 'lab/scripts/23-csharp-encrypt-demo.sh'
+
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token
 # komplett wegwerfen will, nutzt `make clean-tokens` oder `make distclean`.
 clean:
 	rm -rf lab/java/pkcs11-demo/build lab/java/pkcs11-demo/.gradle \
+	       lab/java/pkcs11-encrypt-demo/build lab/java/pkcs11-encrypt-demo/.gradle \
 	       lab/kotlin/pkcs11-demo/build lab/kotlin/pkcs11-demo/.gradle lab/kotlin/pkcs11-demo/.kotlin \
-	       lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj
+	       lab/kotlin/pkcs11-encrypt-demo/build lab/kotlin/pkcs11-encrypt-demo/.gradle lab/kotlin/pkcs11-encrypt-demo/.kotlin \
+	       lab/csharp/Pkcs11Demo/bin lab/csharp/Pkcs11Demo/obj \
+	       lab/csharp/Pkcs11EncryptDemo/bin lab/csharp/Pkcs11EncryptDemo/obj
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

@@ -10,6 +10,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/04-go.md` | `04-go.md` | native PKCS#11-Ablaufe in Go |
 | `exercises/05-kotlin.md` | `05-kotlin.md` | Kotlin ueber JCA/SunPKCS11 |
 | `exercises/06-csharp.md` | `06-csharp.md` | Pkcs11Interop und native Ressourcen |
+| `exercises/07-encrypt.md` | `07-encrypt.md` | Hybride Verschluesselung, OAEP-Wrap, Tampering-Erkennung |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 

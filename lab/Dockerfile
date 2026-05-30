@@ -10,6 +10,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     opensc \
     openssl \
     p11-kit \
+    python3 \
+    python3-cryptography \
     softhsm2 \
     && sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen en_US.UTF-8 \

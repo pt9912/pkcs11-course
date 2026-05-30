@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 13 `course/13-verschluesselung.md`: hybride Verschluesselung mit RSA-OAEP-Wrap + AES-256-GCM, inkl. Wrap-Key-Policy, OAEP-Parameter-Falle und der SoftHSM/SunPKCS11-Quirks.
+- Uebung 07 `exercises/07-encrypt.md` + Loesung `solutions/07-encrypt.md`: vier Aufgaben (Keygen, Bash-Encrypt/Decrypt, Tampering-Erkennung, Sprach-Demo).
+- Lab-Skripte `lab/scripts/16-generate-rsa-wrap.sh` (RSA-2048 mit `CKA_DECRYPT/CKA_UNWRAP/CKA_WRAP`, sortenrein ohne `CKA_SIGN`, ID=03 zur Vermeidung des Konflikts mit dem EC-Key auf ID=02), `17-encrypt-hybrid.sh`, `18-decrypt-hybrid.sh`, `19-issue-wrap-cert.sh` (Plumbing-Cert fuer den SunPKCS11-KeyStore-Alias).
+- AES-GCM-Helper `lab/scripts/_aes_gcm.py` (python3-cryptography).
+- Sprach-Demos: `lab/java/pkcs11-encrypt-demo/`, `lab/go/pkcs11-encrypt-demo/`, `lab/kotlin/pkcs11-encrypt-demo/`, `lab/csharp/Pkcs11EncryptDemo/`. Wrapper-Skripte `20-23-*-encrypt-demo.sh`. Java/Kotlin implementieren OAEP-Unpadding in Software, weil SunPKCS11 keinen OAEP-Cipher exponiert.
+- Makefile-Targets: `gen-rsa-wrap`, `encrypt`, `decrypt`, `issue-wrap-cert`, `java-encrypt-demo`, `go-encrypt-demo`, `kotlin-encrypt-demo`, `csharp-encrypt-demo`.
+- `lab/Dockerfile`: `python3` + `python3-cryptography` fuer den AES-GCM-Helper.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle um Kapitel 13 erweitert.
+- `Makefile clean`: neue Demo-Projekt-Build-Verzeichnisse mit aufgenommen.
+
 ## 0.4.0 - 2026-05-29
 
 ### Geändert
