@@ -40,7 +40,8 @@ Am Ende kannst du:
 | 15 | `16-hmac.md` | HMAC, symmetrische Keys (GENERIC_SECRET), JWT-HS256 |
 | 16 | `17-session-pooling.md` | Pool-Pattern, Thread-Safety, fork-Falle |
 | 17 | `18-tls-mit-hsm.md` | nginx mit HSM-Key via openssl pkcs11-engine |
-| 18 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 18 | `19-ssh-mit-hsm.md` | SSH-Login ueber PKCS11Provider, Smartcard-Pattern |
+| 19 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

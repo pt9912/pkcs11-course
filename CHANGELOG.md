@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.11.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 19 `course/19-ssh-mit-hsm.md`: SSH-Pubkey-Authentifizierung Schritt fuer Schritt, `ssh-keygen -D` zum Pubkey-Export, drei PIN-Varianten (Prompt/ASKPASS/ssh-agent), Smartcard- und YubiKey-Aequivalenz, Agent-Forwarding-Risiko, Stolperfallen rund um StrictModes und Distros ohne PKCS#11-Compile-Option.
+- Uebung 13 `exercises/13-ssh-mit-hsm.md` + Loesung `solutions/13-ssh-mit-hsm.md`: Pubkey-Extract, SSH-Roundtrip, Ohne-Provider-Test, Falsche-PIN-Beobachtung, ssh-agent-Bonus.
+- Lab-Skripte `lab/scripts/52-ssh-extract-pubkey.sh` (kein PIN noetig, Pubkey-Read passiert ohne Login) und `lab/scripts/53-ssh-start-and-test.sh` (sshd als unprivilegierter User auf Port 2222, authorized_keys aus HSM-Pubkeys, ssh-Login via SSH_ASKPASS-Helfer fuer die PIN, Cleanup im trap).
+- Makefile-Targets: `ssh-pubkey`, `ssh-test`.
+- `lab/Dockerfile`: `openssh-client` + `openssh-server`.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 19 erweitert.
+
 ## 0.10.0 - 2026-05-30
 
 ### Hinzugefügt

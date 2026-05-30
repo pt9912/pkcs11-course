@@ -10,6 +10,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     make \
     nginx-light \
     opensc \
+    openssh-client \
+    openssh-server \
     openssl \
     p11-kit \
     procps \
