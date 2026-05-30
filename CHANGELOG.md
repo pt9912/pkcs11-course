@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.13.0 - 2026-05-30
+
+### Hinzugefügt
+- Kapitel 21 `course/21-pin-management.md`: CKU_USER vs CKU_SO, C_Login/C_SetPIN/C_InitPIN, vollstaendige CKF_USER_PIN_*-/CKF_SO_PIN_*-Flag-Geometrie, Anwendungs-Pflicht beim Flag-Check vor jedem Login, Vergleichstabelle SoftHSM (kein Lockout) vs Smartcards (3) vs Cloud-HSMs (konfigurierbar), JCA-Limit dokumentiert.
+- Uebung 15 `exercises/15-pin-management.md` + Loesung `solutions/15-pin-management.md`: PIN-Info-Read, Change-und-zurueck, Flag-Transition beobachten, SO-Recovery, Sprach-Demo, Bonus zur PIN-Laenge.
+- Lab-Skripte `lab/scripts/59-pin-info.sh` (parst Roh-Flags und dekodiert PIN-Sub-Flags), `60-pin-change.sh` (User-PIN-Roundtrip mit garantiertem State-Restore), `61-pin-recovery-by-so.sh` (3 Fehlversuche → CKF_USER_PIN_COUNT_LOW, dann SO-InitPIN-Recovery, Cleanup).
+- Sprach-Demos `lab/go/pkcs11-pin-demo/` und `lab/csharp/Pkcs11PinDemo/`: vollstaendiger Lifecycle (GetTokenInfo → SetPIN → 3 Fehlversuche → Flag-Beobachtung → InitPIN-Recovery → Cleanup). Jede Demo stellt den Ausgangs-PIN wieder her.
+- Wrapper-Skripte `62-go-pin-demo.sh`, `63-csharp-pin-demo.sh`.
+- Makefile-Targets: `pin-info`, `pin-change`, `pin-recovery`, `go-pin-demo`, `csharp-pin-demo`.
+
+### Bekannte Limits
+- **Java/Kotlin-Demo entfaellt**: JCA bietet `KeyStore.PasswordProtection`, exponiert aber `C_SetPIN`/`C_InitPIN` nicht ueber das `Provider`-API. SunPKCS11 hat interne Hooks (`sun.security.pkcs11.*`), die aber JDK-Internalcode sind. Workaround in der Praxis: PIN-Lifecycle ueber Bash/Go/C# verwalten, Java-Anwendung wartet auf gueltige PIN.
+
+### Geändert
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 21 erweitert.
+- `Makefile clean`: neues Pkcs11PinDemo bin/obj aufgenommen.
+
 ## 0.12.0 - 2026-05-30
 
 ### Hinzugefügt

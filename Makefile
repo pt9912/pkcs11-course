@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -229,6 +229,21 @@ go-wrap-demo: gen-kek
 csharp-wrap-demo: gen-kek
 	$(RUN_CSHARP) 'lab/scripts/58-csharp-wrap-demo.sh'
 
+pin-info: init-token
+	$(RUN_LAB) 'lab/scripts/59-pin-info.sh'
+
+pin-change: init-token
+	$(RUN_LAB) 'lab/scripts/60-pin-change.sh'
+
+pin-recovery: init-token
+	$(RUN_LAB) 'lab/scripts/61-pin-recovery-by-so.sh'
+
+go-pin-demo: init-token
+	$(RUN_GO) 'lab/scripts/62-go-pin-demo.sh'
+
+csharp-pin-demo: init-token
+	$(RUN_CSHARP) 'lab/scripts/63-csharp-pin-demo.sh'
+
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token
 # komplett wegwerfen will, nutzt `make clean-tokens` oder `make distclean`.
@@ -251,7 +266,8 @@ clean:
 	       lab/csharp/Pkcs11StreamDemo/bin lab/csharp/Pkcs11StreamDemo/obj \
 	       lab/csharp/Pkcs11HmacDemo/bin lab/csharp/Pkcs11HmacDemo/obj \
 	       lab/csharp/Pkcs11PoolDemo/bin lab/csharp/Pkcs11PoolDemo/obj \
-	       lab/csharp/Pkcs11WrapDemo/bin lab/csharp/Pkcs11WrapDemo/obj
+	       lab/csharp/Pkcs11WrapDemo/bin lab/csharp/Pkcs11WrapDemo/obj \
+	       lab/csharp/Pkcs11PinDemo/bin lab/csharp/Pkcs11PinDemo/obj
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

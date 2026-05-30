@@ -42,7 +42,8 @@ Am Ende kannst du:
 | 17 | `18-tls-mit-hsm.md` | nginx mit HSM-Key via openssl pkcs11-engine |
 | 18 | `19-ssh-mit-hsm.md` | SSH-Login ueber PKCS11Provider, Smartcard-Pattern |
 | 19 | `20-key-wrap.md` | Backup/Escrow via C_WrapKey + KEK-Strategie |
-| 20 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 20 | `21-pin-management.md` | PIN-Lifecycle, CKF-Flags, SO-Recovery, Lockout-Realitaet |
+| 21 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

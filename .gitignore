@@ -55,6 +55,8 @@ lab/csharp/Pkcs11PoolDemo/bin/
 lab/csharp/Pkcs11PoolDemo/obj/
 lab/csharp/Pkcs11WrapDemo/bin/
 lab/csharp/Pkcs11WrapDemo/obj/
+lab/csharp/Pkcs11PinDemo/bin/
+lab/csharp/Pkcs11PinDemo/obj/
 .nuget/
 .dotnet/
 dotnet/
