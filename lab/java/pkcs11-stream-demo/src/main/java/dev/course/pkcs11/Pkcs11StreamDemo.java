@@ -33,7 +33,9 @@ public final class Pkcs11StreamDemo {
     private Pkcs11StreamDemo() {}
 
     public static void main(String[] args) {
-        String configPath = System.getenv().getOrDefault("PKCS11_JAVA_CONFIG", "src/main/resources/softhsm.cfg");
+        // nonEmpty: leere ENV-Strings als "use default" behandeln (seit 0.15.1,
+        // siehe Makefile-DOCKER_ENV).
+        String configPath = nonEmpty(System.getenv("PKCS11_JAVA_CONFIG"), "src/main/resources/softhsm.cfg");
         String slotOverride = nullIfBlank(System.getenv("PKCS11_SLOT_ID"));
         String libraryOverride = nullIfBlank(System.getenv("PKCS11_LIBRARY"));
         char[] pin = nonEmpty(System.getenv("PKCS11_USER_PIN"), "987654").toCharArray();

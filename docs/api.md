@@ -390,6 +390,7 @@ Querverweise:
 
 - [cheatsheet.md](cheatsheet.md) — kompakter Spickzettel für CLI-Befehle
 - [glossar.md](glossar.md) — Abkuerzungen und zentrale Begriffe
+- [elliptische-kurven.md](elliptische-kurven.md) — EC-Grundidee und PKCS#11-Mapping
 - [course/01-grundlagen.md](../course/01-grundlagen.md) — Begriffe und Modell
 - [course/04-signieren-und-verifizieren.md](../course/04-signieren-und-verifizieren.md) — Signaturen in der Praxis
 - [course/06-java-sunpkcs11.md](../course/06-java-sunpkcs11.md) — Java-Details

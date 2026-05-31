@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.15.1 - 2026-05-31
+
+### Geändert
+- `course/13-verschluesselung.md`: Abschnitt "Sortenreiner Wrap-Key" honest gemacht — `pkcs11-tool --usage-*` ist Intent-Marker, kein Constraint. SoftHSM 2.6 setzt aus `--usage-sign`-RSA `decrypt, sign, signRecover, unwrap`, aus `--usage-wrap`-KEK sogar `encrypt, decrypt, sign, verify, wrap, unwrap`. Neuer Disclaimer-Abschnitt verweist auf 0.16.0-Roadmap-Aufgabe (native CKA-Templates).
+- `course/20-key-wrap.md`: KEK-Policy-Tabelle bleibt als Soll, Disclaimer-Block ergaenzt; Experiment "Setze CKA_ENCRYPT=true" auf Lab-Realitaet umgeschrieben (geht im Lab ohnehin schon ohne Override).
+- `course/22-csr-und-ca-workflow.md`: Comment am `gen-ca-key`-Target von "(CKA_SIGN only)" auf "(Intent ..., SoftHSM gibt weitere Flags dazu)" praezisiert.
+- `course/18-tls-mit-hsm.md`: "ein CKA_SIGN-only-Key" mit Lab-Disclaimer ergaenzt.
+- `docs/cheatsheet.md`: Hinweis-Block unter den RSA/EC-Keypair-Beispielen, dass `--usage-*` nur Intent setzt.
+- `lab/java/pkcs11-demo/.../Pkcs11Demo.java`, `lab/kotlin/pkcs11-demo/.../KotlinPkcs11Demo.kt`: `PKCS11_KEY_ALIAS`-Default auf `signing-key` statt `null` — vorher zog die Suche nach Modulen mit weiteren Privkeys (wrap-key, hmac-key, ca-key) einen falschen Alias, Verifikation lieferte trotzdem `true`. Java-Demo ausserdem auf `nonEmpty`-Helper umgestellt, weil `System.getenv().getOrDefault` leere ENV-Strings nicht als "use default" behandelt — relevant, sobald das Makefile `export PKCS11_JAVA_CONFIG` durchreicht.
+- `lab/java/pkcs11-cms-demo/.../Pkcs11CmsDemo.java`, `lab/java/pkcs11-encrypt-demo/.../Pkcs11EncryptDemo.java`, `lab/java/pkcs11-stream-demo/.../Pkcs11StreamDemo.java`: gleicher `getOrDefault`-zu-`nonEmpty`-Fix; `nonEmpty`-Helper bei den Demos ergaenzt, die ihn noch nicht hatten.
+- `exercises/03-java.md` + `solutions/03-java.md`: erwarteter Output korrigiert (`key=true cert=false`, weil `isCertificateEntry` fuer `PrivateKeyEntry` mit Cert-Kette `false` zurueckgibt — Erklaerung ergaenzt). Reflexionsfragen umformuliert: Verify-Pfad nutzt seit 0.4.0 bewusst den `SunPKCS11`-Provider, nicht den Default-Provider.
+- `Makefile`: `DOCKER_ENV` ueber neue `PKCS11_VARS`-Liste auf alle PKCS11_*-Variablen erweitert, die Lab-Skripte tatsaechlich lesen (`PKCS11_LEAF_SUBJECT`, `PKCS11_KEY_LABEL`, `PKCS11_CA_KEY_*`, `PKCS11_HMAC_*`, `PKCS11_RANDOM_*` etc.). Vorher kamen die Overrides im Docker-Compose-Pfad nicht im Container an. `addprefix` baut die `-e VAR ...`-Sequenz aus der Liste.
+- `lab/scripts/55-wrap-key-backup.sh`: Hinweis-Zeile auf `go-wrap-demo` / `csharp-wrap-demo` reduziert (Java/Kotlin gibt's nicht, war Doku-Drift).
+- `roadmap.md`: neuer Eintrag "Strikte CKA-Templates fuer Key-Generate (0.16.0)" mit Helper-Skizze, `validate-key-usage`-Target und Plan zum Disclaimer-Rollback; ausserdem orphaned ECDH-Body wieder unter "## Key Derivation (ECDH und HKDF)" eingehaengt.
+- `docs/glossar.md`: HLSM- und TPM-Eintraege ergaenzt; gesamte Abkuerzungs-Tabelle alphabetisch sortiert; EC- und ECDSA-Zeilen verlinken auf das neue EC-Grundlagen-Dokument.
+- `README.md`, `docs/api.md`: Materialien-/Querverweis-Block um `docs/elliptische-kurven.md` ergaenzt.
+
+### Hinzugefügt
+- `docs/elliptische-kurven.md`: Einfuehrung in Kryptografie auf elliptischen Kurven (Punktmultiplikation, ECDLP, EC vs RSA, Kurvenwahl) als Lese-Background zu Kapitel 11. Verlinkt aus Glossar (`EC`, `ECDSA`) und README-Materialien-Block.
+
 ## 0.15.0 - 2026-05-31
 
 ### Hinzugefügt

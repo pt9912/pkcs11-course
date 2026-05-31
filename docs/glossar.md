@@ -6,41 +6,43 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 
 | Abkuerzung | Bedeutung | Einordnung |
 |---|---|---|
-| `PKCS#11` | Public-Key Cryptography Standards #11 | Standardisierte API fuer kryptografische Tokens und HSMs. |
+| `AES` | Advanced Encryption Standard | Symmetrische Blockchiffre. |
+| `ASN.1` | Abstract Syntax Notation One | Datenbeschreibungssprache hinter Zertifikaten, OIDs und vielen Krypto-Formaten. |
+| `CMS` | Cryptographic Message Syntax | Standard fuer signierte/verschluesselte Nachrichten, Nachfolger von PKCS#7. |
 | `Cryptoki` | Cryptographic Token Interface | Alternativer Name fuer PKCS#11. |
+| `CSPRNG` | Cryptographically Secure PRNG | PRNG mit zusaetzlichen Vorwaerts- und Rueckwaerts-Sicherheits-Eigenschaften. |
+| `DER` | Distinguished Encoding Rules | Binaere ASN.1-Codierung, z. B. fuer Zertifikate, Public Keys oder ECDSA-Signaturen. |
+| `DRBG` | Deterministic Random Bit Generator | NIST-Begriff fuer CSPRNG aus SP 800-90A (CTR_DRBG, HMAC_DRBG, Hash_DRBG). |
+| `EC` | Elliptic Curve | Oberbegriff fuer [Kryptografie auf elliptischen Kurven](elliptische-kurven.md). |
+| `ECDSA` | Elliptic Curve Digital Signature Algorithm | Signaturverfahren auf elliptischen Kurven. Siehe [EC-Grundlagen](elliptische-kurven.md). |
+| `FIPS 140-2/3` | Federal Information Processing Standard | US-Zertifizierung fuer kryptografische Module; relevant fuer HSM-Auswahl. |
+| `GCM` | Galois/Counter Mode | AEAD-Modus fuer AES mit Authentifizierung. |
+| `HLSM` | High-Level Security Module | Besonders abgesichertes, meist zentrales HSM fuer kritische Anwendungen wie CA-Schluessel, Bank-Schluessel oder Fernsignaturen. |
+| `HMAC` | Hash-based Message Authentication Code | MAC-Verfahren auf Basis einer Hashfunktion und eines symmetrischen Geheimnisses. |
 | `HSM` | Hardware Security Module | Geraet oder Service, der Schluesselmaterial geschuetzt erzeugt, speichert und benutzt. |
-| `SO` | Security Officer | Administrativer Token-Benutzer, z. B. fuer Initialisierung und User-PIN-Reset. |
-| `PIN` | Personal Identification Number | Geheimnis fuer Login am Token, im Lab z. B. User-PIN `987654`. |
 | `JCA` | Java Cryptography Architecture | Java-Abstraktion fuer Signaturen, KeyStores und Provider. |
 | `JCE` | Java Cryptography Extension | Java-Abstraktion fuer Cipher, MACs und weitere Krypto-Primitive. |
 | `JNI` | Java Native Interface | Bruecke von Java zu nativen Bibliotheken, relevant fuer manche PKCS#11-Wrapper. |
-| `CMS` | Cryptographic Message Syntax | Standard fuer signierte/verschluesselte Nachrichten, Nachfolger von PKCS#7. |
-| `PKCS#7` | Public-Key Cryptography Standards #7 | Aeltere Bezeichnung im Umfeld von CMS und S/MIME. |
-| `DER` | Distinguished Encoding Rules | Binaere ASN.1-Codierung, z. B. fuer Zertifikate, Public Keys oder ECDSA-Signaturen. |
-| `PEM` | Privacy-Enhanced Mail | Base64-Textverpackung fuer DER-Daten mit Header/Footer. |
-| `ASN.1` | Abstract Syntax Notation One | Datenbeschreibungssprache hinter Zertifikaten, OIDs und vielen Krypto-Formaten. |
-| `OID` | Object Identifier | Eindeutige numerische Kennung, z. B. fuer Kurven oder Algorithmen. |
-| `RSA` | Rivest-Shamir-Adleman | Asymmetrisches Verfahren fuer Signaturen und historische Verschluesselungsfaelle. |
-| `PSS` | Probabilistic Signature Scheme | Moderne RSA-Signatur-Padding-Variante. |
-| `ECDSA` | Elliptic Curve Digital Signature Algorithm | Signaturverfahren auf elliptischen Kurven. |
-| `EC` | Elliptic Curve | Oberbegriff fuer Kryptografie auf elliptischen Kurven. |
-| `AES` | Advanced Encryption Standard | Symmetrische Blockchiffre. |
-| `GCM` | Galois/Counter Mode | AEAD-Modus fuer AES mit Authentifizierung. |
-| `OAEP` | Optimal Asymmetric Encryption Padding | RSA-Padding fuer Verschluesselung. |
-| `HMAC` | Hash-based Message Authentication Code | MAC-Verfahren auf Basis einer Hashfunktion und eines symmetrischen Geheimnisses. |
 | `JWT` | JSON Web Token | Token-Format, im Kurs bei HMAC/HS256 relevant. |
 | `KEK` | Key Encryption Key | Schluessel, der andere Schluessel wrapped oder unwrapped. |
-| `TLS` | Transport Layer Security | Protokoll fuer gesicherte Verbindungen, z. B. HTTPS. |
-| `SSH` | Secure Shell | Protokoll fuer Remote-Login und Git-Zugriff. |
-| `URI` | Uniform Resource Identifier | Adressformat, z. B. `pkcs11:token=...;object=...`. |
 | `MGF` | Mask Generation Function | Bestandteil von RSA-PSS-Parametern, meistens `MGF1` mit passendem Hash. |
-| `RNG` | Random Number Generator | Oberbegriff fuer alle Zufallsquellen, TRNG und PRNG eingeschlossen. |
-| `TRNG` | True Random Number Generator | Physikalische Quelle (Ringoszillator, Quantenrauschen, Zener-Diode). |
+| `OAEP` | Optimal Asymmetric Encryption Padding | RSA-Padding fuer Verschluesselung. |
+| `OID` | Object Identifier | Eindeutige numerische Kennung, z. B. fuer Kurven oder Algorithmen. |
+| `PEM` | Privacy-Enhanced Mail | Base64-Textverpackung fuer DER-Daten mit Header/Footer. |
+| `PIN` | Personal Identification Number | Geheimnis fuer Login am Token, im Lab z. B. User-PIN `987654`. |
+| `PKCS#11` | Public-Key Cryptography Standards #11 | Standardisierte API fuer kryptografische Tokens und HSMs. |
+| `PKCS#7` | Public-Key Cryptography Standards #7 | Aeltere Bezeichnung im Umfeld von CMS und S/MIME. |
 | `PRNG` | Pseudo-Random Number Generator | Deterministischer Algorithmus, der einen Seed in eine lange Output-Sequenz expandiert. |
-| `CSPRNG` | Cryptographically Secure PRNG | PRNG mit zusaetzlichen Vorwaerts- und Rueckwaerts-Sicherheits-Eigenschaften. |
-| `DRBG` | Deterministic Random Bit Generator | NIST-Begriff fuer CSPRNG aus SP 800-90A (CTR_DRBG, HMAC_DRBG, Hash_DRBG). |
-| `FIPS 140-2/3` | Federal Information Processing Standard | US-Zertifizierung fuer kryptografische Module; relevant fuer HSM-Auswahl. |
+| `PSS` | Probabilistic Signature Scheme | Moderne RSA-Signatur-Padding-Variante. |
+| `RNG` | Random Number Generator | Oberbegriff fuer alle Zufallsquellen, TRNG und PRNG eingeschlossen. |
+| `RSA` | Rivest-Shamir-Adleman | Asymmetrisches Verfahren fuer Signaturen und historische Verschluesselungsfaelle. |
+| `SO` | Security Officer | Administrativer Token-Benutzer, z. B. fuer Initialisierung und User-PIN-Reset. |
 | `SP 800-90A/B/C` | NIST Special Publication 800-90 | Standards fuer DRBG-Konstruktion (A), Entropy Sources (B) und RBG-Konstruktion (C). |
+| `SSH` | Secure Shell | Protokoll fuer Remote-Login und Git-Zugriff. |
+| `TLS` | Transport Layer Security | Protokoll fuer gesicherte Verbindungen, z. B. HTTPS. |
+| `TPM` | Trusted Platform Module | Geraetegebundener Sicherheitschip fuer Plattform-Identitaet, gemessenen Boot und lokale Schluessel; kein allgemeiner HSM-Ersatz und im Kurs nicht der typische PKCS#11-Zieltyp. |
+| `TRNG` | True Random Number Generator | Physikalische Quelle (Ringoszillator, Quantenrauschen, Zener-Diode). |
+| `URI` | Uniform Resource Identifier | Adressformat, z. B. `pkcs11:token=...;object=...`. |
 
 ## PKCS#11-Praefixe
 

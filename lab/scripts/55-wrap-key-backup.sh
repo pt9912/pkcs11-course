@@ -65,4 +65,6 @@ echo "IV:           lab/work/wrap-sample.iv.hex (16 Bytes hex)"
 echo "Ciphertext:   lab/work/wrap-sample.enc ($(stat -c%s lab/work/wrap-sample.enc) Bytes)"
 echo "Klartext:     lab/work/wrap-sample.txt (Referenz)"
 echo
-echo "Fuer Unwrap+Restore: make go-wrap-demo / csharp-wrap-demo / java-wrap-demo / kotlin-wrap-demo"
+# Java/Kotlin haben keine Wrap-Demo: SunPKCS11 in OpenJDK 21 registriert
+# weder AESWrap noch AES/KW(P)/NoPadding als Cipher-Service (siehe Kapitel 20).
+echo "Fuer Unwrap+Restore: make go-wrap-demo / csharp-wrap-demo"

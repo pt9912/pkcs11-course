@@ -79,6 +79,7 @@ Weitere Materialien:
 - [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
+- [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
 - [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 

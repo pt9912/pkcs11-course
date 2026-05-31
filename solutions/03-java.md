@@ -17,10 +17,14 @@ Gekuerzt (der Demo druckt ausserdem `Signatur (Base64): ...`):
 Provider: SunPKCS11-SoftHSM
 Mechanismus: SHA256withRSA
 Aliase im PKCS#11-KeyStore:
-- signing-key key=true cert=true
+- signing-key key=true cert=false
 Alias: signing-key
 Verifikation: true
 ```
+
+`cert=false` ist die korrekte Ausgabe, obwohl `make import-cert` ein Zertifikat reingelegt hat: `KeyStore.isCertificateEntry(alias)` meldet `true` nur fuer reine Trusted-Cert-Eintraege ohne Privkey. Bei einem `PrivateKeyEntry` mit Zertifikatskette — was wir hier haben — bleibt `isCertificateEntry` `false`, waehrend `isKeyEntry` `true` ist. Das Zertifikat ist trotzdem ueber `keyStore.getCertificate(alias)` abrufbar, und genau das tut die Demo, um den Pubkey fuer den Verify zu bekommen.
+
+Die Reflexionsfrage zum Verify-Pfad: die Demo verifiziert bewusst mit demselben `SunPKCS11`-Provider, nicht mit dem Default-Provider. Begruendung: Public Keys, die aus einem PKCS#11-Token kommen, koennen `CKA_EXTRACTABLE=false` tragen (typisch fuer EC-Keys auf restriktiven HSMs) — der Default-Provider wuerde an deren Material nicht herankommen, weil die Pubkey-Instanz intern ein PKCS#11-Handle ist. Der Sign-Pfad ist ohnehin HSM-gebunden; den Verify-Pfad auf denselben Provider zu legen, vermeidet Edge-Cases ohne Sicherheitsverlust. In Produktion verifiziert man fast immer auf der Gegenseite mit einem Default-Provider — dort ist der Pubkey als rohe Bytes (`SubjectPublicKeyInfo`) bekannt.
 
 ## Erzwungene Fehler
 

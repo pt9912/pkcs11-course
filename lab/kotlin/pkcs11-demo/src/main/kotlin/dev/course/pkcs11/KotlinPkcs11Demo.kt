@@ -22,7 +22,11 @@ import kotlin.system.exitProcess
 fun main() {
     val configPath = System.getenv("PKCS11_JAVA_CONFIG").nullIfBlank() ?: "src/main/resources/softhsm.cfg"
     val mechanism = System.getenv("PKCS11_MECHANISM").nullIfBlank() ?: "SHA256withRSA"
-    val preferredAlias = System.getenv("PKCS11_KEY_ALIAS").nullIfBlank()
+    // Default auf signing-key: ohne Default zog die Alias-Suche den ersten
+    // KeyEntry, was nach Modulen mit weiteren Privkeys (wrap-key aus 13,
+    // hmac-key aus 16, ca-key aus 22) der falsche war. Explizit signing-key
+    // entspricht dem, was Kapitel und Uebung erwarten.
+    val preferredAlias = System.getenv("PKCS11_KEY_ALIAS").nullIfBlank() ?: "signing-key"
     val slotOverride = System.getenv("PKCS11_SLOT_ID").nullIfBlank()
     val libraryOverride = System.getenv("PKCS11_LIBRARY").nullIfBlank()
     val pin = (System.getenv("PKCS11_USER_PIN").nullIfBlank() ?: "987654").toCharArray()

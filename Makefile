@@ -11,9 +11,34 @@ PKCS11_KEY_ALIAS ?=
 PKCS11_SLOT_ID ?=
 PKCS11_LIBRARY ?=
 
-# Variablen, die in die Lab-Skripte und Demos sichtbar sein muessen.
-export PKCS11_MODULE PKCS11_TOKEN_LABEL PKCS11_USER_PIN PKCS11_SO_PIN
-export PKCS11_MECHANISM PKCS11_KEY_ALIAS PKCS11_SLOT_ID PKCS11_LIBRARY
+# Liste aller PKCS11_*-Variablen, die Lab-Skripte und Sprach-Demos lesen.
+# Wer eine neue Variable einfuehrt (in lab/scripts/*.sh oder den Sprach-Demos),
+# muss sie hier UND in der export-Zeile darunter ergaenzen — sonst wird sie
+# im Docker-Compose-Pfad nicht in den Container durchgereicht.
+PKCS11_VARS = \
+  PKCS11_MODULE PKCS11_TOKEN_LABEL PKCS11_USER_PIN PKCS11_SO_PIN \
+  PKCS11_MECHANISM PKCS11_KEY_ALIAS PKCS11_SLOT_ID PKCS11_LIBRARY \
+  PKCS11_KEY_LABEL PKCS11_KEY_ID \
+  PKCS11_EC_LABEL PKCS11_EC_ID PKCS11_EC_CURVE \
+  PKCS11_WRAP_KEY_LABEL PKCS11_WRAP_KEY_ID \
+  PKCS11_AES_STREAM_LABEL PKCS11_AES_STREAM_ID \
+  PKCS11_HMAC_LABEL PKCS11_HMAC_ID \
+  PKCS11_KEK_LABEL PKCS11_KEK_ID \
+  PKCS11_PAYLOAD_ID \
+  PKCS11_CA_KEY_LABEL PKCS11_CA_KEY_ID PKCS11_CA_SUBJECT PKCS11_CA_DAYS \
+  PKCS11_LEAF_CERT_LABEL PKCS11_LEAF_CERT_ID PKCS11_LEAF_SUBJECT PKCS11_LEAF_DAYS \
+  PKCS11_CERT_SUBJECT PKCS11_CERT_DAYS \
+  PKCS11_TLS_CERT_SUBJECT PKCS11_TLS_CERT_DAYS \
+  PKCS11_WRAP_CERT_SUBJECT PKCS11_WRAP_CERT_DAYS \
+  PKCS11_STREAM_SIZE_MB \
+  PKCS11_TMP_PIN PKCS11_LOCKOUT_PIN \
+  PKCS11_RANDOM_SIZE PKCS11_RANDOM_CHUNK PKCS11_RANDOM_TOTAL_KB \
+  PKCS11_SSHD_PORT PKCS11_NGINX_BIN \
+  PKCS11_ENGINE PKCS11_ENGINE_PATH \
+  PKCS11_JAVA_CONFIG PKCS11_OUTPUT_DIR
+
+# `export VAR1 VAR2 ...` macht die Variablen fuer Sub-Make und Sub-Shells sichtbar.
+export $(PKCS11_VARS)
 
 ifeq ($(PKCS11_IN_DEVCONTAINER),1)
 RUN_LAB = bash -lc
@@ -21,15 +46,9 @@ RUN_GO = bash -lc
 RUN_KOTLIN = bash -lc
 RUN_CSHARP = bash -lc
 else
-DOCKER_ENV = \
-  -e PKCS11_MODULE \
-  -e PKCS11_TOKEN_LABEL \
-  -e PKCS11_USER_PIN \
-  -e PKCS11_SO_PIN \
-  -e PKCS11_MECHANISM \
-  -e PKCS11_KEY_ALIAS \
-  -e PKCS11_SLOT_ID \
-  -e PKCS11_LIBRARY
+# `-e VAR` ohne =-Wert reicht den Wert aus dem Make-Environment durch.
+# `addprefix` baut aus der PKCS11_VARS-Liste die `-e PKCS11_X -e PKCS11_Y ...`-Sequenz.
+DOCKER_ENV = $(addprefix -e ,$(PKCS11_VARS))
 RUN_LAB = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-lab bash -lc
 RUN_GO = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-go bash -lc
 RUN_KOTLIN = docker compose -f lab/docker-compose.yml run --rm $(DOCKER_ENV) pkcs11-kotlin bash -lc

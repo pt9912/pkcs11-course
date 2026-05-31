@@ -25,16 +25,20 @@ public final class Pkcs11Demo {
     private Pkcs11Demo() {}
 
     public static void main(String[] args) {
-        String configPath = System.getenv().getOrDefault(
-                "PKCS11_JAVA_CONFIG",
-                "src/main/resources/softhsm.cfg"
-        );
+        // nonEmpty statt getOrDefault: leere ENV-Werte ("") muessen wie nicht
+        // gesetzte behandelt werden, sonst kippt das Makefile-export-Pass-Through
+        // die Defaults auf "" (siehe 0.15.1 Makefile-DOCKER_ENV-Aenderung).
+        String configPath = nonEmpty(System.getenv("PKCS11_JAVA_CONFIG"), "src/main/resources/softhsm.cfg");
         String mechanism = nonEmpty(System.getenv("PKCS11_MECHANISM"), "SHA256withRSA");
-        String preferredAlias = nullIfBlank(System.getenv("PKCS11_KEY_ALIAS"));
+        // Default auf signing-key: ohne Default zog die Alias-Suche den ersten
+        // KeyEntry, was nach Modulen mit weiteren Privkeys (wrap-key aus 13,
+        // hmac-key aus 16, ca-key aus 22) der falsche war. Explizit signing-key
+        // entspricht dem, was Kapitel und Uebung erwarten.
+        String preferredAlias = nonEmpty(System.getenv("PKCS11_KEY_ALIAS"), "signing-key");
         String slotOverride = nullIfBlank(System.getenv("PKCS11_SLOT_ID"));
         String libraryOverride = nullIfBlank(System.getenv("PKCS11_LIBRARY"));
 
-        char[] pin = (System.getenv().getOrDefault("PKCS11_USER_PIN", "987654")).toCharArray();
+        char[] pin = nonEmpty(System.getenv("PKCS11_USER_PIN"), "987654").toCharArray();
 
         try {
             Provider base = Security.getProvider("SunPKCS11");

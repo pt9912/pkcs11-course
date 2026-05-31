@@ -4,6 +4,21 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > `C_GenerateRandom` ist in Version 0.15.0 als Kapitel 23 umgesetzt — siehe [`course/23-random.md`](course/23-random.md), [`exercises/17-random.md`](exercises/17-random.md), Lab-Skripte `lab/scripts/71-76*`.
 
+## Strikte CKA-Templates fuer Key-Generate (0.16.0)
+
+Aktuell erzeugen alle Generate-Skripte (`04-generate-rsa.sh`, `09-generate-ec.sh`, `16-generate-rsa-wrap.sh`, `30-generate-aes-stream-key.sh`, `39-generate-hmac-key.sh`, `54-generate-kek.sh`, `64-generate-ca-key.sh`) ihre Keys ueber `pkcs11-tool --keygen / --keypairgen --usage-*`. Damit setzt SoftHSM 2.6 / OpenSC ein **breites Default-Profil**: ein `--usage-sign`-RSA-Key kommt mit `decrypt, sign, signRecover, unwrap` raus, der KEK aus `--usage-wrap` sogar mit `encrypt, decrypt, sign, verify, wrap, unwrap`. Die Use-Case-Trennung, die Kapitel 13/20/22 didaktisch lehren, wird im Lab also **nicht** vom HSM erzwungen (in der Doku seit 0.15.1 ehrlich vermerkt — siehe Disclaimer in [`course/13-verschluesselung.md`](course/13-verschluesselung.md#softhsm-realitaet--usage--ist-intent-kein-constraint)).
+
+**Wo aktuell gestreift:** Kapitel 13, 18, 20, 22 nennen die Soll-Policy (`CKA_SIGN=true, CKA_DECRYPT=false` etc.) jeweils mit Disclaimer. Cheatsheet ebenso.
+
+**Skizze:**
+- Helper `lab/scripts/_keygen.py` oder Go-Tool, das `C_GenerateKey`/`C_GenerateKeyPair` mit **explizitem** CKA-Template direkt ueber `python-pkcs11` oder `miekg/pkcs11` aufruft — `CKA_SIGN/VERIFY/DECRYPT/ENCRYPT/WRAP/UNWRAP/DERIVE` strikt nach Use-Case gesetzt.
+- Die sieben Generate-Skripte auf diesen Helper umstellen. Defaults bleiben dieselben Labels und IDs, damit nachgelagerte Skripte weiter funktionieren.
+- Neues Make-Target `make validate-key-usage`, das fuer jeden Key per `pkcs11-tool --list-objects` die `Usage:`-Zeile parst und gegen ein Soll vergleicht (rot, wenn `signing-key` `decrypt` oder `unwrap` zeigt).
+- Validierungs-Tests, die nach jedem Generate die Use-Case-Trennung beweisen (`signing-key` darf nicht `C_Decrypt`, `wrap-key` darf nicht `C_Sign`).
+- Disclaimer in 13/18/20/22 streichen oder umformulieren: "Lab erzwingt die Policy jetzt".
+
+**Scope:** mittel-gross. Sieben Skripte, ein neues Validierungs-Target, mehrere Doku-Stellen zurueckziehen. Beruehrt keine Sprach-Demos direkt — die nutzen die generierten Keys nur.
+
 ## Key Derivation (ECDH und HKDF)
 
 `C_DeriveKey` mit `CKM_ECDH1_DERIVE` ist die HSM-Variante des klassischen ECDH-Ablaufs (Alice + Bob tauschen Pubkeys, beide leiten denselben Shared Secret ab). Praktisch fuer:
@@ -52,6 +67,20 @@ Alle Lab-Demos laufen gegen SoftHSM. Reale Deployments setzen oft Cloud-HSMs ein
 - Hands-on-Variante: ein Provider mit Free-Tier (z.B. AWS CloudHSM-Cluster mit minimaler HSM, kostet $$$/Stunde) als optionales Lab — vermutlich zu teuer fuer den Standard-Kurs
 
 **Scope:** eher Lesematerial als Lab. Wuerde gut in das Production-Checklisten-Kapitel ([`course/09-production-checkliste.md`](course/09-production-checkliste.md)) als Erweiterung passen.
+
+## HSM-Kategorien und Einsatzfaelle didaktisch schaerfen
+
+Die Uebungen zu Hardware-Sicherheitsmodulen im Lehrbuch Cyber-Sicherheit von Norbert Pohlmann zeigen gute Entscheidungsszenarien fuer TPM, Smartcard und High-Level Security Module. Der Kurs koennte diese Einordnung frueher explizit machen, bevor PKCS#11 als konkrete API eingefuehrt wird.
+
+**Wo aktuell gestreift:** Einfuehrung, Production-Checkliste, YubiKey-/SoftHSM-Vergleiche, Key-Backup und PIN-Lockout.
+
+**Skizze:**
+- Kurze Tabelle: TPM vs Smartcard/Token vs HSM/HLSM
+- Mapping auf PKCS#11: welche Geraeteklassen typischerweise PKCS#11 sprechen und welche nicht
+- Kleine Entscheidungsuebung mit eigenen Szenarien: Notebook-Key, Benutzer-Authentisierung, Bank-Fernsignatur, zentraler CA-Key
+- Externer Hinweis auf Pohlmanns Uebungen als weiterfuehrende Quelle: https://norbert-pohlmann.com/cyber-sicherheit/uebungen/kapitel-hardware-sicherheitsmodule/
+
+**Scope:** klein. Eher didaktische Schaerfung als neues Lab-Modul.
 
 ## Priorisierungs-Hinweise
 

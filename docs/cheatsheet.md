@@ -39,6 +39,8 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --keypairgen --key-type EC:secp256r1 --id 02 --label ec-signing-key --usage-sign
 ```
 
+> Hinweis: `--usage-*` markiert nur die Intent. Unter SoftHSM/OpenSC kommt der Key mit einem breiteren Default-Profil raus (`decrypt, sign, signRecover, unwrap` bei `--usage-sign`-RSA). Strikt sortenrein-Keys brauchen native Templates — siehe `course/13-verschluesselung.md` und Roadmap-Eintrag fuer 0.16.0.
+
 ## Signieren
 
 ```bash

@@ -24,9 +24,11 @@ Keine. `make java-demo` haengt selbst an `import-cert -> gen-rsa -> init-token` 
 ## Erwartete Ausgabe
 
 - Der Provider heisst `SunPKCS11-SoftHSM`.
-- Mindestens ein Alias zeigt `key=true cert=true`.
+- Mindestens ein Alias (`signing-key` ist der Default) zeigt `key=true cert=false`.
 - Die Verifikation liefert `true`.
 - Der Exit-Code ist `0`.
+
+> Warum `cert=false`, obwohl `make import-cert` ein Zertifikat reingelegt hat? `KeyStore.isCertificateEntry(alias)` ist **nur** dann `true`, wenn der Alias ein reiner Trusted-Cert-Entry ohne Privkey ist (`TrustedCertificateEntry`). Ein `PrivateKeyEntry` mit Zertifikatskette — was wir hier haben — meldet `isKeyEntry()=true` und `isCertificateEntry()=false`. Das Zertifikat ist trotzdem da, abrufbar via `keyStore.getCertificate(alias)`, und die Demo nutzt es genau dafuer.
 
 ## Fehlerfall
 
@@ -47,7 +49,8 @@ Optional: Loesche das Zertifikat direkt und starte die Java-Demo ohne das Make-T
 ## Reflexionsfragen
 
 - Warum sieht Java den privaten Key nicht sauber, wenn das Zertifikat fehlt?
-- Warum wird mit dem PKCS#11-Provider signiert, aber mit dem Default-Provider verifiziert?
+- Warum signiert UND verifiziert die Demo mit demselben `SunPKCS11`-Provider, statt fuer das Verify den Default-Provider zu nutzen? (Tipp: Public Keys mit `CKA_EXTRACTABLE=false` lassen sich nicht so einfach an einen JCA-Provider aushaendigen, und der Pubkey hier kommt aus dem KeyStore-Cert, das vom selben Provider verwaltet wird.)
+- Warum gibt `keyStore.isCertificateEntry("signing-key")` `false` zurueck, obwohl ein Zertifikat im Token liegt?
 
 ## Musterloesung
 

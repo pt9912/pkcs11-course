@@ -43,12 +43,14 @@ public final class Pkcs11EncryptDemo {
     private Pkcs11EncryptDemo() {}
 
     public static void main(String[] args) {
-        String configPath = System.getenv().getOrDefault("PKCS11_JAVA_CONFIG", "src/main/resources/softhsm.cfg");
+        // nonEmpty: leere ENV-Strings als "use default" behandeln (seit 0.15.1,
+        // siehe Makefile-DOCKER_ENV).
+        String configPath = nonEmpty(System.getenv("PKCS11_JAVA_CONFIG"), "src/main/resources/softhsm.cfg");
         String alias = nullIfBlank(System.getenv("PKCS11_WRAP_KEY_ALIAS"));
         String slotOverride = nullIfBlank(System.getenv("PKCS11_SLOT_ID"));
         String libraryOverride = nullIfBlank(System.getenv("PKCS11_LIBRARY"));
-        char[] pin = (System.getenv().getOrDefault("PKCS11_USER_PIN", "987654")).toCharArray();
-        String outputDir = System.getenv().getOrDefault("PKCS11_OUTPUT_DIR", "/workspace/lab/work");
+        char[] pin = nonEmpty(System.getenv("PKCS11_USER_PIN"), "987654").toCharArray();
+        String outputDir = nonEmpty(System.getenv("PKCS11_OUTPUT_DIR"), "/workspace/lab/work");
 
         try {
             Provider base = Security.getProvider("SunPKCS11");
@@ -257,6 +259,10 @@ public final class Pkcs11EncryptDemo {
 
     private static String nullIfBlank(String s) {
         return (s == null || s.isEmpty()) ? null : s;
+    }
+
+    private static String nonEmpty(String s, String fallback) {
+        return (s == null || s.isEmpty()) ? fallback : s;
     }
 
     private static void reportFailure(Throwable t) {
