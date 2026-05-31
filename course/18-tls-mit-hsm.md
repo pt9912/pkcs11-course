@@ -30,7 +30,7 @@ Drei mögliche Rollen, abhaengig von Cipher Suite:
 | **TLS 1.2 RSA-Kex** (deprecated) | Entschluesselt Pre-Master-Secret | `CKA_DECRYPT=TRUE`, RSA-OAEP/PKCS1 |
 | **TLS 1.2 DHE-RSA** | Wie ECDHE-RSA, RSA signiert DH-Params | `CKA_SIGN=TRUE` |
 
-Praktisch: ein als **CKA_SIGN**-Key intendiertes Cert/Key-Paar (unser `signing-key`) reicht fuer alle modernen Cipher Suites. Den letzten Fall (RSA-Kex) sollte man ohnehin nicht mehr verwenden — kein Perfect Forward Secrecy. (Anmerkung zum Lab-Token: SoftHSM erzwingt `CKA_SIGN-only` nicht strikt — der Lab-`signing-key` hat zusaetzlich `decrypt, signRecover, unwrap`. Das nginx-Setup nutzt davon nur `CKA_SIGN`. Hintergrund: [Modul 13](13-verschluesselung.md#softhsm-realitaet--usage--ist-intent-kein-constraint).)
+Praktisch: ein **CKA_SIGN-only**-Key (unser `signing-key`) reicht fuer alle modernen Cipher Suites. Den letzten Fall (RSA-Kex) sollte man ohnehin nicht mehr verwenden — kein Perfect Forward Secrecy. Der Lab-`signing-key` ist seit 0.16.0 strikt sortenrein und antwortet auf jeden Decrypt-Versuch mit `CKR_KEY_FUNCTION_NOT_PERMITTED` — `make validate-key-usage` haengt das aus.
 
 In `nginx-pkcs11.conf` deshalb explizit:
 

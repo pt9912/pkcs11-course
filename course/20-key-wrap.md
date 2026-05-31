@@ -63,7 +63,7 @@ Der KEK ist der **kritischste** Key in einer Backup-Strategie — alle gewrappte
 
 `CKA_WRAP_TEMPLATE` ist die HSM-Variante von "type-safety": man kann erzwingen, dass aus einem gewrappten Blob nur Keys mit bestimmten Eigenschaften reimportiert werden duerfen. So verhindert man, dass ein Angreifer das Blob unwrappt UND gleich `CKA_EXTRACTABLE=true` mitliefert. SoftHSM unterstuetzt die Constraint nicht voll — produktive HSMs (Thales/AWS CloudHSM) tun das.
 
-**Lab-Realitaet:** die obige Tabelle beschreibt die didaktische Soll-Policy. SoftHSM 2.6 setzt aus `pkcs11-tool --keygen --usage-wrap` aber ein breites Default-Profil; der KEK kommt mit `encrypt, decrypt, sign, verify, wrap, unwrap` raus, also alles, nicht nur Wrap. Die Use-Case-Trennung wird im Lab dadurch nicht erzwungen — die Aussagen "KEK darf KEINE Daten ver-/entschluesseln" gelten als Policy-Statement, nicht als beobachtbarer Lab-Effekt. Hintergrund und Roadmap-Plan fuer native CKA-Templates: siehe [Kapitel 13](13-verschluesselung.md#softhsm-realitaet--usage--ist-intent-kein-constraint).
+Die KEK-Policy aus der Tabelle ist seit 0.16.0 **auch im Lab erzwungen**: `make gen-kek` legt den KEK ueber `lab/go/pkcs11-keygen` mit explizitem CKA-Template an, `CKA_WRAP/UNWRAP=true` und `CKA_ENCRYPT/DECRYPT/SIGN/VERIFY=false`. `make validate-key-usage` prueft das. Versucht man den KEK fuer `C_Encrypt` zu nutzen, antwortet SoftHSM jetzt mit `CKR_KEY_FUNCTION_NOT_PERMITTED` — vorher (bis 0.15.x) ging das stillschweigend durch.
 
 ## Mechanism-Wahl: AES-KEY-WRAP-PAD vs AES-KEY-WRAP
 
@@ -108,6 +108,6 @@ Bei Cloud-HSMs (AWS CloudHSM, GCP Cloud HSM, Azure Dedicated HSM) loggt der Serv
 
 - Generiere im Bash-Skript den payload-key ohne `--extractable` und beobachte `CKR_KEY_UNEXTRACTABLE` beim Wrap-Versuch.
 - Aendere im Go-Demo den Unwrap-Mechanism auf `CKM_AES_KEY_WRAP` (ohne PAD). Es funktioniert mit AES-256 (Vielfaches von 8), schlaegt aber bei GENERIC_SECRET 17 Byte fehl.
-- Verschluessele eine Datei direkt mit dem KEK (z.B. `pkcs11-tool --encrypt --mechanism AES-CBC-PAD --id 06 --iv ...`). Im Lab funktioniert das ohne weitere Aenderungen, weil SoftHSM den KEK breit ausstattet (siehe Disclaimer oben). Das Experiment zeigt die Konsequenz fehlender Use-Case-Trennung: ein Key, der wrappen UND verschluesseln darf, leakt bei Kompromittierung beides.
+- Verschluessele eine Datei direkt mit dem KEK (z.B. `pkcs11-tool --encrypt --mechanism AES-CBC-PAD --id 06 --iv ...`). Seit 0.16.0 antwortet das Token mit `CKR_KEY_FUNCTION_NOT_PERMITTED`, weil der KEK strikt `CKA_ENCRYPT=false` hat — genau die Use-Case-Trennung, um die es geht. Zum Gegentest: temporaer `--encrypt` im Generate-Helper hinzufuegen, neu generieren, Versuch wiederholen.
 
 Strukturierte Aufgaben in [`exercises/14-key-wrap.md`](../exercises/14-key-wrap.md).

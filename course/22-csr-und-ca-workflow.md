@@ -13,7 +13,7 @@ Nach diesem Kapitel kannst du:
 ## Lab-Bezug
 
 ```bash
-make gen-ca-key          # CA-Key RSA-2048 auf ID=08 (Intent: CKA_SIGN-only; SoftHSM gibt weitere Flags dazu — siehe Modul 13)
+make gen-ca-key          # CA-Key RSA-2048 auf ID=08 (strikt CKA_SIGN-only, validiert via make validate-key-usage)
 make issue-ca-cert       # Self-signed Root-CA-Cert via openssl + pkcs11-engine
 make issue-leaf-cert     # CSR fuer signing-key + CA-Sign + Import auf ID=09
 make go-csr-demo         # CSR-Generierung via crypto.Signer-Bridge

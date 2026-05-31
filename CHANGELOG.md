@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.16.0 - 2026-05-31
+
+### Hinzugefügt
+- `lab/go/pkcs11-keygen/`: neuer Go-Helper, der `C_GenerateKey` / `C_GenerateKeyPair` ueber miekg/pkcs11 mit **explizitem, vollstaendigem** CKA-Template aufruft. Loest die 0.15.1 dokumentierte SoftHSM-Default-Profil-Falle: `pkcs11-tool --usage-*` markiert nur Intent, das Token defaultet alle nicht erwaehnten Flags auf TRUE. Der Helper setzt jeden CKA-Usage-Wert explizit, plus `CKA_TOKEN=TRUE`, `CKA_PRIVATE=TRUE`, `CKA_SENSITIVE=TRUE`, `CKA_EXTRACTABLE=FALSE` (Defaults), `--extractable`-Override fuer Backup-Szenarien. CLI: `--type rsa|ec|aes|generic`, `--bits`, `--curve`, `--label`, `--id`, `--sign/--encrypt/--wrap/--derive` (High-Level: bei Keypairs auf die jeweilige Haelfte gemappt).
+- Neues Make-Target `validate-key-usage` mit Skript `lab/scripts/77-validate-key-usage.sh`: parst `pkcs11-tool --list-objects`, normalisiert die `Usage:`-Zeile (`signRecover`/`verifyRecover` ignoriert — SoftHSM-Implizit-Flags), vergleicht gegen ein hartcodiertes Soll-Profil pro Lab-Key, exit 1 bei Drift. Haengt von allen sieben gen-Targets ab.
+
+### Geändert
+- Sieben Generate-Skripte auf den Go-Helper umgestellt: `04-generate-rsa.sh`, `09-generate-ec.sh`, `16-generate-rsa-wrap.sh`, `30-generate-aes-stream-key.sh`, `39-generate-hmac-key.sh`, `54-generate-kek.sh`, `64-generate-ca-key.sh`. Bash-Wrapper bleiben thin; ENV-Variablen fuer Label/ID/Curve unveraendert.
+- Makefile: `gen-rsa`, `gen-ec`, `gen-rsa-wrap`, `gen-aes-stream`, `gen-hmac`, `gen-kek`, `gen-ca-key` rufen jetzt `$(RUN_GO)` (Service `pkcs11-go`) statt `$(RUN_LAB)`, weil der Go-Helper im Go-Container laeuft. Nachgelagerte Targets (sign, encrypt, cms, wrap-backup, CA-Chain) bleiben in `pkcs11-lab`; Token-Volume ist geteilt.
+- Doku-Rollback nach Sortenreinheit-Fix:
+  - `course/13-verschluesselung.md`: zentraler Disclaimer-Abschnitt umformuliert — Sortenreinheit ist jetzt durchgesetzt, nicht nur Soll. Historischer Kontext bleibt als "Historisch"-Block fuer Verstaendnis der pkcs11-tool-Falle.
+  - `course/18-tls-mit-hsm.md`: CKA_SIGN-only-Disclaimer entfernt, durch `validate-key-usage`-Hinweis ersetzt.
+  - `course/20-key-wrap.md`: KEK-Policy als beobachtbar markiert; Eigenexperiment auf `CKR_KEY_FUNCTION_NOT_PERMITTED`-Pfad umgestellt.
+  - `course/22-csr-und-ca-workflow.md`: gen-ca-key-Comment auf "strikt CKA_SIGN-only" zurueckgezogen.
+  - `docs/cheatsheet.md`: Lab-Pfad (go run) und klassisch (pkcs11-tool) zeigt jetzt beide; Hinweis-Block auf Validierung umgeschrieben.
+
+### Migration
+- Wer einen bestehenden Token aus 0.15.x weiternutzt: alte Keys haben noch das breite SoftHSM-Default-Profil. `make clean-tokens && make init-token && make validate-key-usage` zieht alles frisch ueber den Helper hoch. Vorher `make distclean` raeumt auch Build-Artefakte mit ab.
+- Die Roadmap-Aufgabe "Strikte CKA-Templates" aus 0.15.1 ist damit abgeschlossen.
+
+### Parallele Doku-Ergaenzungen vom Kurs-Autor
+- `docs/post-quantum.md`: neue Einfuehrung in Post-Quantum-Kryptografie (PQC) mit NIST-Stand 2026, Migrations-Hinweisen und Mapping zu PKCS#11.
+- `docs/glossar.md`: API, CA, CSR, ECDH, EdDSA, FIPS, FN-DSA, ML-KEM, ML-DSA, SLH-DSA und weitere PQC-relevante Abkuerzungen ergaenzt.
+- `docs/elliptische-kurven.md`: Verweis "keine Post-Quantum-Sicherheit" auf das neue PQC-Dokument verlinkt.
+- `docs/api.md`: Querverweis-Block um PQC-Dokument erweitert.
+
 ## 0.15.1 - 2026-05-31
 
 ### Geändert

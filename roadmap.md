@@ -4,20 +4,7 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > `C_GenerateRandom` ist in Version 0.15.0 als Kapitel 23 umgesetzt — siehe [`course/23-random.md`](course/23-random.md), [`exercises/17-random.md`](exercises/17-random.md), Lab-Skripte `lab/scripts/71-76*`.
 
-## Strikte CKA-Templates fuer Key-Generate (0.16.0)
-
-Aktuell erzeugen alle Generate-Skripte (`04-generate-rsa.sh`, `09-generate-ec.sh`, `16-generate-rsa-wrap.sh`, `30-generate-aes-stream-key.sh`, `39-generate-hmac-key.sh`, `54-generate-kek.sh`, `64-generate-ca-key.sh`) ihre Keys ueber `pkcs11-tool --keygen / --keypairgen --usage-*`. Damit setzt SoftHSM 2.6 / OpenSC ein **breites Default-Profil**: ein `--usage-sign`-RSA-Key kommt mit `decrypt, sign, signRecover, unwrap` raus, der KEK aus `--usage-wrap` sogar mit `encrypt, decrypt, sign, verify, wrap, unwrap`. Die Use-Case-Trennung, die Kapitel 13/20/22 didaktisch lehren, wird im Lab also **nicht** vom HSM erzwungen (in der Doku seit 0.15.1 ehrlich vermerkt — siehe Disclaimer in [`course/13-verschluesselung.md`](course/13-verschluesselung.md#softhsm-realitaet--usage--ist-intent-kein-constraint)).
-
-**Wo aktuell gestreift:** Kapitel 13, 18, 20, 22 nennen die Soll-Policy (`CKA_SIGN=true, CKA_DECRYPT=false` etc.) jeweils mit Disclaimer. Cheatsheet ebenso.
-
-**Skizze:**
-- Helper `lab/scripts/_keygen.py` oder Go-Tool, das `C_GenerateKey`/`C_GenerateKeyPair` mit **explizitem** CKA-Template direkt ueber `python-pkcs11` oder `miekg/pkcs11` aufruft — `CKA_SIGN/VERIFY/DECRYPT/ENCRYPT/WRAP/UNWRAP/DERIVE` strikt nach Use-Case gesetzt.
-- Die sieben Generate-Skripte auf diesen Helper umstellen. Defaults bleiben dieselben Labels und IDs, damit nachgelagerte Skripte weiter funktionieren.
-- Neues Make-Target `make validate-key-usage`, das fuer jeden Key per `pkcs11-tool --list-objects` die `Usage:`-Zeile parst und gegen ein Soll vergleicht (rot, wenn `signing-key` `decrypt` oder `unwrap` zeigt).
-- Validierungs-Tests, die nach jedem Generate die Use-Case-Trennung beweisen (`signing-key` darf nicht `C_Decrypt`, `wrap-key` darf nicht `C_Sign`).
-- Disclaimer in 13/18/20/22 streichen oder umformulieren: "Lab erzwingt die Policy jetzt".
-
-**Scope:** mittel-gross. Sieben Skripte, ein neues Validierungs-Target, mehrere Doku-Stellen zurueckziehen. Beruehrt keine Sprach-Demos direkt — die nutzen die generierten Keys nur.
+> Strikte CKA-Templates sind in Version 0.16.0 umgesetzt — siehe [`lab/go/pkcs11-keygen/`](lab/go/pkcs11-keygen/), [`lab/scripts/77-validate-key-usage.sh`](lab/scripts/77-validate-key-usage.sh), Make-Target `validate-key-usage`. Die Disclaimer in Kapitel 13/18/20/22 sind entsprechend zurueckgezogen; nur der historische Kontext zur pkcs11-tool-Falle bleibt als Lehrstoff.
 
 ## Key Derivation (ECDH und HKDF)
 
@@ -84,6 +71,6 @@ Die Uebungen zu Hardware-Sicherheitsmodulen im Lehrbuch Cyber-Sicherheit von Nor
 
 ## Priorisierungs-Hinweise
 
-Wenn jemand auf der Roadmap weitermacht: **ECDH** ist der naechste natuerliche kleine Schritt (Pendant zum HSM-RNG-Kapitel aus 0.15.0). **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
+Wenn jemand auf der Roadmap weitermacht: **ECDH** ist der naechste natuerliche kleine Schritt — Pendant zum HSM-RNG-Kapitel (0.15.0), nutzt den vorhandenen pkcs11-keygen-Helper fuer EC-Derive-Keys. **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
 
-Keine der drei verbleibenden Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.
+Keine der verbleibenden Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.

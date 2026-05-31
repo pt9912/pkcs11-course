@@ -80,6 +80,7 @@ Weitere Materialien:
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
 - [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
+- [`docs/post-quantum.md`](docs/post-quantum.md) - Post-Quantum-Verfahren und Migrationshinweise
 - [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 
@@ -100,6 +101,7 @@ Weitere Materialien:
 | `make import-cert` | Self-signed Zertifikat fuer signing-key importieren |
 | `make java-demo` / `make go-demo` / `make kotlin-demo` / `make csharp-demo` | Basis-Sprach-Demos (sign + verify) |
 | `make clean` / `make clean-tokens` / `make distclean` | generierte Artefakte / Token-DB / alles entfernen |
+| `make validate-key-usage` | sortenrein-Profile aller sieben Lab-Keys gegen Soll pruefen |
 
 ### Erweiterte Module (Kapitel 13-23)
 

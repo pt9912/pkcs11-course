@@ -28,6 +28,10 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN --delete-ob
 ## RSA-Keypair
 
 ```bash
+# Lab-Pfad (seit 0.16.0): strikt sortenrein via Go-Helper.
+cd lab/go/pkcs11-keygen && go run . --type rsa --bits 2048 --label signing-key --id 01 --sign
+
+# Klassisch (Intent-Marker, KEINE Sortenreinheit auf SoftHSM):
 pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --keypairgen --key-type rsa:2048 --id 01 --label signing-key --usage-sign
 ```
@@ -35,11 +39,15 @@ pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
 ## EC-Keypair
 
 ```bash
+# Lab-Pfad (seit 0.16.0):
+cd lab/go/pkcs11-keygen && go run . --type ec --curve secp256r1 --label ec-signing-key --id 02 --sign
+
+# Klassisch:
 pkcs11-tool --module $MODULE --login --pin $PIN --token-label $TOKEN \
   --keypairgen --key-type EC:secp256r1 --id 02 --label ec-signing-key --usage-sign
 ```
 
-> Hinweis: `--usage-*` markiert nur die Intent. Unter SoftHSM/OpenSC kommt der Key mit einem breiteren Default-Profil raus (`decrypt, sign, signRecover, unwrap` bei `--usage-sign`-RSA). Strikt sortenrein-Keys brauchen native Templates — siehe `course/13-verschluesselung.md` und Roadmap-Eintrag fuer 0.16.0.
+> Sortenreinheit pruefen: `make validate-key-usage`. Hintergrund zum Unterschied `pkcs11-tool --usage-*` (Intent-Marker, SoftHSM-Default-Profil ueberschreibt) vs Go-Helper (volles CKA-Template) steht in `course/13-verschluesselung.md`.
 
 ## Signieren
 

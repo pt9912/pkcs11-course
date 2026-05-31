@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo validate-key-usage clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -84,7 +84,7 @@ list-mechanisms:
 	$(RUN_LAB) 'lab/scripts/03-list-mechanisms.sh'
 
 gen-rsa: init-token
-	$(RUN_LAB) 'lab/scripts/04-generate-rsa.sh'
+	$(RUN_GO) 'lab/scripts/04-generate-rsa.sh'
 
 list-objects: init-token
 	$(RUN_LAB) 'lab/scripts/05-list-objects.sh'
@@ -99,7 +99,7 @@ import-cert: gen-rsa
 	$(RUN_LAB) 'lab/scripts/08-import-cert.sh'
 
 gen-ec: init-token
-	$(RUN_LAB) 'lab/scripts/09-generate-ec.sh'
+	$(RUN_GO) 'lab/scripts/09-generate-ec.sh'
 
 sign-ec: gen-ec
 	$(RUN_LAB) 'lab/scripts/10-sign-ec.sh'
@@ -123,7 +123,7 @@ csharp-demo: gen-rsa
 	$(RUN_CSHARP) 'lab/scripts/15-csharp-demo.sh'
 
 gen-rsa-wrap: init-token
-	$(RUN_LAB) 'lab/scripts/16-generate-rsa-wrap.sh'
+	$(RUN_GO) 'lab/scripts/16-generate-rsa-wrap.sh'
 
 encrypt: gen-rsa-wrap
 	$(RUN_LAB) 'lab/scripts/17-encrypt-hybrid.sh'
@@ -165,7 +165,7 @@ kotlin-cms-demo: import-cert
 	$(RUN_KOTLIN) 'lab/scripts/29-kotlin-cms-demo.sh'
 
 gen-aes-stream: init-token
-	$(RUN_LAB) 'lab/scripts/30-generate-aes-stream-key.sh'
+	$(RUN_GO) 'lab/scripts/30-generate-aes-stream-key.sh'
 
 stream-sign: gen-rsa
 	$(RUN_LAB) 'lab/scripts/31-stream-sign.sh'
@@ -192,7 +192,7 @@ kotlin-stream-demo: gen-rsa gen-aes-stream
 	$(RUN_KOTLIN) 'lab/scripts/38-kotlin-stream-demo.sh'
 
 gen-hmac: init-token
-	$(RUN_LAB) 'lab/scripts/39-generate-hmac-key.sh'
+	$(RUN_GO) 'lab/scripts/39-generate-hmac-key.sh'
 
 hmac-sign: gen-hmac
 	$(RUN_LAB) 'lab/scripts/40-hmac-sign.sh'
@@ -237,7 +237,7 @@ ssh-test: ssh-pubkey
 	$(RUN_LAB) 'lab/scripts/53-ssh-start-and-test.sh'
 
 gen-kek: init-token
-	$(RUN_LAB) 'lab/scripts/54-generate-kek.sh'
+	$(RUN_GO) 'lab/scripts/54-generate-kek.sh'
 
 wrap-backup: gen-kek
 	$(RUN_LAB) 'lab/scripts/55-wrap-key-backup.sh'
@@ -264,7 +264,7 @@ csharp-pin-demo: init-token
 	$(RUN_CSHARP) 'lab/scripts/63-csharp-pin-demo.sh'
 
 gen-ca-key: init-token
-	$(RUN_LAB) 'lab/scripts/64-generate-ca-key.sh'
+	$(RUN_GO) 'lab/scripts/64-generate-ca-key.sh'
 
 issue-ca-cert: gen-ca-key
 	$(RUN_LAB) 'lab/scripts/65-issue-ca-cert.sh'
@@ -301,6 +301,12 @@ java-random-demo: init-token
 
 kotlin-random-demo: init-token
 	$(RUN_KOTLIN) 'lab/scripts/76-kotlin-random-demo.sh'
+
+# Validiert, dass die sieben Lab-Keys ihre erwarteten CKA_*-Usage-Profile haben.
+# Voraussetzung: gen-rsa, gen-ec, gen-rsa-wrap, gen-aes-stream, gen-hmac,
+# gen-kek, gen-ca-key — alle Keys muessen im Token liegen.
+validate-key-usage: gen-rsa gen-ec gen-rsa-wrap gen-aes-stream gen-hmac gen-kek gen-ca-key
+	$(RUN_LAB) 'lab/scripts/77-validate-key-usage.sh'
 
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token

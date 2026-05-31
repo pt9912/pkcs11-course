@@ -84,7 +84,7 @@ Der private Schluessel bleibt im Token. Die Anwendung bekommt nur den Public Key
 
 **Mechanism-Verfuegbarkeit:** SoftHSM, Smartcards und Enterprise-HSMs unterscheiden sich. Vor produktiver Festlegung immer `pkcs11-tool --list-mechanisms` oder `C_GetMechanismList` pruefen.
 
-**Keine Post-Quantum-Sicherheit:** EC ist wie RSA durch einen ausreichend grossen Quantencomputer brechbar. Fuer langfristige Schutzbedarfe braucht es eine Migrationsstrategie zu Post-Quantum-Verfahren.
+**Keine Post-Quantum-Sicherheit:** EC ist wie RSA durch einen ausreichend grossen Quantencomputer brechbar. Fuer langfristige Schutzbedarfe braucht es eine Migrationsstrategie zu [Post-Quantum-Verfahren](post-quantum.md).
 
 ## Einordnung im Kurs
 

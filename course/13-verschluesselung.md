@@ -46,39 +46,38 @@ RSA-OAEP(pub, AES) ─► wrapped       ───► RSA-OAEP-Decrypt(priv) ─�
                                         AES-GCM-Decrypt(ciphertext) ─► doc
 ```
 
-## Sortenreiner Wrap-Key (Soll vs Lab-Realitaet)
+## Sortenreiner Wrap-Key
 
-Die didaktische Zielpolicy: der Signing-Key auf `ID=01` ist intendiert als reiner Signier-Key (`CKA_SIGN=true`, `CKA_DECRYPT=false`), der Wrap-Key auf `ID=03` als reiner Wrap/Decrypt-Key ohne `CKA_SIGN`. Ein HSM, das diese Policy strikt erzwingt, antwortet auf jeden Cross-Use mit `CKR_KEY_FUNCTION_NOT_PERMITTED`.
+Der Signing-Key auf `ID=01` ist absichtlich **nur** zum Signieren angelegt (`CKA_SIGN=true`, alle anderen Usage-Flags `false`). Versucht man ihn zum Decrypt zu nutzen, antwortet das Token mit `CKR_KEY_FUNCTION_NOT_PERMITTED`.
 
-Wir legen den Wrap-Key entsprechend an:
+Wir legen deshalb einen zweiten Key an:
 
 ```bash
-pkcs11-tool --keypairgen --key-type rsa:2048 \
-  --id 03 --label wrap-key \
-  --usage-decrypt --usage-wrap
+make gen-rsa-wrap
 ```
 
-`--usage-decrypt` markiert `CKA_DECRYPT`/`CKA_ENCRYPT`, `--usage-wrap` zusaetzlich `CKA_WRAP/CKA_UNWRAP`. **Kein** `--usage-sign` — die explizite Intent ist "darf nicht signieren".
-
-Hintergrund zur Wahl von `ID=03`: `ID=02` ist bereits durch den EC-Key aus `09-generate-ec.sh` belegt; ein Konflikt waere fuer Suchen ueber `CKA_ID` unerkennbar.
-
-### SoftHSM-Realitaet: `--usage-*` ist Intent, kein Constraint
-
-`pkcs11-tool --usage-*` markiert die Intent, setzt aber unter SoftHSM 2.6 / OpenSC kein vollstaendiges sortenrein-Template. Frisch erzeugt sieht der `signing-key` so aus:
+Hinter dem Target steht seit 0.16.0 der Go-Helper `lab/go/pkcs11-keygen`, der `C_GenerateKeyPair` mit einem **vollstaendigen** CKA-Template aufruft. Fuer den Wrap-Key sieht das Ergebnis so aus (sichtbar via `make list-objects`):
 
 ```text
 Private Key Object; RSA
-  label:      signing-key
-  Usage:      decrypt, sign, signRecover, unwrap
+  label:      wrap-key
+  Usage:      decrypt, unwrap
+Public Key Object; RSA 2048 bits
+  label:      wrap-key
+  Usage:      encrypt, wrap
 ```
 
-Der `wrap-key` aus `--usage-decrypt --usage-wrap` hat zusaetzlich auch `CKA_SIGN/CKA_VERIFY`; der KEK aus Modul 20 (`--usage-wrap`) kommt sogar mit `encrypt, decrypt, sign, verify, wrap, unwrap` raus. SoftHSM setzt ein breites Default-Profil und behandelt `--usage-*` als Filter, der das Profil nur ueberschreibt, wenn die Flag explizit ausgeschlossen ist.
+`CKA_DECRYPT=true`, `CKA_UNWRAP=true` (privater Teil) bzw. `CKA_ENCRYPT=true`, `CKA_WRAP=true` (oeffentlicher Teil). `CKA_SIGN/CKA_VERIFY` und alle weiteren Usage-Flags sind explizit `false` — das Token weist Sign-Versuche mit `CKR_KEY_FUNCTION_NOT_PERMITTED` ab.
 
-Praktisch heisst das fuer's Lab: wenn du den `signing-key` versehentlich an einen Decrypt-Pfad reichst, antwortet SoftHSM mit Erfolg, nicht mit `CKR_KEY_FUNCTION_NOT_PERMITTED`. Die Lektion "Use-Case-Trennung schuetzt Keys vor Missbrauch" stimmt — sie wird im Lab aber nicht durch das HSM erzwungen.
+Hintergrund zur Wahl von `ID=03`: `ID=02` ist bereits durch den EC-Key aus `09-generate-ec.sh` belegt; ein Konflikt waere fuer Suchen ueber `CKA_ID` unerkennbar.
 
-Reale HSMs mit FIPS-/CC-Policy (Thales Luna, Utimaco, AWS CloudHSM) verhalten sich strenger und liefern den erwarteten Fehler. Strikt-sortenreine Keys im Lab sind das Thema einer eigenen Roadmap-Aufgabe (siehe `roadmap.md`, 0.16.0): ein Generate-Helper, der `C_GenerateKey`/`C_GenerateKeyPair` mit vollstaendigem CKA-Template direkt aufruft (statt ueber `pkcs11-tool --usage-*`), plus ein `--validate-usage`-Check-Target. Damit kommt das HSM-Verhalten im Lab dem realer Hardware gleich.
+### Historisch: `pkcs11-tool --usage-*` ist Intent, kein Constraint
 
-Bis dahin gilt fuer alle Module, die Use-Case-Trennung lehren (13, 20, 22): die Tabellen beschreiben das Soll, der Lab-Token ist breiter. Die Tests, die im Kurs `CKR_KEY_FUNCTION_NOT_PERMITTED` provozieren wollen, brauchen entweder native Templates oder echte HSM-Hardware.
+Bis 0.16.0 lief das Lab ueber `pkcs11-tool --keypairgen --usage-*`. Diese Flag markiert die Intent (in OpenSC-Quellcode-Begriffen: setzt die genannten CKA_*-Bits TRUE), setzt die anderen Bits aber **nicht explizit auf FALSE**. SoftHSM 2.6 / OpenSC interpretieren das nicht als "user said FALSE" sondern als "no preference", und der Default-Wert ist TRUE. Der Lab-`signing-key` kam so mit `decrypt, sign, signRecover, unwrap` raus, der KEK aus Modul 20 sogar mit `encrypt, decrypt, sign, verify, wrap, unwrap`.
+
+Reale HSMs mit FIPS-/CC-Policy (Thales Luna, Utimaco, AWS CloudHSM) verhalten sich anders: sie defaulten die nicht-gesetzten Flags auf FALSE, und Cross-Use schlaegt mit `CKR_KEY_FUNCTION_NOT_PERMITTED` fehl. Das war die Diskrepanz, die der Go-Helper aus dem Weg raeumt.
+
+Wer das nachpruefen will: `make validate-key-usage` ruft `pkcs11-tool --list-objects` auf und vergleicht die `Usage:`-Zeile jedes Keys gegen ein hartcodiertes Soll-Profil. Drift → exit 1.
 
 ## OAEP-Parameter — die unterschaetzte Falle
 
