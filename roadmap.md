@@ -37,7 +37,7 @@ CMS-Signaturen (Modul 14) haben ein `signingTime`-Attribut, das aber **vom Signe
 - Kursmodul: warum signingTime nicht reicht, was TSA macht, CAdES-T vs CAdES-LT
 - Reale TSA-Anbieter (DigiCert, Sectigo) als Alternative zur Lab-TSA
 
-**Scope:** gross. Neuer Service-Komponent (TSA), Verifier-Logik komplexer. Wuerde eigenes Modul 23 ergeben.
+**Scope:** gross. Neuer Service-Komponent (TSA), Verifier-Logik komplexer. Wuerde eigenes Modul 24 ergeben (Modul 23 ist seit 0.15.0 mit HSM-RNG belegt).
 
 ## Cloud-HSM-Provider-Vergleich
 
