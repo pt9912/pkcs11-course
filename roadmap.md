@@ -10,6 +10,8 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > ECDH + HKDF ist in Version 0.17.0 als Kapitel 24 umgesetzt — siehe [`course/24-ecdh-hkdf.md`](course/24-ecdh-hkdf.md), [`exercises/18-ecdh-hkdf.md`](exercises/18-ecdh-hkdf.md), [`lab/go/pkcs11-ecdh-demo/`](lab/go/pkcs11-ecdh-demo/), Sprach-Demos fuer Go/C#/Java/Kotlin. `CKM_HKDF_DERIVE` fehlt SoftHSM, HKDF laeuft host-side und ist byte-identisch ueber alle vier Sprachen.
 
+> Cloud-HSM-Provider-Vergleich ist in Version 0.17.1 als Doku umgesetzt — siehe [`docs/cloud-hsm-vergleich.md`](docs/cloud-hsm-vergleich.md) mit sieben Anbietern ueber sechs Achsen (PKCS#11, FIPS, Tenancy, Backup, Latenz, Pricing), Migrationspfaden und Entscheidungs-Tabelle. Cross-References aus `course/09-production-checkliste.md`, README und `docs/api.md`.
+
 ## RFC-3161-Timestamps fuer CMS
 
 CMS-Signaturen (Modul 14) haben ein `signingTime`-Attribut, das aber **vom Signer selbst** gesetzt wird — beweist also nur "der Signer sagt, es war zu diesem Zeitpunkt". Fuer rechtsverbindliche Langzeitsignaturen (CAdES, eIDAS) braucht es einen **TSA-Timestamp** (RFC 3161): ein externer Time-Stamping-Service signiert einen Hash der Signatur mit einer vertrauenswuerdigen Zeitquelle und schickt einen TSToken zurueck, der als `unsignedAttribute.signatureTimeStampToken` an die CMS-Signatur angehaengt wird.
@@ -25,22 +27,8 @@ CMS-Signaturen (Modul 14) haben ein `signingTime`-Attribut, das aber **vom Signe
 
 **Scope:** gross. Neuer Service-Komponent (TSA), Verifier-Logik komplexer. Wuerde eigenes Modul 24 ergeben (Modul 23 ist seit 0.15.0 mit HSM-RNG belegt).
 
-## Cloud-HSM-Provider-Vergleich
-
-Alle Lab-Demos laufen gegen SoftHSM. Reale Deployments setzen oft Cloud-HSMs ein. Ein Vergleichskapitel wuerde die Unterschiede zwischen lokalem HSM, Cloud-managed HSM und Cloud-KMS einordnen.
-
-**Wo aktuell gestreift:** Kursmodule referenzieren reale HSMs (Thales, Utimaco, YubiKey, AWS CloudHSM) punktuell — z.B. PIN-Lockout (Modul 21), Key-Backup (Modul 20), Cipher-Suites (Modul 18). Es fehlt eine Synthese.
-
-**Skizze (eher Doku als Lab):**
-- Vergleichstabelle: AWS CloudHSM, AWS KMS Custom Key Store, Azure Dedicated HSM, Azure Key Vault Managed HSM, GCP Cloud HSM, GCP KMS HSM-backed, OCI Vault
-- Achsen: PKCS#11-API-Verfuegbarkeit, Standard-Compliance (FIPS-140-2/3 Level), Key-Material-Eigentum (single-tenant vs multi-tenant), Backup-Strategie, Pricing-Modell, Latenz typisch
-- Migration-Pfade: SoftHSM → Cloud-HSM (PKCS#11-URI-Wechsel + Library-Pfad-Wechsel reicht selten; meist Backup-Restore via Vendor-Format)
-- Hands-on-Variante: ein Provider mit Free-Tier (z.B. AWS CloudHSM-Cluster mit minimaler HSM, kostet $$$/Stunde) als optionales Lab — vermutlich zu teuer fuer den Standard-Kurs
-
-**Scope:** eher Lesematerial als Lab. Wuerde gut in das Production-Checklisten-Kapitel ([`course/09-production-checkliste.md`](course/09-production-checkliste.md)) als Erweiterung passen.
-
 ## Priorisierungs-Hinweise
 
-Wenn jemand auf der Roadmap weitermacht: **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
+Verbleibend ist **RFC 3161** — der wertvollste der ursprueglichen Roadmap-Punkte fuer rechtliche Anwendungsfaelle (eIDAS-qualifizierte Signaturen mit Langzeit-Validierung, CAdES-T/CAdES-LT). Beruehrt Modul 14 (CMS) und 22 (CA), braucht eine TSA-Komponente, Verifier-Logik fuer vier Sprachen. Mittlerer-bis-grosser Scope.
 
-Keine der verbleibenden Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.
+Der Eintrag ist nicht Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.

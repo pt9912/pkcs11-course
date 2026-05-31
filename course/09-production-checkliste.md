@@ -59,7 +59,7 @@ Nutze das Lab, um Mechanisms, Objekte und Fehlerszenarien vorzubereiten. Uebertr
 
 ## Cloud- und Managed-HSMs
 
-Cloud-HSMs sind nur eine von mehreren Geraeteklassen mit unterschiedlichem Schutzniveau und PKCS#11-Bezug. Eine Einordnung TPM ↔ Smartcard ↔ PCIe-HSM ↔ HLSM ↔ Cloud-HSM ↔ Cloud-KMS plus Entscheidungsmatrix steht in [docs/hsm-kategorien.md](../docs/hsm-kategorien.md).
+Cloud-HSMs sind nur eine von mehreren Geraeteklassen mit unterschiedlichem Schutzniveau und PKCS#11-Bezug. Eine Einordnung TPM ↔ Smartcard ↔ PCIe-HSM ↔ HLSM ↔ Cloud-HSM ↔ Cloud-KMS plus Entscheidungsmatrix steht in [docs/hsm-kategorien.md](../docs/hsm-kategorien.md). Ein detaillierter Anbieter-Vergleich mit FIPS-Level, Tenancy, Backup, Latenz, Pricing und Migrationspfaden steht in [docs/cloud-hsm-vergleich.md](../docs/cloud-hsm-vergleich.md).
 
 | Anbieter | Schnittstelle | Besonderheit |
 |---|---|---|

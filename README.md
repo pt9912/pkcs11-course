@@ -81,9 +81,10 @@ Weitere Materialien:
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
 - [`docs/hsm-kategorien.md`](docs/hsm-kategorien.md) - TPM vs Smartcard vs HSM vs HLSM vs Cloud-HSM mit Entscheidungsmatrix
+- [`docs/cloud-hsm-vergleich.md`](docs/cloud-hsm-vergleich.md) - Cloud-HSM-Anbieter im Vergleich (AWS/Azure/GCP/OCI/Thales) mit FIPS-Level und Migrationspfaden
 - [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
 - [`docs/post-quantum.md`](docs/post-quantum.md) - Post-Quantum-Verfahren und Migrationshinweise
-- [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (RFC-3161-Timestamps, Cloud-HSM-Vergleich)
+- [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (RFC-3161-Timestamps)
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 
 ## Wichtige Make-Targets

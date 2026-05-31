@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.1 - 2026-05-31
+
+### Hinzugefügt
+- `docs/cloud-hsm-vergleich.md`: neues Hintergrund-Dokument fuer Cloud-HSM- und HSM-backed-KMS-Angebote. Drei Angebotsklassen (Single-Tenant Cloud-HSM, HSM-backed KMS, Multi-Tenant Managed HSM) mit Trust-Modell-Diff, Anbieter-Vergleichstabelle ueber sieben Anbieter (AWS CloudHSM, AWS KMS Custom Key Store, Azure Dedicated HSM, Azure Key Vault Managed HSM, GCP Cloud HSM, GCP KMS HSM-backed, OCI Vault, Thales DPoD) und sechs Achsen (PKCS#11, FIPS-Level, Tenancy, Backup, Latenz, Pricing). PKCS#11-API-Verfuegbarkeit im Detail mit Limitierungen der KMS-Bruecken (`libkmsp11`, `azure-keyvault-pkcs11`). FIPS-Compliance-Tabelle fuer FIPS 140-3, eIDAS, BSI TR-03116, PCI-DSS, SOX/FedRAMP. Drei Migrations-Klassen (Library-Pfad-Wechsel, Backup-Restore via Vendor-Format, paralleler Key-Neuaufbau). Use-Case-Empfehlungstabelle (Datenverschluesselung, TLS-Termination, eigene CA, eIDAS, TDE, Cross-Cloud). Begruendung, warum kein Hands-on-Lab im Kurs.
+
+### Geändert
+- `course/09-production-checkliste.md`: Cloud-HSM-Abschnitt verweist auf die ausfuehrliche Vergleichs-Tabelle.
+- `README.md`: Materialien-Block um `docs/cloud-hsm-vergleich.md` ergaenzt; Roadmap-Hinweis auf den verbleibenden RFC-3161-Punkt verkuerzt.
+- `docs/api.md`: Querverweis-Block um Cloud-HSM-Vergleich erweitert.
+- `roadmap.md`: Eintrag "Cloud-HSM-Provider-Vergleich" auf Erledigt-Hinweis verkuerzt; Priorisierungs-Paragraf jetzt RFC-3161-fokussiert.
+
 ## 0.17.0 - 2026-05-31
 
 ### Hinzugefügt
