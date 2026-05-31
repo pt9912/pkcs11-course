@@ -52,15 +52,9 @@ Das ist der Beweis: das eingebettete `signatureTimeStampToken` ist als UnsignedA
 
 ## Aufgabe 4 — extKU-Manipulation
 
-Mit `extendedKeyUsage=critical,serverAuth` im TSA-Cert:
+Mit `extendedKeyUsage=critical,serverAuth` im TSA-Cert wirft die Demo eine `TSPValidationException`/`TSPException` mit `timeStamping`-Bezug — die genaue Wortlaut-Variante haengt von der BouncyCastle-Version ab (typisch eingewickelt um einen `CertPathValidatorException`-Cause "certificate not allowed for timeStamping").
 
-```text
-Fehler beim CMS+TSA-Lauf:
-  TSPException: TSP Verification:
-  CertPathValidatorException: certificate not allowed for timeStamping
-```
-
-BouncyCastle ruft intern `org.bouncycastle.tsp.TimeStampResponse.validate(...)`, das auf das `extKeyUsage` des TSA-Certs schaut. Ohne `timeStamping` (kritisch) wird das Cert abgelehnt. Damit kann ein kompromittiertes Server-TLS-Cert nicht plötzlich als Time-Stamping-Cert missbraucht werden — genau die Schutzwirkung, die RFC 3161 §2.3 mit der Kritikalitaet erzwingt.
+BouncyCastle ruft intern `org.bouncycastle.tsp.TimeStampResponse.validate(...)`, das auf das `extKeyUsage` des TSA-Certs schaut. Ohne `timeStamping` (kritisch) wird das Cert abgelehnt. Damit kann ein kompromittiertes Server-TLS-Cert nicht ploetzlich als Time-Stamping-Cert missbraucht werden — genau die Schutzwirkung, die RFC 3161 §2.3 mit der Kritikalitaet erzwingt.
 
 ## Aufgabe 5 — Lab-Realitaet
 

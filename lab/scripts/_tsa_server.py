@@ -13,11 +13,11 @@ Aufruf:
     _tsa_server.py <openssl-config-path> <tsa-config-section> <port>
 """
 import http.server
+import os
 import socketserver
 import subprocess
 import sys
 import tempfile
-import threading
 
 
 def make_handler(openssl_conf: str, tsa_section: str):
@@ -45,13 +45,16 @@ def make_handler(openssl_conf: str, tsa_section: str):
                     capture_output=True,
                 )
             finally:
-                import os
                 os.unlink(req_path)
 
             if proc.returncode != 0:
                 msg = proc.stderr.decode(errors="replace")
                 # openssl ts schreibt manchmal die TSResp auf stderr und nutzt 0;
                 # wenn 0 != exit, ist es ein echter Fehler.
+                #
+                # Hinweis: wir geben stderr im Response-Body zurueck, damit Lab-
+                # Demos die openssl-Diagnose direkt sehen. Fuer produktive TSAs
+                # NIEMALS: das wuerde Pfade und interne Fehlermeldungen leaken.
                 self.send_response(500)
                 self.send_header("Content-Type", "text/plain; charset=utf-8")
                 self.end_headers()
@@ -74,6 +77,13 @@ def make_handler(openssl_conf: str, tsa_section: str):
     return TSAHandler
 
 
+class ReuseAddrServer(socketserver.TCPServer):
+    # SO_REUSEADDR muss vor bind() gesetzt werden — d.h. als Klassenattribut,
+    # nicht als Instanz-Override nach __init__. Sonst blockiert ein TIME_WAIT-
+    # Socket Neustarts ~60s lang (Annoyance in scripted Tests).
+    allow_reuse_address = True
+
+
 def main():
     if len(sys.argv) != 4:
         print(__doc__, file=sys.stderr)
@@ -81,8 +91,7 @@ def main():
     openssl_conf, tsa_section, port = sys.argv[1], sys.argv[2], int(sys.argv[3])
 
     handler = make_handler(openssl_conf, tsa_section)
-    with socketserver.TCPServer(("127.0.0.1", port), handler) as httpd:
-        httpd.allow_reuse_address = True
+    with ReuseAddrServer(("127.0.0.1", port), handler) as httpd:
         sys.stderr.write(f"TSA-Server hoert auf http://127.0.0.1:{port}\n")
         sys.stderr.flush()
         httpd.serve_forever()

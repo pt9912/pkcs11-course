@@ -80,8 +80,9 @@ try
     // === 2) TimeStampReq erzeugen + POST ===
     var signerInfo = cms.GetSignerInfos().GetSigners().Cast<SignerInformation>().First();
     var signatureValue = signerInfo.GetSignature();
-    using var sha256 = SHA256.Create();
-    var sigHash = sha256.ComputeHash(signatureValue);
+    // Statische SHA256.HashData (.NET 5+) ist threadsicher und braucht keinen
+    // Reset-State zwischen Aufrufen — sauberer als ein gemeinsames SHA256-Objekt.
+    var sigHash = SHA256.HashData(signatureValue);
 
     var reqGen = new TimeStampRequestGenerator();
     reqGen.SetCertReq(true);
@@ -138,7 +139,7 @@ try
     using var tsaFs = File.OpenRead(Path.Combine(outputDir, "tsa-cert.pem"));
     var tsaCert = new X509CertificateParser().ReadCertificate(tsaFs);
     tsBackToken.Validate(tsaCert);
-    var expectedHash = sha256.ComputeHash(parsedSigner.GetSignature());
+    var expectedHash = SHA256.HashData(parsedSigner.GetSignature());
     var tsHashOk = expectedHash.AsSpan().SequenceEqual(tsBackToken.TimeStampInfo.GetMessageImprintDigest());
     Console.WriteLine($"  Timestamp-Hash:  {(tsHashOk ? "OK" : "FAIL")}");
     Console.WriteLine($"  Timestamp-Zeit:  {tsBackToken.TimeStampInfo.GenTime}");
