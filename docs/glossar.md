@@ -9,17 +9,22 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `AES` | Advanced Encryption Standard | Symmetrische Blockchiffre. |
 | `API` | Application Programming Interface | Programmierschnittstelle; PKCS#11 ist eine API fuer kryptografische Tokens und HSMs. |
 | `ASN.1` | Abstract Syntax Notation One | Datenbeschreibungssprache hinter Zertifikaten, OIDs und vielen Krypto-Formaten. |
+| `BSI` | Bundesamt fuer Sicherheit in der Informationstechnik | Deutsche IT-Sicherheitsbehoerde; relevant fuer HSM-Anforderungen ueber Technische Richtlinien wie TR-03116 und TR-03145. |
 | `CA` | Certificate Authority | Zertifizierungsstelle, die Zertifikate oder CSRs prueft und signiert. |
+| `CC` | Common Criteria (ISO/IEC 15408) | Internationaler Rahmen fuer Sicherheits-Zertifizierungen; HSMs zielen typisch auf EAL4+ oder hoeher, oft komplementaer zu FIPS 140. |
+| `CCID` | Chip Card Interface Device | USB-Geraeteklasse fuer Smartcard-Leser; OpenSC und PCSC-Stack reden CCID, damit Smartcards und USB-Tokens ohne Vendor-Treiber funktionieren. |
 | `CMS` | Cryptographic Message Syntax | Standard fuer signierte/verschluesselte Nachrichten, Nachfolger von PKCS#7. |
 | `CSR` | Certificate Signing Request | Zertifikatsantrag mit Public Key und Subject-Daten, der von einer CA signiert wird. |
 | `Cryptoki` | Cryptographic Token Interface | Alternativer Name fuer PKCS#11. |
 | `CSPRNG` | Cryptographically Secure PRNG | PRNG mit zusaetzlichen Vorwaerts- und Rueckwaerts-Sicherheits-Eigenschaften. |
 | `DER` | Distinguished Encoding Rules | Binaere ASN.1-Codierung, z. B. fuer Zertifikate, Public Keys oder ECDSA-Signaturen. |
 | `DRBG` | Deterministic Random Bit Generator | NIST-Begriff fuer CSPRNG aus SP 800-90A (CTR_DRBG, HMAC_DRBG, Hash_DRBG). |
+| `EAL` | Evaluation Assurance Level | Stufenskala 1-7 in [Common Criteria](#cc); HSMs zielen typisch auf EAL4+ oder EAL5+. Sagt etwas ueber Tiefe der Pruefung, nicht ueber Funktionsumfang. |
 | `EC` | Elliptic Curve | Oberbegriff fuer [Kryptografie auf elliptischen Kurven](elliptische-kurven.md). |
 | `ECDH` | Elliptic Curve Diffie-Hellman | Schluesselaustausch auf elliptischen Kurven; nicht post-quantum-sicher, aber relevant fuer Hybrid-Migration. |
 | `ECDSA` | Elliptic Curve Digital Signature Algorithm | Signaturverfahren auf elliptischen Kurven. Siehe [EC-Grundlagen](elliptische-kurven.md). |
 | `EdDSA` | Edwards-curve Digital Signature Algorithm | Moderne EC-Signaturfamilie, z. B. Ed25519; nicht post-quantum-sicher. |
+| `eIDAS` | electronic IDentification, Authentication and trust Services | EU-Verordnung 910/2014 zur qualifizierten elektronischen Signatur; HSM-Anforderungen ueber QSCD-Zertifizierung. |
 | `FIPS` | Federal Information Processing Standard | US-Standardreihe fuer Kryptografie und IT-Sicherheit, z. B. FIPS 203 fuer ML-KEM. |
 | `FIPS 140-2/3` | Federal Information Processing Standard | US-Zertifizierung fuer kryptografische Module; relevant fuer HSM-Auswahl. |
 | `FN-DSA` | FFT over NTRU-Lattice-Based Digital Signature Algorithm | Falcon-basierter Post-Quantum-Signaturalgorithmus; von NIST ausgewaehlt, FIPS noch nicht final. |
@@ -35,6 +40,8 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `KDF` | Key Derivation Function | Funktion, die aus einem gemeinsamen Geheimnis oder Seed konkrete Schluessel ableitet. |
 | `KEK` | Key Encryption Key | Schluessel, der andere Schluessel wrapped oder unwrapped. |
 | `KEM` | Key Encapsulation Mechanism | Verfahren zum Aufbau eines gemeinsamen Geheimnisses ueber einen Public Key, zentral fuer [Post-Quantum-Kryptografie](post-quantum.md). |
+| `KMIP` | Key Management Interoperability Protocol | OASIS-Standard zum entfernten Key-Management; viele Cloud-HSMs bieten neben PKCS#11 auch ein KMIP-Frontend. |
+| `KMS` | Key Management Service | Provider-Begriff fuer managed Schluesselverwaltung (AWS KMS, Azure Key Vault, GCP KMS); spricht selten PKCS#11 nativ, eher REST-/SDK-API mit HSM-Backing dahinter. |
 | `LMS` | Leighton-Micali Signature | Stateful hashbasiertes Signaturverfahren aus NIST SP 800-208. |
 | `MGF` | Mask Generation Function | Bestandteil von RSA-PSS-Parametern, meistens `MGF1` mit passendem Hash. |
 | `ML-DSA` | Module-Lattice-Based Digital Signature Algorithm | NIST-standardisiertes Post-Quantum-Signaturverfahren, frueher CRYSTALS-Dilithium. |
@@ -44,11 +51,14 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `OID` | Object Identifier | Eindeutige numerische Kennung, z. B. fuer Kurven oder Algorithmen. |
 | `PEM` | Privacy-Enhanced Mail | Base64-Textverpackung fuer DER-Daten mit Header/Footer. |
 | `PIN` | Personal Identification Number | Geheimnis fuer Login am Token, im Lab z. B. User-PIN `987654`. |
+| `PIV` | Personal Identity Verification | NIST-Standard FIPS 201 fuer Smartcard-basierte Identitaet; YubiKey-PIV-Modus implementiert ihn ueber PKCS#11. |
 | `PKCS#11` | Public-Key Cryptography Standards #11 | Standardisierte API fuer kryptografische Tokens und HSMs. |
 | `PKCS#7` | Public-Key Cryptography Standards #7 | Aeltere Bezeichnung im Umfeld von CMS und S/MIME. |
+| `PKI` | Public-Key-Infrastruktur | Organisatorisch-technisches Geruest aus CAs, Zertifikaten und Revocation-Mechanismen (CRL/OCSP), das Public Keys an Identitaeten bindet. |
 | `PQC` | Post-Quantum Cryptography | Klassische Kryptografie, die nach heutigem Kenntnisstand gegen grosse Quantencomputer widerstandsfaehig sein soll. |
 | `PRNG` | Pseudo-Random Number Generator | Deterministischer Algorithmus, der einen Seed in eine lange Output-Sequenz expandiert. |
 | `PSS` | Probabilistic Signature Scheme | Moderne RSA-Signatur-Padding-Variante. |
+| `PUK` | Personal Unblocking Key | Sekundaeres Geheimnis zum Entsperren einer gesperrten User-PIN bei Smartcards und USB-Tokens; SO-PIN-aequivalent in der Smartcard-Welt. |
 | `RNG` | Random Number Generator | Oberbegriff fuer alle Zufallsquellen, TRNG und PRNG eingeschlossen. |
 | `RSA` | Rivest-Shamir-Adleman | Asymmetrisches Verfahren fuer Signaturen und historische Verschluesselungsfaelle. |
 | `SHA` | Secure Hash Algorithm | Hashalgorithmus-Familie, z. B. SHA-256, SHA-384 und SHA-512. |
@@ -57,9 +67,11 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `SP` | Special Publication | NIST-Publikationsreihe fuer Empfehlungen und Richtlinien, z. B. SP 800-208. |
 | `SP 800-90A/B/C` | NIST Special Publication 800-90 | Standards fuer DRBG-Konstruktion (A), Entropy Sources (B) und RBG-Konstruktion (C). |
 | `SSH` | Secure Shell | Protokoll fuer Remote-Login und Git-Zugriff. |
+| `TCG` | Trusted Computing Group | Konsortium, das die TPM-Spec definiert (aktuell TPM 2.0); die Software-Schicht ueber dem Chip heisst entsprechend TSS. |
 | `TLS` | Transport Layer Security | Protokoll fuer gesicherte Verbindungen, z. B. HTTPS. |
 | `TPM` | Trusted Platform Module | Geraetegebundener Sicherheitschip fuer Plattform-Identitaet, gemessenen Boot und lokale Schluessel; kein allgemeiner HSM-Ersatz und im Kurs nicht der typische PKCS#11-Zieltyp. Einordnung: [HSM-Kategorien](hsm-kategorien.md). |
 | `TRNG` | True Random Number Generator | Physikalische Quelle (Ringoszillator, Quantenrauschen, Zener-Diode). |
+| `TSS` | TPM Software Stack | Software-Schicht ueber dem TPM, an die `tpm2-pkcs11` als PKCS#11-Bruecke bindet. |
 | `URI` | Uniform Resource Identifier | Adressformat, z. B. `pkcs11:token=...;object=...`. |
 | `VPN` | Virtual Private Network | Geschuetzte Netzverbindung; relevant fuer hybride Post-Quantum-Schluesselaustauschverfahren. |
 | `X25519` | X25519 Diffie-Hellman function | Weit verbreiteter ECDH-Schluesselaustausch auf Curve25519; nicht post-quantum-sicher, aber oft Hybrid-Partner fuer ML-KEM. |
