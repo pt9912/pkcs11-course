@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo validate-key-usage clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo validate-key-usage gen-ecdh-keys ecdh-derive go-ecdh-demo csharp-ecdh-demo java-ecdh-demo kotlin-ecdh-demo issue-ecdh-certs clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -33,6 +33,7 @@ PKCS11_VARS = \
   PKCS11_STREAM_SIZE_MB \
   PKCS11_TMP_PIN PKCS11_LOCKOUT_PIN \
   PKCS11_RANDOM_SIZE PKCS11_RANDOM_CHUNK PKCS11_RANDOM_TOTAL_KB \
+  PKCS11_ECDH_ALICE_LABEL PKCS11_ECDH_ALICE_ID PKCS11_ECDH_BOB_LABEL PKCS11_ECDH_BOB_ID PKCS11_ECDH_CURVE PKCS11_ECDH_KDF \
   PKCS11_SSHD_PORT PKCS11_NGINX_BIN \
   PKCS11_ENGINE PKCS11_ENGINE_PATH \
   PKCS11_JAVA_CONFIG PKCS11_OUTPUT_DIR
@@ -302,6 +303,27 @@ java-random-demo: init-token
 kotlin-random-demo: init-token
 	$(RUN_KOTLIN) 'lab/scripts/76-kotlin-random-demo.sh'
 
+gen-ecdh-keys: init-token
+	$(RUN_GO) 'lab/scripts/78-generate-ecdh-keys.sh'
+
+ecdh-derive: gen-ecdh-keys
+	$(RUN_GO) 'lab/scripts/79-ecdh-derive.sh'
+
+go-ecdh-demo: gen-ecdh-keys
+	$(RUN_GO) 'lab/scripts/80-go-ecdh-demo.sh'
+
+csharp-ecdh-demo: gen-ecdh-keys
+	$(RUN_CSHARP) 'lab/scripts/81-csharp-ecdh-demo.sh'
+
+issue-ecdh-certs: gen-ecdh-keys
+	$(RUN_LAB) 'lab/scripts/84-import-ecdh-certs.sh'
+
+java-ecdh-demo: issue-ecdh-certs
+	$(RUN_LAB) 'lab/scripts/82-java-ecdh-demo.sh'
+
+kotlin-ecdh-demo: issue-ecdh-certs
+	$(RUN_KOTLIN) 'lab/scripts/83-kotlin-ecdh-demo.sh'
+
 # Validiert, dass die sieben Lab-Keys ihre erwarteten CKA_*-Usage-Profile haben.
 # Voraussetzung: gen-rsa, gen-ec, gen-rsa-wrap, gen-aes-stream, gen-hmac,
 # gen-kek, gen-ca-key — alle Keys muessen im Token liegen.
@@ -337,7 +359,10 @@ clean:
 	       lab/csharp/Pkcs11CsrDemo/bin lab/csharp/Pkcs11CsrDemo/obj \
 	       lab/csharp/Pkcs11RandomDemo/bin lab/csharp/Pkcs11RandomDemo/obj \
 	       lab/java/pkcs11-random-demo/build lab/java/pkcs11-random-demo/.gradle \
-	       lab/kotlin/pkcs11-random-demo/build lab/kotlin/pkcs11-random-demo/.gradle lab/kotlin/pkcs11-random-demo/.kotlin
+	       lab/kotlin/pkcs11-random-demo/build lab/kotlin/pkcs11-random-demo/.gradle lab/kotlin/pkcs11-random-demo/.kotlin \
+	       lab/csharp/Pkcs11EcdhDemo/bin lab/csharp/Pkcs11EcdhDemo/obj \
+	       lab/java/pkcs11-ecdh-demo/build lab/java/pkcs11-ecdh-demo/.gradle \
+	       lab/kotlin/pkcs11-ecdh-demo/build lab/kotlin/pkcs11-ecdh-demo/.gradle lab/kotlin/pkcs11-ecdh-demo/.kotlin
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

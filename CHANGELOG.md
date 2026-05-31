@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.17.0 - 2026-05-31
+
+### Hinzugefügt
+- Kapitel 24 `course/24-ecdh-hkdf.md`: ECDH-Schluesselableitung ueber `C_DeriveKey(CKM_ECDH1_DERIVE)`, Alice+Bob-Setup mit Shared-Secret-Match-Beweis (P-256 x-Koordinate, byte-identisch auf beiden Seiten), zwei KDF-Pfade (host-side HKDF-SHA256 RFC 5869 als Default plus `--kdf=raw` als Vergleich). Erklaert SoftHSM-Limitierung rund um `CKM_HKDF_DERIVE` (fehlt vor PKCS#11 v3.0) und die SunPKCS11-Eigenheit, dass `KeyAgreement.generateSecret()` ein `CKA_SENSITIVE=false`-Attribut-Override braucht.
+- Uebung 18 `exercises/18-ecdh-hkdf.md` + Loesung `solutions/18-ecdh-hkdf.md`: Bash/Go-Pfad, KDF-Pfad-Vergleich, Vier-Sprachen-Konsistenz-Beweis (alle vier Demos produzieren `8e8922dcb79a3dcf...` als AES-Key), Info-Sensitivitaet, `CKR_ATTRIBUTE_SENSITIVE`-Fehler aus dem leeren `attributes(...)`-Block.
+- Go-Demo `lab/go/pkcs11-ecdh-demo/`: Standalone-Programm mit miekg/pkcs11 + golang.org/x/crypto/hkdf, fuer Bash- und Sprach-Demo-Pfad gleichermassen.
+- C#-Demo `lab/csharp/Pkcs11EcdhDemo/`: Pkcs11Interop 5.3.0 `session.DeriveKey` + `System.Security.Cryptography.HKDF.DeriveKey`.
+- Java-Demo `lab/java/pkcs11-ecdh-demo/`: SunPKCS11 + JCA `KeyAgreement("ECDH")` + selbstgeschriebene RFC-5869-HKDF (Extract+Expand mit `Mac`). `softhsm.cfg` mit `attributes(generate, CKO_SECRET_KEY, CKK_GENERIC_SECRET) = { CKA_SENSITIVE=false, CKA_EXTRACTABLE=true }`-Override.
+- Kotlin-Demo `lab/kotlin/pkcs11-ecdh-demo/`: identisch zur Java-Variante, idiomatisches Kotlin.
+- Lab-Skripte `78-generate-ecdh-keys.sh` (Alice+Bob EC-P256 mit `--sign --derive` ueber `pkcs11-keygen`), `79-ecdh-derive.sh` (Bash-Wrapper um Go-Demo, KDF via `PKCS11_ECDH_KDF`), `80-83-{go,csharp,java,kotlin}-ecdh-demo.sh` (Sprach-Demo-Wrapper), `84-import-ecdh-certs.sh` (Self-signed Certs fuer Alice und Bob als SunPKCS11-Alias-Plumbing — Certs werden im ECDH-Protokoll nicht benutzt).
+- Make-Targets: `gen-ecdh-keys`, `ecdh-derive`, `go-ecdh-demo`, `csharp-ecdh-demo`, `java-ecdh-demo`, `kotlin-ecdh-demo`, `issue-ecdh-certs`.
+
+### Geändert
+- `README.md`: Modul 24 in der Kursstruktur-Tabelle und in den "Erweiterte Module"-Targets erfasst; Roadmap-Hinweis im Materialien-Block auf zwei verbleibende Themen verkuerzt; "Kapitel 13-24" im Header der erweiterten Module.
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 24 erweitert.
+- `docs/api.md`: `C_DeriveKey`-Zeile referenziert das neue Kapitel.
+- `roadmap.md`: Eintrag "Key Derivation (ECDH und HKDF)" auf Erledigt-Hinweis verkuerzt; Priorisierungs-Paragraf auf zwei verbleibende Themen aktualisiert.
+- `Makefile`: `PKCS11_VARS` um `PKCS11_ECDH_*`-Variablen erweitert, neue Targets und Dependencies dokumentiert.
+
 ## 0.16.1 - 2026-05-31
 
 ### Hinzugefügt

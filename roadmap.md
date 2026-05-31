@@ -8,25 +8,7 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > HSM-Kategorien didaktisch schaerfen ist in Version 0.16.1 umgesetzt — siehe [`docs/hsm-kategorien.md`](docs/hsm-kategorien.md) mit Vergleichstabelle, PKCS#11-Abgrenzung und Entscheidungsmatrix. Cross-References aus `course/01-grundlagen.md`, `course/09-production-checkliste.md`, Glossar und README.
 
-## Key Derivation (ECDH und HKDF)
-
-`C_DeriveKey` mit `CKM_ECDH1_DERIVE` ist die HSM-Variante des klassischen ECDH-Ablaufs (Alice + Bob tauschen Pubkeys, beide leiten denselben Shared Secret ab). Praktisch fuer:
-- Hybrid-Verschluesselung **ohne** RSA-Wrap (statt Kapitel 13 Modul 13: ECIES-aehnlich)
-- Schluessel-Erstellung fuer authenticated KEX-Protokolle
-- Forward-Secrecy-Patterns in eigenen Protokollen
-
-Anschluss-Mechanism: `CKM_HKDF_DERIVE`/`CKM_SP800_108_COUNTER_KDF` fuer das KDF-Expand auf den Shared Secret.
-
-**Wo aktuell gestreift:** Modul 13 nennt EC-basierte hybride Verschluesselung als Alternative, ohne sie zu demonstrieren. Mechanism-Tabelle in [`docs/api.md`](docs/api.md) enthaelt `C_DeriveKey`.
-
-**Skizze:**
-- Lab generiert zwei EC-Keys (Alice + Bob)
-- `C_DeriveKey(CKM_ECDH1_DERIVE)` mit Bobs Pubkey als Parameter → Shared Secret auf Alice-Seite
-- Symmetrisch fuer Bob, gleicher Shared Secret
-- Per `CKM_HKDF_DERIVE` ein AES-Key ableiten, damit eine Test-Datei ver-/entschluesseln
-- Sprach-Demos: Go (miekg/pkcs11 hat DeriveKey), C# (Pkcs11Interop session.DeriveKey), Java/Kotlin (KeyAgreement via SunPKCS11 `ECDH`)
-
-**Scope:** mittel. Neuer EC-Key-Typ, neuer Mechanism, gute Visualisierung des Shared-Secret-Match-Beweises.
+> ECDH + HKDF ist in Version 0.17.0 als Kapitel 24 umgesetzt — siehe [`course/24-ecdh-hkdf.md`](course/24-ecdh-hkdf.md), [`exercises/18-ecdh-hkdf.md`](exercises/18-ecdh-hkdf.md), [`lab/go/pkcs11-ecdh-demo/`](lab/go/pkcs11-ecdh-demo/), Sprach-Demos fuer Go/C#/Java/Kotlin. `CKM_HKDF_DERIVE` fehlt SoftHSM, HKDF laeuft host-side und ist byte-identisch ueber alle vier Sprachen.
 
 ## RFC-3161-Timestamps fuer CMS
 
@@ -59,6 +41,6 @@ Alle Lab-Demos laufen gegen SoftHSM. Reale Deployments setzen oft Cloud-HSMs ein
 
 ## Priorisierungs-Hinweise
 
-Wenn jemand auf der Roadmap weitermacht: **ECDH** ist der naechste natuerliche kleine Schritt — Pendant zum HSM-RNG-Kapitel (0.15.0), nutzt den vorhandenen pkcs11-keygen-Helper fuer EC-Derive-Keys. **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
+Wenn jemand auf der Roadmap weitermacht: **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
 
 Keine der verbleibenden Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.

@@ -28,6 +28,10 @@ lab/java/pkcs11-random-demo/build/
 lab/java/pkcs11-random-demo/bin/
 lab/java/pkcs11-random-demo/target/
 lab/java/pkcs11-random-demo/.gradle/
+lab/java/pkcs11-ecdh-demo/build/
+lab/java/pkcs11-ecdh-demo/bin/
+lab/java/pkcs11-ecdh-demo/target/
+lab/java/pkcs11-ecdh-demo/.gradle/
 lab/kotlin/pkcs11-demo/target/
 lab/kotlin/pkcs11-demo/dependency-reduced-pom.xml
 lab/kotlin/pkcs11-demo/bin/
@@ -40,6 +44,9 @@ lab/kotlin/pkcs11-csr-demo/build/
 lab/kotlin/pkcs11-random-demo/build/
 lab/kotlin/pkcs11-random-demo/.gradle/
 lab/kotlin/pkcs11-random-demo/.kotlin/
+lab/kotlin/pkcs11-ecdh-demo/build/
+lab/kotlin/pkcs11-ecdh-demo/.gradle/
+lab/kotlin/pkcs11-ecdh-demo/.kotlin/
 *.class
 
 # Gradle
@@ -72,6 +79,8 @@ lab/csharp/Pkcs11CsrDemo/bin/
 lab/csharp/Pkcs11CsrDemo/obj/
 lab/csharp/Pkcs11RandomDemo/bin/
 lab/csharp/Pkcs11RandomDemo/obj/
+lab/csharp/Pkcs11EcdhDemo/bin/
+lab/csharp/Pkcs11EcdhDemo/obj/
 .nuget/
 .dotnet/
 dotnet/
