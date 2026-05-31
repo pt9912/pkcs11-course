@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo clean clean-tokens distclean
+.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -265,6 +265,24 @@ java-csr-demo: import-cert
 kotlin-csr-demo: import-cert
 	$(RUN_KOTLIN) 'lab/scripts/70-kotlin-csr-demo.sh'
 
+random-gen: init-token
+	$(RUN_LAB) 'lab/scripts/71-random-gen.sh'
+
+random-bench: init-token
+	$(RUN_LAB) 'lab/scripts/72-random-bench.sh'
+
+go-random-demo: init-token
+	$(RUN_GO) 'lab/scripts/73-go-random-demo.sh'
+
+csharp-random-demo: init-token
+	$(RUN_CSHARP) 'lab/scripts/74-csharp-random-demo.sh'
+
+java-random-demo: init-token
+	$(RUN_LAB) 'lab/scripts/75-java-random-demo.sh'
+
+kotlin-random-demo: init-token
+	$(RUN_KOTLIN) 'lab/scripts/76-kotlin-random-demo.sh'
+
 # clean entfernt Build-Output und transient erzeugte Daten/Signatur-Artefakte,
 # laesst aber die Token-Datenbank in lab/work/tokens intakt. Wer den Token
 # komplett wegwerfen will, nutzt `make clean-tokens` oder `make distclean`.
@@ -291,7 +309,10 @@ clean:
 	       lab/csharp/Pkcs11PoolDemo/bin lab/csharp/Pkcs11PoolDemo/obj \
 	       lab/csharp/Pkcs11WrapDemo/bin lab/csharp/Pkcs11WrapDemo/obj \
 	       lab/csharp/Pkcs11PinDemo/bin lab/csharp/Pkcs11PinDemo/obj \
-	       lab/csharp/Pkcs11CsrDemo/bin lab/csharp/Pkcs11CsrDemo/obj
+	       lab/csharp/Pkcs11CsrDemo/bin lab/csharp/Pkcs11CsrDemo/obj \
+	       lab/csharp/Pkcs11RandomDemo/bin lab/csharp/Pkcs11RandomDemo/obj \
+	       lab/java/pkcs11-random-demo/build lab/java/pkcs11-random-demo/.gradle \
+	       lab/kotlin/pkcs11-random-demo/build lab/kotlin/pkcs11-random-demo/.gradle lab/kotlin/pkcs11-random-demo/.kotlin
 	find lab/work -mindepth 1 -maxdepth 1 ! -name tokens ! -name .gitkeep -exec rm -rf {} +
 
 clean-tokens:

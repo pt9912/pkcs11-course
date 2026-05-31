@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.15.0 - 2026-05-31
+
+### Hinzugefügt
+- Kapitel 23 `course/23-random.md`: `C_GenerateRandom`/`C_SeedRandom`, Token-Flag `CKF_RNG`, TRNG vs CSPRNG vs RDRAND vs HSM-RNG, NIST SP 800-90A/B/C-Einordnung, Performance-Realitaet realer HSMs (YubiKey/Thales/Utimaco/AWS CloudHSM), `SecureRandom.getInstance("PKCS11", provider)` als JCA-Pfad. Erklaert, warum SoftHSM-Zahlen nicht repraesentativ sind und warum `C_SeedRandom` als Sicherheits-Feature von vielen HSMs abgelehnt wird.
+- Uebung 17 `exercises/17-random.md` + Loesung `solutions/17-random.md`: pkcs11-tool-Generierung, Throughput/Verteilung, Sprach-Demo-Vergleich, CKF_RNG-Inversion als Fehlerpfad, Chunk-Size-Variation.
+- Lab-Skripte `lab/scripts/71-random-gen.sh` (pkcs11-tool --generate-random in drei Groessen, CKF_RNG-Check via list-token-slots), `72-random-bench.sh` (HSM vs /dev/urandom vs /dev/zero als Anti-Test, Shannon-Entropie + Chi^2 via Python-Helper), `_random_stats.py` (Verteilungs-Check ohne externe Tools).
+- Sprach-Demos `lab/{go,csharp,java,kotlin}/pkcs11-random-demo/`: 32 Byte Proof-of-Life + 1 MB Throughput-Vergleich (persistente Session/Provider) + Shannon-Entropie ueber 64 KB.
+  - Go: `p11.GenerateRandom(session, n)` mit miekg/pkcs11, Vergleich vs `crypto/rand`.
+  - C#: `session.GenerateRandom(n)` mit Pkcs11Interop, Vergleich vs `RandomNumberGenerator.Fill`.
+  - Java/Kotlin: `SecureRandom.getInstance("PKCS11", provider)` ueber SunPKCS11, Vergleich vs Default-NativePRNG. Demonstriert SoftHSM-Spezialfall (HSM-Pfad in-Process schneller als syscall-RNG — auf Hardware umgekehrt).
+- Wrapper-Skripte `73-go-random-demo.sh`, `74-csharp-random-demo.sh`, `75-java-random-demo.sh`, `76-kotlin-random-demo.sh`.
+- Makefile-Targets: `random-gen`, `random-bench`, `go-random-demo`, `csharp-random-demo`, `java-random-demo`, `kotlin-random-demo`.
+
+### Geändert
+- `README.md`: Modul 23 in der Kursstruktur-Tabelle und in den "Erweiterte Module"-Targets erfasst; Roadmap-Hinweis im Materialien-Block auf drei verbleibende Themen verkuerzt.
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 23 erweitert.
+- `Makefile clean`: neue Random-Demo-Build-Verzeichnisse aufgenommen.
+- `docs/api.md`: RNG-Zeile referenziert jetzt das neue Kapitel.
+- `docs/glossar.md`: RNG/TRNG/PRNG/CSPRNG/DRBG/FIPS 140-2/3/SP 800-90A/B/C als Abkuerzungen ergaenzt — vom Random-Kapitel kreuzreferenziert.
+- `roadmap.md`: `C_GenerateRandom`-Eintrag entfernt, Priorisierungs- und Schlussabsatz auf drei verbleibende Themen aktualisiert.
+- `.gitignore`: `pkcs11-random-demo`-Build-Pfade fuer Java/Kotlin und `Pkcs11RandomDemo/{bin,obj}` fuer C# ergaenzt.
+
 ## 0.14.0 - 2026-05-30
 
 ### Hinzugefügt

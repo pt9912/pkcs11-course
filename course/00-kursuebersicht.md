@@ -44,7 +44,8 @@ Am Ende kannst du:
 | 19 | `20-key-wrap.md` | Backup/Escrow via C_WrapKey + KEK-Strategie |
 | 20 | `21-pin-management.md` | PIN-Lifecycle, CKF-Flags, SO-Recovery, Lockout-Realitaet |
 | 21 | `22-csr-und-ca-workflow.md` | CSR-Generierung ueber HSM, Mini-CA, CA-Signing, Cert-Import |
-| 22 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 22 | `23-random.md` | HSM-RNG, `C_GenerateRandom`, TRNG vs CSPRNG, NIST SP 800-90 |
+| 23 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

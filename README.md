@@ -69,6 +69,7 @@ Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didak
 | [`course/20-key-wrap.md`](course/20-key-wrap.md) | Backup/Escrow via C_WrapKey, KEK-Policy, CKA_EXTRACTABLE-Gate | [`exercises/14-key-wrap.md`](exercises/14-key-wrap.md) |
 | [`course/21-pin-management.md`](course/21-pin-management.md) | PIN-Lifecycle, CKF-Flags, SO-Recovery, Lockout-Realitaet | [`exercises/15-pin-management.md`](exercises/15-pin-management.md) |
 | [`course/22-csr-und-ca-workflow.md`](course/22-csr-und-ca-workflow.md) | CSR-Generierung ueber HSM, Mini-CA, CA-Signing, Cert-Import | [`exercises/16-csr-und-ca-workflow.md`](exercises/16-csr-und-ca-workflow.md) |
+| [`course/23-random.md`](course/23-random.md) | HSM als Random-Quelle: `C_GenerateRandom`, `CKF_RNG`, TRNG vs CSPRNG, NIST SP 800-90 | [`exercises/17-random.md`](exercises/17-random.md) |
 
 Weitere Materialien:
 
@@ -78,7 +79,7 @@ Weitere Materialien:
 - [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
-- [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (C_GenerateRandom, ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)
+- [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 
 ## Wichtige Make-Targets
@@ -115,6 +116,7 @@ Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotli
 | 20 — Key Wrap | `make gen-kek` / `make wrap-backup` / `make {go,csharp}-wrap-demo` | C_WrapKey/UnwrapKey-Roundtrip; Java/Kotlin entfaellt (kein JCA-Wrap) |
 | 21 — PIN-Management | `make pin-info` / `make pin-change` / `make pin-recovery` / `make {go,csharp}-pin-demo` | C_SetPIN/InitPIN, CKF_USER_PIN_*-Flags; Java/Kotlin entfaellt (kein JCA-PIN-API) |
 | 22 — CSR + CA | `make gen-ca-key` / `make issue-ca-cert` / `make issue-leaf-cert` / `make {go,csharp,java,kotlin}-csr-demo` | Mini-CA mit HSM-CA-Key, CSR-Generierung pro Sprache |
+| 23 — HSM-RNG | `make random-gen` / `make random-bench` / `make {go,csharp,java,kotlin}-random-demo` | `C_GenerateRandom` via pkcs11-tool und SunPKCS11-`SecureRandom`, Durchsatz- und Verteilungs-Check |
 
 Die Make-Dependency-Kette stellt vorgelagerte Targets automatisch sicher. `make tls-serve` zieht z.B. `import-cert` → `gen-rsa` → `init-token` mit.
 

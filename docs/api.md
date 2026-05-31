@@ -63,7 +63,7 @@ Alle Funktionen geben `CK_RV` zurück. `CKR_OK = 0` bedeutet Erfolg. Jede andere
 | Verschlüsselung | `C_EncryptInit`, `C_Encrypt`, `C_DecryptInit`, `C_Decrypt` | Symmetrisch oder asymmetrisch |
 | Digest | `C_DigestInit`, `C_Digest`, `C_DigestUpdate`, `C_DigestFinal` | Hashing |
 | Key-Mgmt | `C_GenerateKey`, `C_GenerateKeyPair`, `C_WrapKey`, `C_UnwrapKey`, `C_DeriveKey` | Schlüsselerzeugung und -transport |
-| RNG | `C_GenerateRandom`, `C_SeedRandom` | Zufallszahlen |
+| RNG | `C_GenerateRandom`, `C_SeedRandom` | Zufallszahlen (Details: [course/23-random.md](../course/23-random.md)) |
 
 ### 2.2 Wichtige Datentypen
 

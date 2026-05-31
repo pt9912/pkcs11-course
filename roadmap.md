@@ -2,18 +2,7 @@
 
 Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertragen wuerden. Jeder Eintrag enthaelt: was rein muesste, wo es bereits referenziert wird, Scope-Skizze fuer Lab-Demos.
 
-## `C_GenerateRandom` — HSM als Entropie-Quelle
-
-PKCS#11 bietet `C_GenerateRandom`/`C_SeedRandom`. Reale HSMs haben einen Hardware-RNG mit TRNG-Eigenschaft (typisch FIPS-140-3-Level-3-zertifiziert) und sind als Entropie-Quelle interessant fuer Anwendungen, die nicht auf `/dev/urandom` setzen wollen oder muessen (Compliance).
-
-**Wo aktuell gestreift:** [`docs/api.md`](docs/api.md) Funktionsuebersicht. Token-Flag `CKF_RNG` wird im PIN-Modul ([`course/21-pin-management.md`](course/21-pin-management.md)) implizit angezeigt.
-
-**Skizze:**
-- Bash: `pkcs11-tool --generate-random 64` ueber den Token
-- Go/C#/Java/Kotlin: `C_GenerateRandom` direkt, plus Vergleich der Bytes gegen `/dev/urandom`-Output (visuelle Inspektion + ggf. ent-Tool-Statistik)
-- Kursmodul: TRNG vs PRNG vs RDRAND vs HSM-RNG, NIST SP 800-90A/B/C kurz einordnen, Performance-Vergleich (HSM-RNG ist haeufig **langsamer** als der Host-Kernel-RNG, dafuer compliance-relevant)
-
-**Scope:** klein. Eine Lab-Skript-Familie plus kurzes Kapitel.
+> `C_GenerateRandom` ist in Version 0.15.0 als Kapitel 23 umgesetzt — siehe [`course/23-random.md`](course/23-random.md), [`exercises/17-random.md`](exercises/17-random.md), Lab-Skripte `lab/scripts/71-76*`.
 
 ## Key Derivation (ECDH und HKDF)
 
@@ -66,6 +55,6 @@ Alle Lab-Demos laufen gegen SoftHSM. Reale Deployments setzen oft Cloud-HSMs ein
 
 ## Priorisierungs-Hinweise
 
-Wenn jemand auf der Roadmap weitermacht: **C_GenerateRandom** und **ECDH** sind die natuerlichen kleinen Schritte. **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
+Wenn jemand auf der Roadmap weitermacht: **ECDH** ist der naechste natuerliche kleine Schritt (Pendant zum HSM-RNG-Kapitel aus 0.15.0). **RFC 3161** ist der wertvollste fuer rechtliche Anwendungsfaelle (eIDAS-Signaturen). **Cloud-HSM** ist das wichtigste Praxis-Wissen fuer den ueblichen Wechsel von Lab zu Production — kann ohne Lab-Setup als Wiki-Eintrag entstehen.
 
-Keine der vier Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.
+Keine der drei verbleibenden Themen ist Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.
