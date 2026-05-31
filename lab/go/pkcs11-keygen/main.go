@@ -149,7 +149,7 @@ func generateRSA(p *pkcs11.Ctx, s pkcs11.SessionHandle, bits int, label string, 
 		pkcs11.NewAttribute(pkcs11.CKA_MODULUS_BITS, bits),
 		// RSA-F4 = 0x010001 als Big-Endian-Bytes.
 		pkcs11.NewAttribute(pkcs11.CKA_PUBLIC_EXPONENT, []byte{0x01, 0x00, 0x01}),
-		// Public-Key-Hauften des Usage-Profils:
+		// Public-Key-Haelfte des Usage-Profils:
 		pkcs11.NewAttribute(pkcs11.CKA_VERIFY, u.sign),
 		pkcs11.NewAttribute(pkcs11.CKA_VERIFY_RECOVER, false),
 		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, u.encrypt),
@@ -179,8 +179,8 @@ func generateRSA(p *pkcs11.Ctx, s pkcs11.SessionHandle, bits int, label string, 
 	}
 	fmt.Printf("RSA-%d Keypair erzeugt: label=%s id=%s pub=%d priv=%d\n",
 		bits, label, hex.EncodeToString(id), pubH, privH)
-	logUsage("priv", u, false)
-	logUsage("pub", u, false)
+	logUsage("priv", u)
+	logUsage("pub", u)
 	return nil
 }
 
@@ -223,8 +223,8 @@ func generateEC(p *pkcs11.Ctx, s pkcs11.SessionHandle, curveName, label string, 
 	}
 	fmt.Printf("EC-%s Keypair erzeugt: label=%s id=%s pub=%d priv=%d\n",
 		curveName, label, hex.EncodeToString(id), pubH, privH)
-	logUsage("priv", u, false)
-	logUsage("pub", u, false)
+	logUsage("priv", u)
+	logUsage("pub", u)
 	return nil
 }
 
@@ -255,7 +255,7 @@ func generateSecret(p *pkcs11.Ctx, s pkcs11.SessionHandle, keyType, mechType uin
 		return fmt.Errorf("C_GenerateKey: %w", err)
 	}
 	fmt.Printf("Secret-Key erzeugt: label=%s id=%s handle=%d\n", label, hex.EncodeToString(id), h)
-	logUsage("secret", u, true)
+	logUsage("secret", u)
 	return nil
 }
 
@@ -308,7 +308,7 @@ func findSlot(p *pkcs11.Ctx, tokenLabel string) (uint, error) {
 	return 0, fmt.Errorf("Token %q nicht gefunden", tokenLabel)
 }
 
-func logUsage(role string, u usageProfile, isPub bool) {
+func logUsage(role string, u usageProfile) {
 	parts := []string{}
 	switch role {
 	case "secret":
@@ -348,7 +348,6 @@ func logUsage(role string, u usageProfile, isPub bool) {
 	if len(parts) == 0 {
 		parts = []string{"(none)"}
 	}
-	_ = isPub
 	fmt.Printf("  %-6s Usage: %s\n", role, strings.Join(parts, ", "))
 }
 

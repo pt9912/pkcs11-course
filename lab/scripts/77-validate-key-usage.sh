@@ -74,6 +74,12 @@ awk '
 # alphabetisch, joint mit ",".
 normalize_usage() {
   local raw="$1"
+  # signRecover/verifyRecover werden absichtlich gefiltert: SoftHSM 2.6 setzt
+  # diese Flags trotz CKA_SIGN_RECOVER=false/CKA_VERIFY_RECOVER=false im
+  # Template implizit, wenn der zugehoerige CKA_SIGN/CKA_VERIFY gesetzt ist.
+  # Maskieren ist hier vorsaetzlich (nicht "normalize away a quirk"), damit
+  # ein erwartetes "sign"-Profil nicht faelschlich auf SoftHSM "sign,signRecover"
+  # mismatch produziert.
   echo "$raw" \
     | tr ',' '\n' \
     | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
