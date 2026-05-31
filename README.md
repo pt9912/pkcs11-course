@@ -79,6 +79,7 @@ Weitere Materialien:
 - [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel
 - [`docs/api.md`](docs/api.md) - Leitfaden zur PKCS#11-API
 - [`docs/glossar.md`](docs/glossar.md) - Abkuerzungen und zentrale Begriffe
+- [`docs/hsm-kategorien.md`](docs/hsm-kategorien.md) - TPM vs Smartcard vs HSM vs HLSM vs Cloud-HSM mit Entscheidungsmatrix
 - [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
 - [`docs/post-quantum.md`](docs/post-quantum.md) - Post-Quantum-Verfahren und Migrationshinweise
 - [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (ECDH, RFC-3161-Timestamps, Cloud-HSM-Vergleich)

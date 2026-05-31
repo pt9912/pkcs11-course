@@ -59,6 +59,8 @@ Nutze das Lab, um Mechanisms, Objekte und Fehlerszenarien vorzubereiten. Uebertr
 
 ## Cloud- und Managed-HSMs
 
+Cloud-HSMs sind nur eine von mehreren Geraeteklassen mit unterschiedlichem Schutzniveau und PKCS#11-Bezug. Eine Einordnung TPM ↔ Smartcard ↔ PCIe-HSM ↔ HLSM ↔ Cloud-HSM ↔ Cloud-KMS plus Entscheidungsmatrix steht in [docs/hsm-kategorien.md](../docs/hsm-kategorien.md).
+
 | Anbieter | Schnittstelle | Besonderheit |
 |---|---|---|
 | AWS CloudHSM | PKCS#11, JCE, KMIP | Cluster, Mandant pro VPC |

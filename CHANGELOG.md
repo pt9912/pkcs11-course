@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.16.1 - 2026-05-31
+
+### Hinzugefügt
+- `docs/hsm-kategorien.md`: neues Hintergrund-Dokument zur Einordnung der HSM-Geraeteklassen (TPM, Smartcard/USB-Token, Cloud-Smartcard, PCIe-/Netzwerk-HSM, HLSM, Cloud-HSM, Cloud-KMS). Vergleichstabelle mit Formfaktor/Use-Case/PKCS#11-Verfuegbarkeit/FIPS-Niveau, Abgrenzung zu PKCS#11 (welche Klassen sprechen es nativ, welche nur ueber Bruecken), Entscheidungsmatrix fuer vier typische Szenarien (Notebook-Disk-Encryption, SSH-Token, eIDAS-Bank-Fernsignatur, interne CA), externer Verweis auf Pohlmanns Lehrbuch-Uebungen.
+
+### Geändert
+- `course/01-grundlagen.md`: kurzer Absatz nach "Was ist PKCS#11?" mit Verweis auf die HSM-Kategorien-Einordnung — wer PKCS#11 lernt, sollte fruehzeitig wissen, dass "Token" und "HSM" sehr unterschiedliche Geraeteklassen meinen.
+- `course/09-production-checkliste.md`: Cloud-HSM-Abschnitt verweist auf die vollstaendige Kategorien-Tabelle.
+- `README.md`: Materialien-Block um `docs/hsm-kategorien.md` ergaenzt.
+- `docs/api.md`: Querverweis-Block um HSM-Kategorien erweitert.
+- `docs/glossar.md`: HLSM-, HSM- und TPM-Eintraege verlinken jetzt auf `hsm-kategorien.md` fuer die ausfuehrliche Einordnung.
+- `roadmap.md`: Eintrag "HSM-Kategorien didaktisch schaerfen" auf Erledigt-Hinweis verkuerzt.
+
 ## 0.16.0 - 2026-05-31
 
 ### Hinzugefügt

@@ -6,6 +6,8 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > Strikte CKA-Templates sind in Version 0.16.0 umgesetzt — siehe [`lab/go/pkcs11-keygen/`](lab/go/pkcs11-keygen/), [`lab/scripts/77-validate-key-usage.sh`](lab/scripts/77-validate-key-usage.sh), Make-Target `validate-key-usage`. Die Disclaimer in Kapitel 13/18/20/22 sind entsprechend zurueckgezogen; nur der historische Kontext zur pkcs11-tool-Falle bleibt als Lehrstoff.
 
+> HSM-Kategorien didaktisch schaerfen ist in Version 0.16.1 umgesetzt — siehe [`docs/hsm-kategorien.md`](docs/hsm-kategorien.md) mit Vergleichstabelle, PKCS#11-Abgrenzung und Entscheidungsmatrix. Cross-References aus `course/01-grundlagen.md`, `course/09-production-checkliste.md`, Glossar und README.
+
 ## Key Derivation (ECDH und HKDF)
 
 `C_DeriveKey` mit `CKM_ECDH1_DERIVE` ist die HSM-Variante des klassischen ECDH-Ablaufs (Alice + Bob tauschen Pubkeys, beide leiten denselben Shared Secret ab). Praktisch fuer:
@@ -54,20 +56,6 @@ Alle Lab-Demos laufen gegen SoftHSM. Reale Deployments setzen oft Cloud-HSMs ein
 - Hands-on-Variante: ein Provider mit Free-Tier (z.B. AWS CloudHSM-Cluster mit minimaler HSM, kostet $$$/Stunde) als optionales Lab — vermutlich zu teuer fuer den Standard-Kurs
 
 **Scope:** eher Lesematerial als Lab. Wuerde gut in das Production-Checklisten-Kapitel ([`course/09-production-checkliste.md`](course/09-production-checkliste.md)) als Erweiterung passen.
-
-## HSM-Kategorien und Einsatzfaelle didaktisch schaerfen
-
-Die Uebungen zu Hardware-Sicherheitsmodulen im Lehrbuch Cyber-Sicherheit von Norbert Pohlmann zeigen gute Entscheidungsszenarien fuer TPM, Smartcard und High-Level Security Module. Der Kurs koennte diese Einordnung frueher explizit machen, bevor PKCS#11 als konkrete API eingefuehrt wird.
-
-**Wo aktuell gestreift:** Einfuehrung, Production-Checkliste, YubiKey-/SoftHSM-Vergleiche, Key-Backup und PIN-Lockout.
-
-**Skizze:**
-- Kurze Tabelle: TPM vs Smartcard/Token vs HSM/HLSM
-- Mapping auf PKCS#11: welche Geraeteklassen typischerweise PKCS#11 sprechen und welche nicht
-- Kleine Entscheidungsuebung mit eigenen Szenarien: Notebook-Key, Benutzer-Authentisierung, Bank-Fernsignatur, zentraler CA-Key
-- Externer Hinweis auf Pohlmanns Uebungen als weiterfuehrende Quelle: https://norbert-pohlmann.com/cyber-sicherheit/uebungen/kapitel-hardware-sicherheitsmodule/
-
-**Scope:** klein. Eher didaktische Schaerfung als neues Lab-Modul.
 
 ## Priorisierungs-Hinweise
 

@@ -24,10 +24,10 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `FIPS 140-2/3` | Federal Information Processing Standard | US-Zertifizierung fuer kryptografische Module; relevant fuer HSM-Auswahl. |
 | `FN-DSA` | FFT over NTRU-Lattice-Based Digital Signature Algorithm | Falcon-basierter Post-Quantum-Signaturalgorithmus; von NIST ausgewaehlt, FIPS noch nicht final. |
 | `GCM` | Galois/Counter Mode | AEAD-Modus fuer AES mit Authentifizierung. |
-| `HLSM` | High-Level Security Module | Besonders abgesichertes, meist zentrales HSM fuer kritische Anwendungen wie CA-Schluessel, Bank-Schluessel oder Fernsignaturen. |
+| `HLSM` | High-Level Security Module | Besonders abgesichertes, meist zentrales HSM fuer kritische Anwendungen wie CA-Schluessel, Bank-Schluessel oder Fernsignaturen. Einordnung: [HSM-Kategorien](hsm-kategorien.md). |
 | `HMAC` | Hash-based Message Authentication Code | MAC-Verfahren auf Basis einer Hashfunktion und eines symmetrischen Geheimnisses. |
 | `HQC` | Hamming Quasi-Cyclic | Von NIST als Backup-KEM zu ML-KEM ausgewaehltes Post-Quantum-Verfahren. |
-| `HSM` | Hardware Security Module | Geraet oder Service, der Schluesselmaterial geschuetzt erzeugt, speichert und benutzt. |
+| `HSM` | Hardware Security Module | Geraet oder Service, der Schluesselmaterial geschuetzt erzeugt, speichert und benutzt. Siehe [HSM-Kategorien](hsm-kategorien.md) fuer die Geraeteklassen-Einordnung. |
 | `JCA` | Java Cryptography Architecture | Java-Abstraktion fuer Signaturen, KeyStores und Provider. |
 | `JCE` | Java Cryptography Extension | Java-Abstraktion fuer Cipher, MACs und weitere Krypto-Primitive. |
 | `JNI` | Java Native Interface | Bruecke von Java zu nativen Bibliotheken, relevant fuer manche PKCS#11-Wrapper. |
@@ -58,7 +58,7 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `SP 800-90A/B/C` | NIST Special Publication 800-90 | Standards fuer DRBG-Konstruktion (A), Entropy Sources (B) und RBG-Konstruktion (C). |
 | `SSH` | Secure Shell | Protokoll fuer Remote-Login und Git-Zugriff. |
 | `TLS` | Transport Layer Security | Protokoll fuer gesicherte Verbindungen, z. B. HTTPS. |
-| `TPM` | Trusted Platform Module | Geraetegebundener Sicherheitschip fuer Plattform-Identitaet, gemessenen Boot und lokale Schluessel; kein allgemeiner HSM-Ersatz und im Kurs nicht der typische PKCS#11-Zieltyp. |
+| `TPM` | Trusted Platform Module | Geraetegebundener Sicherheitschip fuer Plattform-Identitaet, gemessenen Boot und lokale Schluessel; kein allgemeiner HSM-Ersatz und im Kurs nicht der typische PKCS#11-Zieltyp. Einordnung: [HSM-Kategorien](hsm-kategorien.md). |
 | `TRNG` | True Random Number Generator | Physikalische Quelle (Ringoszillator, Quantenrauschen, Zener-Diode). |
 | `URI` | Uniform Resource Identifier | Adressformat, z. B. `pkcs11:token=...;object=...`. |
 | `VPN` | Virtual Private Network | Geschuetzte Netzverbindung; relevant fuer hybride Post-Quantum-Schluesselaustauschverfahren. |

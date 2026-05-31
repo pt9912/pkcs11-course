@@ -24,6 +24,8 @@ PKCS#11, auch Cryptoki genannt, ist eine API für kryptografische Tokens. Eine A
 
 Wichtig: PKCS#11 ist kein Zertifikatsformat und kein Keystore-Format. Es ist eine Schnittstelle.
 
+"Token" oder "HSM" ist dabei nicht eine Geraeteklasse, sondern eine ganze Familie — TPM, Smartcard, USB-Token, PCIe-/Netzwerk-HSM, HLSM, Cloud-HSM, Cloud-KMS sprechen alle entweder PKCS#11 nativ oder haben eine Bruecke dorthin. Eine Einordnung mit Entscheidungsmatrix steht in [docs/hsm-kategorien.md](../docs/hsm-kategorien.md).
+
 ## Zentrale Begriffe
 
 Ergaenzender Nachschlag fuer Abkuerzungen und Praefixe: [Glossar](../docs/glossar.md).
