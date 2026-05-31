@@ -19,6 +19,9 @@
 - `roadmap.md`: Eintrag "Key Derivation (ECDH und HKDF)" auf Erledigt-Hinweis verkuerzt; Priorisierungs-Paragraf auf zwei verbleibende Themen aktualisiert.
 - `Makefile`: `PKCS11_VARS` um `PKCS11_ECDH_*`-Variablen erweitert, neue Targets und Dependencies dokumentiert.
 
+### Migration
+- Wer bestehende ECDH-Keys aus einer halben Test-Session ohne `--derive` hat (`alice-ec-key`/`bob-ec-key` mit `Usage: sign,verify`), bekommt beim `make ecdh-derive` ein `CKR_KEY_FUNCTION_NOT_PERMITTED`. Loesung: `make clean-tokens && make init-token && make gen-ecdh-keys`. Neue Anwender brauchen nichts.
+
 ## 0.16.1 - 2026-05-31
 
 ### Hinzugefügt

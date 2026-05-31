@@ -66,7 +66,11 @@ try
     else
     {
         Console.WriteLine("\n=== 3) KDF=hkdf — HKDF-SHA256 host-side (RFC 5869) ===");
-        Console.WriteLine("  info=\"ECDH-Lab-V1\"  salt=zero  CKM_HKDF_DERIVE nicht in SoftHSM 2.6");
+        Console.WriteLine("  info=\"ECDH-Lab-V1\"  salt=zero  CKM_HKDF_DERIVE nicht in SoftHSM 2.x");
+        // .NETs HKDF.DeriveKey behandelt salt=null per Konvention als HashLen
+        // Nullbytes (RFC 5869 §2.2). Das ist genau die gleiche Semantik wie
+        // Go-hkdf.New mit salt=nil und die Java/Kotlin-Eigenbauten — daher
+        // byte-identische Outputs ueber alle vier Sprachen.
         aliceKey = HKDF.DeriveKey(HashAlgorithmName.SHA256, aliceSecret, 32, null, hkdfInfo);
         bobKey = HKDF.DeriveKey(HashAlgorithmName.SHA256, bobSecret, 32, null, hkdfInfo);
     }

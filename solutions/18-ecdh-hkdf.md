@@ -1,5 +1,13 @@
 # Loesung 18 — ECDH + HKDF
 
+> Hinweis zu den Hex-Werten in diesem Dokument: alle gezeigten Werte (Shared
+> Secret `e90e368d95f68725...`, HKDF-Output `8e8922dcb79a3dcf...`, etc.)
+> stammen aus einem konkreten Lab-Run. Nach `make clean-tokens && make
+> gen-ecdh-keys` sind die EC-Keys frisch und damit auch alle daraus
+> abgeleiteten Bytes komplett anders. Die **didaktisch relevante Eigenschaft**
+> ist nicht der konkrete Hex-Wert, sondern dass alle vier Sprach-Demos
+> innerhalb desselben Key-Satzes denselben Wert liefern.
+
 ## Bash/Go-Demo
 
 ```text
@@ -77,6 +85,6 @@ SunPKCS11 versucht `C_GetAttributeValue(CKA_VALUE)` auf dem abgeleiteten Generic
 
 **ECDH und HKDF in HSM-Kategorien:**
 - TPM/Smartcard: ECDH meist verfuegbar, HKDF on-Token selten.
-- PCIe-/Netzwerk-HSM und Cloud-HSM (z.B. AWS CloudHSM v3): typisch beides on-Token (`CKM_ECDH1_DERIVE` + `CKM_HKDF_DERIVE`), seit PKCS#11 v3.0.
+- PCIe-/Netzwerk-HSM und Cloud-HSM (z.B. Thales Luna 7, AWS CloudHSM auf LiquidSecurity): typisch beides on-Token (`CKM_ECDH1_DERIVE` + `CKM_HKDF_DERIVE`), seit PKCS#11 v3.0.
 - HLSM: alles, plus oft FIPS-Mode-Configurable.
 - Cloud-KMS: spricht meist kein PKCS#11; die ECDH/HKDF-Aequivalente sind Provider-spezifische SDK-Calls (AWS KMS GenerateDataKeyPair / Sign-via-ECDH-API).

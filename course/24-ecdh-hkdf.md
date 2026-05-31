@@ -65,15 +65,17 @@ derived_handle = C_DeriveKey(session, mechanism, priv_handle, template)
 
 Reale Anwendungen lassen `CKA_EXTRACTABLE=false` und nutzen den abgeleiteten Schluessel direkt fuer weitere PKCS#11-Operationen. Das Lab extrahiert die Bytes (`C_GetAttributeValue(CKA_VALUE)`), um den Match-Beweis explizit zu zeigen.
 
+**Portabilitaets-Hinweis zu `pPublicData`:** PKCS#11 v2.40 §2.3.7 ist hier historisch zweideutig — SoftHSM, Utimaco und AWS CloudHSM akzeptieren das DER-OCTET-STRING-Wrapping wie es `CKA_EC_POINT` direkt liefert (bei P-256: `04 41 04 || X || Y`, 67 Byte). **Aeltere Thales-Luna-Firmwares** wollen das nackte EC-Point-Encoding (`04 || X || Y`, 65 Byte) und lehnen den DER-Prefix ab. Wer die Demo auf einer Luna laufen laesst und `CKR_DATA_INVALID` bekommt, muss die ersten zwei Bytes (`04 41`) abschneiden. Im SoftHSM-Lab unauffaellig, in der Cloud-Migration gut zu wissen.
+
 ## KDF: zwei Pfade im Lab
 
 Das rohe Shared Secret hat zwar 256 Bit Entropie, ist aber **strukturiert** (die x-Koordinate eines bestimmten Punktes, keine uniforme Verteilung). Fuer kryptographische Verwendung gehoert noch ein KDF dazwischen.
 
 **Pfad `--kdf=hkdf` (Default, RFC 5869):** Host-side HKDF-SHA256 mit `info="ECDH-Lab-V1"`, `salt=null` (= HashLen Nullbytes per Konvention). Funktional korrekt; das Lab implementiert HKDF in jeder Sprache so, dass alle vier Demos byte-identische AES-Keys produzieren (`8e8922dcb79a3dcf...`).
 
-**Pfad `--kdf=raw`:** Shared Secret direkt als AES-256-Key. Das machte TLS 1.2 ECDHE aehnlich; nicht RFC 5869, aber valide AES-Bytes. Im Lab als Vergleich praktisch.
+**Pfad `--kdf=raw`:** Shared Secret direkt als AES-256-Key. Funktional gueltige AES-Bytes, aber kein Standard-Protokoll-Pattern — TLS 1.2 ECDHE laeuft anders, dort wird der Premaster Secret durch TLS-PRF (P_SHA256) zu Master Secret expandiert. Eine fairere Analogie waere ECIES mit `KDF=identity`. Im Lab steht der `raw`-Pfad nur als Anschauung, um den Unterschied zwischen ECDH-Output und KDF-Output sichtbar zu machen.
 
-**Was SoftHSM nicht hat:** `CKM_HKDF_DERIVE` (PKCS#11 v3.0). Auf realen HSMs (Thales Luna, AWS CloudHSM) laeuft HKDF on-Token; Anwendung schickt nur Info/Salt-Bytes und bekommt einen neuen Key-Handle zurueck. Im Lab kompensieren wir host-side.
+**Was SoftHSM nicht hat:** `CKM_HKDF_DERIVE` ist eine PKCS#11 v3.0-Ergaenzung; SoftHSM 2.x zielt auf v2.40 und implementiert das nicht. Auf realen HSMs (PCIe-HSM, Cloud-HSM, HLSM) laeuft HKDF on-Token; Anwendung schickt nur Info/Salt-Bytes und bekommt einen neuen Key-Handle zurueck. Im Lab kompensieren wir host-side.
 
 Der Lab-Sourcecode dokumentiert das in der HKDF-Stelle.
 

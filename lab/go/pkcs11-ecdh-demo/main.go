@@ -10,8 +10,9 @@ package main
 //                    direkt als AES-256-Key. Funktional ok, aber kein Standard-
 //                    Protokoll-Pattern.
 //        --kdf=hkdf  laeuft host-side ueber HKDF-SHA256 (RFC 5869) mit den
-//                    Lab-Defaults info="ECDH-Lab-V1", salt=zero. SoftHSM 2.6
-//                    bietet CKM_HKDF_DERIVE nicht; reale HSMs koennen es on-Token.
+//                    Lab-Defaults info="ECDH-Lab-V1", salt=zero. SoftHSM 2.x
+//                    (PKCS#11 v2.40) bietet CKM_HKDF_DERIVE nicht; reale HSMs
+//                    auf PKCS#11 v3.0 koennen es on-Token.
 //   4) AES-GCM-Roundtrip: Alice verschluesselt eine Nachricht, Bob entschluesselt.
 //      Match-Beweis: wenn der Roundtrip funktioniert, waren die Shared Secrets gleich.
 
@@ -127,12 +128,12 @@ func run() error {
 		}
 		aliceKey = aliceSecret[:32]
 		bobKey = bobSecret[:32]
-		fmt.Printf("  Funktional ok (TLS 1.2 ECDHE machte das aehnlich), aber kein RFC-5869-Standard.\n")
+		fmt.Printf("  Funktional ok (vergleichbar ECIES mit KDF=identity), aber kein Standard-Protokoll-Pattern.\n")
 	case "hkdf":
 		fmt.Printf("\n=== 3) KDF=hkdf — HKDF-SHA256 host-side (RFC 5869) ===\n")
-		fmt.Printf("  info=%q  salt=zero  ckm_hkdf_derive nicht in SoftHSM 2.6\n", hkdfInfo)
-		aliceKey = hkdfExpand(aliceSecret, []byte(hkdfInfo), 32)
-		bobKey = hkdfExpand(bobSecret, []byte(hkdfInfo), 32)
+		fmt.Printf("  info=%q  salt=zero  ckm_hkdf_derive nicht in SoftHSM 2.x\n", hkdfInfo)
+		aliceKey = hkdfExtractExpand(aliceSecret, []byte(hkdfInfo), 32)
+		bobKey = hkdfExtractExpand(bobSecret, []byte(hkdfInfo), 32)
 	default:
 		return fmt.Errorf("--kdf=%s unbekannt; nutze hkdf oder raw", *kdfMode)
 	}
@@ -246,9 +247,11 @@ func findKey(p *pkcs11.Ctx, s pkcs11.SessionHandle, class uint, label string) (p
 	return objects[0], nil
 }
 
-// hkdfExpand: nur Expand (kein Extract), weil das Shared Secret schon hochentropisch ist.
-// Mit salt=nil arbeitet hkdf.New wie hkdf.Expand(SHA256, secret, info, length).
-func hkdfExpand(secret, info []byte, length int) []byte {
+// hkdfExtractExpand: RFC 5869 Extract+Expand mit HMAC-SHA256.
+// hkdf.New macht beides — salt=nil entspricht per Konvention HashLen Nullbytes.
+// Das ist exakt dieselbe Semantik wie .NETs HKDF.DeriveKey und die Java/Kotlin-
+// Eigenbauten, deshalb byte-identische Outputs ueber alle vier Sprachen.
+func hkdfExtractExpand(secret, info []byte, length int) []byte {
 	r := hkdf.New(func() hash.Hash { return sha256.New() }, secret, nil, info)
 	out := make([]byte, length)
 	if _, err := r.Read(out); err != nil {

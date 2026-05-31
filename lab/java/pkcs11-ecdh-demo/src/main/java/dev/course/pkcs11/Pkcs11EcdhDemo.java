@@ -94,7 +94,7 @@ public final class Pkcs11EcdhDemo {
                 bobKey = Arrays.copyOf(bobSecret, 32);
             } else {
                 System.out.println("\n=== 3) KDF=hkdf — HKDF-SHA256 host-side (RFC 5869) ===");
-                System.out.println("  info=\"" + HKDF_INFO + "\"  salt=zero  CKM_HKDF_DERIVE nicht in SoftHSM 2.6");
+                System.out.println("  info=\"" + HKDF_INFO + "\"  salt=zero  CKM_HKDF_DERIVE nicht in SoftHSM 2.x");
                 aliceKey = hkdfExpand(aliceSecret, HKDF_INFO.getBytes(StandardCharsets.UTF_8), 32);
                 bobKey = hkdfExpand(bobSecret, HKDF_INFO.getBytes(StandardCharsets.UTF_8), 32);
             }
@@ -155,11 +155,14 @@ public final class Pkcs11EcdhDemo {
         byte[] result = new byte[length];
         byte[] previous = new byte[0];
         int offset = 0;
-        for (byte counter = 1; offset < length; counter++) {
+        // Counter ist int, weil ein byte-Counter bei length > 127*HashLen ueberlaeuft
+        // (Java byte ist signed). Cast auf byte erst beim hmac.update — der nimmt
+        // ohnehin nur das untere Byte.
+        for (int counter = 1; offset < length; counter++) {
             hmac.reset();
             hmac.update(previous);
             hmac.update(info);
-            hmac.update(counter);
+            hmac.update((byte) counter);
             previous = hmac.doFinal();
             int copyLen = Math.min(hashLen, length - offset);
             System.arraycopy(previous, 0, result, offset, copyLen);
