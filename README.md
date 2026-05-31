@@ -85,7 +85,6 @@ Weitere Materialien:
 - [`docs/cloud-hsm-vergleich.md`](docs/cloud-hsm-vergleich.md) - Cloud-HSM-Anbieter im Vergleich (AWS/Azure/GCP/OCI/Thales) mit FIPS-Level und Migrationspfaden
 - [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
 - [`docs/post-quantum.md`](docs/post-quantum.md) - Post-Quantum-Verfahren und Migrationshinweise
-- [`roadmap.md`](roadmap.md) - alle ursprueglichen Erweiterungs-Themen erledigt, Status-Dokument
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 
 ## Wichtige Make-Targets
@@ -138,6 +137,17 @@ Die Make-Dependency-Kette stellt vorgelagerte Targets automatisch sicher. `make 
 5. Ergebnis mit `solutions/` vergleichen.
 
 Wenn ein `CKR_*`-Fehler erscheint, ist das kein Nebenthema. Genau dort lernt man PKCS#11.
+
+## Erweiterungsideen
+
+Die in den 0.15-0.18-Releases nachgereichten Roadmap-Themen sind alle umgesetzt (siehe `CHANGELOG.md`). Themen, die fuer kuenftige Releases interessant waeren:
+
+- **CAdES-LT und CAdES-A** (Kapitel 25 baut nur CAdES-T): Embedding von Revocation-Material (CRL/OCSP) und periodische Archive-Timestamps fuer Langzeit-Beweis.
+- **PKCS#11 v3.0/v3.2-Mechanismen** (SoftHSM kann nur v2.40): `CKM_HKDF_DERIVE`, `CKM_ML_KEM_*`, `CKM_ML_DSA_*` als reales Lab — setzt einen v3-faehigen HSM voraus (Cloud-HSM oder BouncyHsm-Trunk).
+- **Pyhanko-Pfad** fuer Python-PDF-Signaturen mit HSM-Backed-Keys.
+- **HSM-Migration spielen**: SoftHSM-Token in BouncyHsm-Token kopieren (Operator-driven Locked-Test wie in Modul 21 erwaehnt) als Spielwiese fuer Multi-HSM-Patterns.
+
+Stil-Vorgabe fuer Erweiterungen: gleicher Aufbau wie die 0.15-0.18-Releases (Doku-Kapitel + Lab + Uebung + ggf. Sprach-Demos in dem Mass, das die Library-Landschaft hergibt).
 
 ## Referenzen
 
