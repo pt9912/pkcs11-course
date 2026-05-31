@@ -100,7 +100,7 @@ Weitere Materialien:
 | `make java-demo` / `make go-demo` / `make kotlin-demo` / `make csharp-demo` | Basis-Sprach-Demos (sign + verify) |
 | `make clean` / `make clean-tokens` / `make distclean` | generierte Artefakte / Token-DB / alles entfernen |
 
-### Erweiterte Module (Kapitel 13-22)
+### Erweiterte Module (Kapitel 13-23)
 
 Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotlin), wo anwendbar. Java/Kotlin entfaellt in einzelnen Modulen wegen dokumentierter JCA-Limitierungen.
 
