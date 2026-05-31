@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.18.0 - 2026-05-31
+
+### Hinzugefügt
+- Kapitel 25 `course/25-rfc3161-timestamps.md`: RFC-3161-Timestamps fuer CMS (CAdES-T-aequivalent). Erklaert, warum `signingTime` aus PKCS#9 fuer rechtsverbindliche Signaturen nicht reicht, TSA-Protokoll mit TSReq/TSToken/Nonce, `extendedKeyUsage=critical,timeStamping` (RFC 3161 §2.3), CAdES-BES/T/LT/A-Profile. Dokumentiert den Lab-Kompromiss: TSA-Signing-Key ist Software (PEM-Datei mode 0600), weil `openssl ts -reply` per `fopen()` laedt und keine pkcs11-engine-URIs versteht. CA-Key und Document-Signer-Key bleiben HSM-resident.
+- Uebung 19 `exercises/19-rfc3161-timestamps.md` + Loesung `solutions/19-rfc3161-timestamps.md`: Bash-Roundtrip, vier Sprach-Demos mit Embedding, Cross-Sprach-Verify-Test, extKU-Manipulation als Negativ-Beweis, Reflexion zur Lab-Realitaet.
+- Lab-TSA: `85-tsa-setup.sh` (Software-TSA-Key + CA-signiertes Cert mit kritischer `extendedKeyUsage=timeStamping`), `86-tsa-serve.sh` (Bash-Wrapper fuer Python-HTTP-Daemon), `_tsa_server.py` (minimaler `http.server`-basierter Wrapper um `openssl ts -reply`), `87-cms-tsa-sign.sh` + `88-cms-tsa-verify.sh` (Bash-Demo mit TSA-Daemon im Hintergrund), `89-92-{java,kotlin,csharp,go}-cms-tsa-demo.sh` (Sprach-Demo-Wrapper).
+- Java-Demo `lab/java/pkcs11-cms-tsa-demo/`: SunPKCS11 fuer Doc-Signer, BouncyCastle bcpkix fuer CMSSignedDataGenerator + TimeStampRequestGenerator + Embedding via `SignerInformation.replaceUnsignedAttributes` + Verifier mit Hash-Check.
+- Kotlin-Demo `lab/kotlin/pkcs11-cms-tsa-demo/`: idiomatischer Spiegel der Java-Variante.
+- C#-Demo `lab/csharp/Pkcs11CmsTsaDemo/`: Pkcs11Interop fuer HSM-Sign + BouncyCastle.Cryptography 2.5.1 fuer CMS, TSP-Library aus dem gleichen Package, identisches Embedding-Pattern wie Java.
+- Go-Demo `lab/go/pkcs11-cms-tsa-demo/`: miekg/pkcs11 fuer HSM-Sign + digitorus/pkcs7 (wie Modul 14) + digitorus/timestamp fuer TSReq/TSResp. **Bewusst kein Embedding** — digitorus/pkcs7 hat keine UnsignedAttributes-API. Demo gibt CMS und TSR als zwei Dateien aus, dokumentiert die Library-Limitierung.
+- Make-Targets: `tsa-setup`, `tsa-serve`, `cms-tsa-sign`, `cms-tsa-verify`, `java-cms-tsa-demo`, `kotlin-cms-tsa-demo`, `csharp-cms-tsa-demo`, `go-cms-tsa-demo`.
+
+### Geändert
+- `README.md`: Modul 25 in der Kursstruktur-Tabelle und in den "Erweiterte Module"-Targets erfasst; "Kapitel 13-25" im Header; Roadmap-Hinweis im Materialien-Block auf "alle urspruenglichen Themen erledigt" geaendert.
+- `course/00-kursuebersicht.md`: Lernpfad um Kapitel 25 erweitert.
+- `docs/api.md`: RFC-3161-Verweis in der Funktionsgruppen-Tabelle ergaenzt.
+- `roadmap.md`: alle Roadmap-Eintraege auf Erledigt-Hinweis verkuerzt; neuer Abschnitt "Moegliche Folgethemen" mit CAdES-LT/A, PKCS#11 v3-Mechanismen, Pyhanko/PDF-Signaturen, HSM-Migration als Anregungen.
+
 ## 0.17.1 - 2026-05-31
 
 ### Hinzugefügt

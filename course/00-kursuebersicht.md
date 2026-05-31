@@ -46,7 +46,8 @@ Am Ende kannst du:
 | 21 | `22-csr-und-ca-workflow.md` | CSR-Generierung ueber HSM, Mini-CA, CA-Signing, Cert-Import |
 | 22 | `23-random.md` | HSM-RNG, `C_GenerateRandom`, TRNG vs CSPRNG, NIST SP 800-90 |
 | 23 | `24-ecdh-hkdf.md` | ECDH + HKDF: `C_DeriveKey(CKM_ECDH1_DERIVE)`, RFC-5869-Interop ueber 4 Sprachen |
-| 24 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 24 | `25-rfc3161-timestamps.md` | RFC-3161-TSA, CAdES-T, `signatureTimeStampToken` |
+| 25 | `10-abschlussprojekt.md` | Signatur-Service bauen |
 
 ## Arbeitsweise
 

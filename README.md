@@ -71,6 +71,7 @@ Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didak
 | [`course/22-csr-und-ca-workflow.md`](course/22-csr-und-ca-workflow.md) | CSR-Generierung ueber HSM, Mini-CA, CA-Signing, Cert-Import | [`exercises/16-csr-und-ca-workflow.md`](exercises/16-csr-und-ca-workflow.md) |
 | [`course/23-random.md`](course/23-random.md) | HSM als Random-Quelle: `C_GenerateRandom`, `CKF_RNG`, TRNG vs CSPRNG, NIST SP 800-90 | [`exercises/17-random.md`](exercises/17-random.md) |
 | [`course/24-ecdh-hkdf.md`](course/24-ecdh-hkdf.md) | ECDH + HKDF: `C_DeriveKey(CKM_ECDH1_DERIVE)`, Alice+Bob-Beweis, RFC-5869-Interop | [`exercises/18-ecdh-hkdf.md`](exercises/18-ecdh-hkdf.md) |
+| [`course/25-rfc3161-timestamps.md`](course/25-rfc3161-timestamps.md) | RFC-3161-Timestamps fuer CMS: Lab-TSA, `signatureTimeStampToken`, CAdES-T | [`exercises/19-rfc3161-timestamps.md`](exercises/19-rfc3161-timestamps.md) |
 
 Weitere Materialien:
 
@@ -84,7 +85,7 @@ Weitere Materialien:
 - [`docs/cloud-hsm-vergleich.md`](docs/cloud-hsm-vergleich.md) - Cloud-HSM-Anbieter im Vergleich (AWS/Azure/GCP/OCI/Thales) mit FIPS-Level und Migrationspfaden
 - [`docs/elliptische-kurven.md`](docs/elliptische-kurven.md) - Grundidee von EC/ECDSA/ECDH mit PKCS#11-Bezug
 - [`docs/post-quantum.md`](docs/post-quantum.md) - Post-Quantum-Verfahren und Migrationshinweise
-- [`roadmap.md`](roadmap.md) - offene Erweiterungs-Themen (RFC-3161-Timestamps)
+- [`roadmap.md`](roadmap.md) - alle ursprueglichen Erweiterungs-Themen erledigt, Status-Dokument
 - [`CHANGELOG.md`](CHANGELOG.md) - Versionierte Aenderungen der Lab/Kurs-Inhalte
 
 ## Wichtige Make-Targets
@@ -106,7 +107,7 @@ Weitere Materialien:
 | `make clean` / `make clean-tokens` / `make distclean` | generierte Artefakte / Token-DB / alles entfernen |
 | `make validate-key-usage` | sortenrein-Profile aller sieben Lab-Keys gegen Soll pruefen |
 
-### Erweiterte Module (Kapitel 13-24)
+### Erweiterte Module (Kapitel 13-25)
 
 Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotlin), wo anwendbar. Java/Kotlin entfaellt in einzelnen Modulen wegen dokumentierter JCA-Limitierungen.
 
@@ -124,6 +125,7 @@ Jedes Modul liefert ein Bash-Target plus die vier Sprach-Demos (Go/C#/Java/Kotli
 | 22 — CSR + CA | `make gen-ca-key` / `make issue-ca-cert` / `make issue-leaf-cert` / `make {go,csharp,java,kotlin}-csr-demo` | Mini-CA mit HSM-CA-Key, CSR-Generierung pro Sprache |
 | 23 — HSM-RNG | `make random-gen` / `make random-bench` / `make {go,csharp,java,kotlin}-random-demo` | `C_GenerateRandom` via pkcs11-tool und SunPKCS11-`SecureRandom`, Durchsatz- und Verteilungs-Check |
 | 24 — ECDH + HKDF | `make gen-ecdh-keys` / `make ecdh-derive` / `make {go,csharp,java,kotlin}-ecdh-demo` | `C_DeriveKey(CKM_ECDH1_DERIVE)`, HKDF-SHA256 host-side, AES-GCM-Roundtrip |
+| 25 — RFC-3161 TSA | `make tsa-setup` / `make tsa-serve` / `make cms-tsa-sign` / `make cms-tsa-verify` / `make {go,csharp,java,kotlin}-cms-tsa-demo` | Lab-TSA via openssl ts, `signatureTimeStampToken` in CMS-UnsignedAttrs |
 
 Die Make-Dependency-Kette stellt vorgelagerte Targets automatisch sicher. `make tls-serve` zieht z.B. `import-cert` → `gen-rsa` → `init-token` mit.
 

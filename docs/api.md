@@ -64,6 +64,7 @@ Alle Funktionen geben `CK_RV` zurück. `CKR_OK = 0` bedeutet Erfolg. Jede andere
 | Digest | `C_DigestInit`, `C_Digest`, `C_DigestUpdate`, `C_DigestFinal` | Hashing |
 | Key-Mgmt | `C_GenerateKey`, `C_GenerateKeyPair`, `C_WrapKey`, `C_UnwrapKey`, `C_DeriveKey` | Schlüsselerzeugung und -transport (`C_DeriveKey` mit `CKM_ECDH1_DERIVE`: [course/24-ecdh-hkdf.md](../course/24-ecdh-hkdf.md)) |
 | RNG | `C_GenerateRandom`, `C_SeedRandom` | Zufallszahlen (Details: [course/23-random.md](../course/23-random.md)) |
+| RFC 3161 | externe TSA via openssl ts | RFC-3161-Timestamps fuer CMS-Signaturen: [course/25-rfc3161-timestamps.md](../course/25-rfc3161-timestamps.md) |
 
 ### 2.2 Wichtige Datentypen
 

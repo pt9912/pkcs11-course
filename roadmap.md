@@ -1,6 +1,6 @@
 # Roadmap
 
-Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertragen wuerden. Jeder Eintrag enthaelt: was rein muesste, wo es bereits referenziert wird, Scope-Skizze fuer Lab-Demos.
+Alle ursprueglichen Roadmap-Themen sind umgesetzt. Dieses Dokument bleibt als Status-Referenz fuer kuenftige Erweiterungen.
 
 > `C_GenerateRandom` ist in Version 0.15.0 als Kapitel 23 umgesetzt — siehe [`course/23-random.md`](course/23-random.md), [`exercises/17-random.md`](exercises/17-random.md), Lab-Skripte `lab/scripts/71-76*`.
 
@@ -12,23 +12,15 @@ Themen, die in bestehenden Kapiteln gestreift wurden und ein eigenes Modul vertr
 
 > Cloud-HSM-Provider-Vergleich ist in Version 0.17.1 als Doku umgesetzt — siehe [`docs/cloud-hsm-vergleich.md`](docs/cloud-hsm-vergleich.md) mit sieben Anbietern ueber sechs Achsen (PKCS#11, FIPS, Tenancy, Backup, Latenz, Pricing), Migrationspfaden und Entscheidungs-Tabelle. Cross-References aus `course/09-production-checkliste.md`, README und `docs/api.md`.
 
-## RFC-3161-Timestamps fuer CMS
+> RFC-3161-Timestamps sind in Version 0.18.0 als Kapitel 25 umgesetzt — siehe [`course/25-rfc3161-timestamps.md`](course/25-rfc3161-timestamps.md), [`exercises/19-rfc3161-timestamps.md`](exercises/19-rfc3161-timestamps.md), Lab-TSA via openssl + Python-Wrapper, voller CAdES-T-Embedding-Flow in Java/Kotlin/C#, separate Artefakte in Go (Library-Limitierung dokumentiert).
 
-CMS-Signaturen (Modul 14) haben ein `signingTime`-Attribut, das aber **vom Signer selbst** gesetzt wird — beweist also nur "der Signer sagt, es war zu diesem Zeitpunkt". Fuer rechtsverbindliche Langzeitsignaturen (CAdES, eIDAS) braucht es einen **TSA-Timestamp** (RFC 3161): ein externer Time-Stamping-Service signiert einen Hash der Signatur mit einer vertrauenswuerdigen Zeitquelle und schickt einen TSToken zurueck, der als `unsignedAttribute.signatureTimeStampToken` an die CMS-Signatur angehaengt wird.
+## Moegliche Folgethemen
 
-**Wo aktuell gestreift:** [`course/14-cms-signatur.md`](course/14-cms-signatur.md) erwaehnt RFC 3161 als "Stoff fuer ein eigenes Kapitel". 
+Themen, die in den 0.15-0.18-Releases gestreift wurden, aber nicht im urspruenglichen Roadmap-Set standen:
 
-**Skizze:**
-- Lab-TSA via openssl `ts -reply` (eigener kleiner TSA-Server, signiert mit dem HSM-CA-Key aus Modul 22)
-- CMS-Sign-Demos erweitern: nach dem `C_Sign` der CMS-Signatur ein `openssl ts -query` an die TSA, Response in `unsignedAttrs.signatureTimeStampToken` einbauen
-- Verifier: BouncyCastle `CMSSignedData.verifyTimestamp(...)` bzw. openssl-CMS mit TSA-Validierung
-- Kursmodul: warum signingTime nicht reicht, was TSA macht, CAdES-T vs CAdES-LT
-- Reale TSA-Anbieter (DigiCert, Sectigo) als Alternative zur Lab-TSA
+- **CAdES-LT und CAdES-A** (Kapitel 25 baut nur CAdES-T): Embedding von Revocation-Material (CRL/OCSP) und periodische Archive-Timestamps fuer Langzeit-Beweis. Beruehrt CRL/OCSP-Logik und einen Scheduler — eigener Scope.
+- **PKCS#11 v3.0/v3.2-Mechanismen** (SoftHSM unterstuetzt v2.40): `CKM_HKDF_DERIVE`, `CKM_ML_KEM_*`, `CKM_ML_DSA_*` als reales Lab. Setzt einen v3-faehigen HSM voraus (Cloud-HSM oder BouncyHsm-Trunk).
+- **Pyhanko-Pfad** fuer Python: PDF-Signaturen mit HSM-Backed-Keys, eigenes Modul moeglich.
+- **HSM-Migration spielen**: SoftHSM-Token in BouncyHsm-Token kopieren (Operator-Driven Locked-Test wie in Modul 21 erwaehnt) als Spielwiese fuer Multi-HSM-Patterns.
 
-**Scope:** gross. Neuer Service-Komponent (TSA), Verifier-Logik komplexer. Wuerde eigenes Modul 24 ergeben (Modul 23 ist seit 0.15.0 mit HSM-RNG belegt).
-
-## Priorisierungs-Hinweise
-
-Verbleibend ist **RFC 3161** — der wertvollste der ursprueglichen Roadmap-Punkte fuer rechtliche Anwendungsfaelle (eIDAS-qualifizierte Signaturen mit Langzeit-Validierung, CAdES-T/CAdES-LT). Beruehrt Modul 14 (CMS) und 22 (CA), braucht eine TSA-Komponente, Verifier-Logik fuer vier Sprachen. Mittlerer-bis-grosser Scope.
-
-Der Eintrag ist nicht Voraussetzung fuer eines der bestehenden Module — der aktuelle Kursinhalt ist standalone-konsumierbar.
+Wer einen dieser Punkte umsetzen will: gleicher Stil wie die 0.15-0.18-Releases — Doku-Kapitel + Lab + Uebung + ggf. Sprach-Demos in dem Mass, das die Library-Landschaft hergibt.
