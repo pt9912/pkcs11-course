@@ -138,6 +138,12 @@ Praktische Hinweise:
 
 Viele HSMs unterstützen PSS, aber mit Einschränkungen bei MGF-Hash und Salt-Länge. Vor dem produktiven Einsatz: `pkcs11-tool --list-mechanisms` lesen, im Zweifel beim Hersteller nachfragen.
 
+## Eigenexperiment
+
+- **ECDSA-Format-Falle reproduzieren.** Signiere mit `pkcs11-tool --sign --mechanism ECDSA` **ohne** `--signature-format openssl`. Das Token liefert rohe `r||s`-Bytes (64 Byte bei P-256). Gib die Datei an `openssl dgst -sha256 -verify` — Erwartet: `Verification Failure`, obwohl Krypto-Mathematik korrekt. Reparatur: denselben Sign-Aufruf mit `--signature-format openssl` wiederholen, jetzt produziert `pkcs11-tool` DER-codiertes `SEQUENCE { r, s }`, OpenSSL akzeptiert.
+
+- **PSS-Salt-Mismatch.** Signiere mit `--mechanism SHA256-RSA-PKCS-PSS` und `--mgf MGF1-SHA256` (Lab-Default, Salt = 32 Byte = Hashlaenge). Verifiziere mit `openssl dgst -sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:20`. Erwartet: `Verification Failure` mit identischem Key und identischer Datei — der einzige Unterschied ist die Salt-Laenge. Reparatur: `rsa_pss_saltlen:-1` (= Hashlaenge automatisch) oder explizit `:32`.
+
 Strukturierte Aufgaben (DER-Falle, PSS-Spiegelparameter, Mechanism-Entscheidung) in [`exercises/20-ec-und-pss.md`](../exercises/20-ec-und-pss.md).
 
 ## Selbsttest

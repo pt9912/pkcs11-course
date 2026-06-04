@@ -1,5 +1,13 @@
 # 08 — Debugging
 
+## Bevor du anfaengst — was vermutest du?
+
+> Dein Anwendungs-Code spricht laut Spec sauberes PKCS#11. Ein CI-Lauf liefert `CKR_KEY_HANDLE_INVALID`, obwohl `pkcs11-tool --list-objects` denselben Key auf demselben Slot zeigt. Wo suchst du zuerst?
+
+Wahrscheinliche Vermutung: irgendwo in der Such-Logik (`FindObjects`-Template, falscher Filter, falsche `CKA_ID`). Oder ein Cert fehlt. Mentale Karte: **Wenn `list-objects` den Key zeigt, dann ist der Key da — das Problem muss im Filter sein**.
+
+Diese Karte uebersieht die Lebenszeit. Object-Handles sind sessionspezifisch (PKCS#11 §11.7). Wer ein Handle ueber `C_CloseSession` hinaus weiterverwendet oder zwischen Threads teilt, bekommt exakt diesen Fehler — und `list-objects` ist eine *fremde* Session, die mit dem App-Handle nichts zu tun hat. Halte die "Objekt = stabile Adresse"-Karte fest. Dieses Kapitel macht Slot, Session und Handle als getrennte Lebenszeit-Ebenen sichtbar — und liefert den `pkcs11-spy`-Trace, mit dem du sie auseinanderhalten kannst.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:

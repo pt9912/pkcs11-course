@@ -123,3 +123,9 @@ Das OpenSSL-Backend von .NET ruft `ExportParameters(true)` auf das `X509Certific
 
 `signingTime` ist die Zeit, **die der Signer behauptet**. Sie kommt aus der Signer-Uhr, ist nicht extern verifizierbar, und kann vor- oder rueckdatiert werden. Loesung: ein RFC-3161-Timestamp als `unsignedAttribute.signatureTimeStampToken` (CAdES-T, Kap. 25) — eine vertrauenswuerdige Time Stamping Authority signiert mit einer audit-zertifizierten Uhr.
 </details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Du sollst fuer ein neues Vertrags-Signing-Backend auf .NET 8 (Linux-Deploy) und einen Document-Hub auf Spring Boot eine CMS-Bibliothek empfehlen. Welche **eine** Bibliothek pro Stack — und welcher Faktor entscheidet bei .NET, der bei der JVM nicht greift?</summary>
+
+.NET: **BouncyCastle.Cryptography**, nicht `System.Security.Cryptography.Pkcs.SignedCms`. JVM: **BouncyCastle (bcpkix)**. Der .NET-spezifische Faktor ist das `SignedCms`-Linux-Verbot — das OpenSSL-Backend versucht `ExportParameters(true)` zur Math-Validierung des Keys, was bei `CKA_EXTRACTABLE=false` per Definition scheitert. Auf Windows haette das CNG-Backend dasselbe `SignedCms` problemlos angenommen. Auf der JVM gibt es kein vergleichbares Math-Validation-Verbot — die Wahl gegen `SunPKCS11+CMS` faellt aus anderem Grund (SunPKCS11 hat schlicht kein CMS-API, BC liefert es ueber `CMSSignedDataGenerator`). Lehrwert: die Bibliotheks-Wahl ist im .NET-Fall **vom OS** abhaengig, im JVM-Fall nur vom Feature-Set. Wer diesen Unterschied nicht kennt, baut den Service zwei Mal um.
+</details>

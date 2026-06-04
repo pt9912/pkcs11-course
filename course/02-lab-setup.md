@@ -97,6 +97,39 @@ Nur fuer das lokale Lab:
 
 In echten Systemen gehoeren PINs nicht in Skripte, Logs, Repositories oder Docker-Images. Zusaetzlicher Stolperer in der Praxis: `--pin <wert>` auf der Kommandozeile ist auf Multi-User-Systemen ueber `ps -ef` sichtbar. Im Lab-Container ist das akzeptabel, in Produktion nutzt du stattdessen `--pin-source`, `--pin-env`, Secret Stores oder interaktive Eingabe, je nach Tool.
 
+## Fehlerfaelle direkt ausfuehren — Devcontainer vs. Docker Compose
+
+Viele Uebungen verlangen, eine Demo bewusst mit einer falschen ENV-Variable zu starten (z.B. `PKCS11_USER_PIN=000000`, `PKCS11_LIBRARY=/nicht/da`). Wichtig: die `make`-Dependency-Kette wuerde mit einer falschen PIN schon in `init-token` abbrechen — der Fehler erscheint dann **nicht** in der Sprache, in der er didaktisch beobachtet werden soll. Loesung: Vorbereitungsschritte sauber durchlaufen lassen, dann die Sprach-Demo *direkt* mit der Fehler-ENV starten. Zwei Patterns je nach Modus:
+
+**Pattern A — Devcontainer (`PKCS11_IN_DEVCONTAINER=1`):**
+
+```bash
+# 1. Vorbereitung mit echten Werten
+make init-token gen-rsa [import-cert]
+
+# 2. Demo direkt mit Fehler-ENV
+PKCS11_USER_PIN=000000 lab/scripts/13-go-demo.sh
+PKCS11_LIBRARY=/nicht/da (cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run)
+```
+
+**Pattern B — Docker Compose (Host ohne Devcontainer):**
+
+```bash
+# 1. Vorbereitung mit echten Werten
+make init-token gen-rsa [import-cert]
+
+# 2. Demo direkt im richtigen Compose-Service mit -e
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_USER_PIN=000000 \
+  pkcs11-go bash -lc 'lab/scripts/13-go-demo.sh'
+
+docker compose -f lab/docker-compose.yml run --rm \
+  -e PKCS11_LIBRARY=/nicht/da \
+  pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run'
+```
+
+Die Uebungen 03–06 und 15 verweisen auf diese Patterns statt sie jedes Mal voll auszuschreiben.
+
 ## Reproduzierbarkeit
 
 Der Dockerfile pinnt keine apt-Paketversionen. Fuer einen Kurs ist das pragmatisch, kann aber nach Debian-Point-Releases dazu fuehren, dass sich Pfade oder Tool-Verhalten verschieben. Wenn du einen Lab-Stand einfrieren willst, fixiere Paketversionen explizit oder publiziere ein eigenes Base-Image mit Tag.

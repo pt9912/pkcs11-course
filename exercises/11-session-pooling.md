@@ -57,9 +57,11 @@ Auf einem echten HSM mit z.B. 8 Crypto-Engines waere die Skalierung bis `POOL_SI
 
 Erweitere eine der Sprach-Demos so, dass sie ZWEI Logins macht: einen vor Sequenziell, einen vor Parallel. Auf einem PKCS#11-konformen Token kommt beim zweiten `C_Login` ein `CKR_USER_ALREADY_LOGGED_IN` zurueck — sauberes Login-State-Management gehoert in den Pool-Init, nicht in den Hot-Path.
 
-## Aufgabe 5 — Bonus: fork-Test
+## Aufgabe 5 — Bonus: fork-Falle nachvollziehen
 
-Modifiziere die Go-Demo so, dass sie nach `C_Initialize` einen Child-Prozess via `exec.Command("./pool-demo-child")` startet, der versucht, dieselbe Library erneut zu nutzen. (In einer einzelnen `go run`-Demo schwer zu zeigen — mach es als Cookbook-Notiz.) Erwartung: das Child sieht inkonsistenten State oder erntet `CKR_FUNCTION_FAILED`.
+Die fork-Falle ist im Lab schwer reproduzierbar, weil SoftHSM ein Dateibackend nutzt — auf realer Vendor-Library schlaegt sie sofort als `CKR_DEVICE_ERROR` zu. Reproduktion-Pattern (Cookbook): siehe [`course/17-session-pooling.md` §"Cookbook: fork-Falle ohne neue Demo reproduzieren"](../course/17-session-pooling.md#cookbook-fork-falle-ohne-neue-demo-reproduzieren). Fuehre den dort beschriebenen Zwei-Terminal-Test aus und notiere das beobachtete Verhalten.
+
+Erwartet: das Token-Listing wird zeitweise inkonsistent (Slot wandert, Token-Label kurzzeitig weg). Das ist die abgeschwaechte Lab-Variante des Phaenomens; produktiv ist die Konsequenz dramatischer.
 
 ## Reflexionsfragen
 

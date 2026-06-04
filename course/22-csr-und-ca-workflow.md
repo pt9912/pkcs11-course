@@ -125,3 +125,9 @@ Beide produzieren funktional identische CSRs. Der Unterschied ist Sprach-API-bed
 
 `basicConstraints=critical,CA:TRUE` plus `keyUsage=critical,keyCertSign,cRLSign`. Der CA-Key darf andere Certs signieren — der Leaf-Key nicht. Wer auf einem Leaf-Cert `basicConstraints=CA:TRUE` ausstellt, hat eine versehentliche Intermediate-CA — ein klassischer Cross-Signing-Bug, der zu kompromittierten Vertrauensketten fuehrt.
 </details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Du sollst eine interne CA fuer ein 50-Service-Mesh aufsetzen. Zwei Optionen: (A) Root-CA und Issuing-CA beide im selben HSM, beide Privkeys <code>CKA_EXTRACTABLE=false</code>; (B) Root-CA Offline (Air-Gap-Maschine, ein Cert ausstellen pro Quartal), Issuing-CA online im HSM. Welche Option gewinnt, und welche **zwei** Bedrohungsszenarien aus dem Kapitel-Kontext entscheiden die Wahl?</summary>
+
+Option **B** gewinnt. Szenario 1 — **Issuing-CA-Kompromittierung**: ein Angreifer mit Issuing-CA-Zugriff kann Leaf-Certs ausstellen, die Vertrauenskette bleibt aber durch Revocation der Issuing-CA reparierbar; bei (A) wuerde dieselbe Kompromittierung auch den Root treffen, und ein Root-Wechsel ist in 50 Services ein Mehr-Wochen-Projekt (alle Truststores tauschen). Szenario 2 — **Insider mit HSM-Zugriff**: bei (A) ist der Root-Key zur Laufzeit immer adressierbar, ein bösartiger Operator kann mit gestohlenen Admin-Credentials den Root direkt nutzen; bei (B) lebt der Root-Privkey in einem System, das per Default offline ist und nur per physischer Ceremony erreichbar wird. Der "ein-HSM-spart-Geld"-Reflex uebersieht: ein Root-Tausch ist die teuerste Operation in einer PKI, ihn unwahrscheinlich zu machen ist Geldsparen erster Ordnung. Im Lab macht Kap. 22 den HSM-CA-Key als Beispiel — produktiv steht der Root woanders.
+</details>

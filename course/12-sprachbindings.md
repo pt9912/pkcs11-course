@@ -7,7 +7,7 @@ Nach diesem Kapitel kannst du:
 - Java/Kotlin ueber JCA/SunPKCS11 von nativen Bindings in Go und C# unterscheiden.
 - in jeder Sprache denselben PKCS#11-Grundfluss wiedererkennen.
 - typische Fehler pro Stack schneller einordnen.
-- entscheiden, welche Ebene fuer eine Anwendung passend ist.
+- **(Bloom 5 — evaluate)** fuer eine konkrete Anwendung entscheiden, welche Abstraktionsebene (JCA-`KeyStore`, native PKCS#11-API, Pkcs11Interop-Session) zur Architektur passt — und welche zwei Stack-Eigenschaften (Cleanup-Modell, vorhandene Cert-Plumbing-Erwartung) die Wahl tragen, nicht die Sprachpraeferenz.
 
 ## Lab-Bezug
 

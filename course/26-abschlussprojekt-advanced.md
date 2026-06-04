@@ -8,6 +8,19 @@ Nach diesem Projekt kannst du:
 - einen CMS-Signaturservice betreiben, der unter Last (Session-Pool) korrekt bleibt, qualifizierte Zeitnachweise produziert (CAdES-T) und einen revisionssicheren Audit-Log fuehrt.
 - die Schnittstellen, Fehlerklassen und Health-Checks fuer einen produktionsnahen HSM-gestuetzten Signaturdienst formulieren.
 
+## Lab-Bezug
+
+Dieses Kapitel **ist** das Lab. Track-2-Voraussetzungen sind die Bausteine aus Kap. 13–25 — die du im Service als Architektur zusammenziehst:
+
+```bash
+make init-token gen-rsa import-cert     # Signing-Identitaet
+make java-cms-demo                       # Kap. 14 als Bausteinprobe
+make tsa-setup tsa-serve                 # Kap. 25, im Hintergrund
+make java-pool-demo                      # Kap. 17 als Bausteinprobe
+```
+
+Mindestumfang, Architekturskizze, Akzeptanzkriterien und die drei Bewertungsstufen stehen unter [`## Mindestumfang`](#mindestumfang), [`## Architekturskizze`](#architekturskizze), [`## Akzeptanzkriterien`](#akzeptanzkriterien) und [`## Bewertung — drei Niveau-Stufen`](#bewertung--drei-niveau-stufen).
+
 ## Abgrenzung zu Track 1 (Kap. 10)
 
 [Kap. 10 — Abschlussprojekt](10-abschlussprojekt.md) baut den **Basis**-Signatur-Service: rohes RSA-PKCS#1 ueber `POST /sign`, ein einzelner Key, Cross-Language-Verify als Akzeptanzkriterium. Das ist Stoff aus Kap. 01–12.

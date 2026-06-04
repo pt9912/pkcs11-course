@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.21.0 - 2026-06-04
+
+### Hinzugefuegt
+- Conceptual-Change-Hooks ("Bevor du anfaengst — was vermutest du?") in `course/04-signieren-und-verifizieren.md` (DigestInfo-Falle), `course/08-debugging.md` (Object-Handle-Lebenszeit), `course/20-key-wrap.md` (Wrap-ist-nicht-Backup) und `course/25-rfc3161-timestamps.md` (signingTime-ist-nicht-Beweis). Schliesst F4 aus dem 0.20-Folge-Review — vier neuralgische Misconceptions, die der Fliesstext schon implizit aufloest, sind jetzt metakognitiv explizit aktiviert.
+- Vierte Selbsttest-Frage mit **Evaluate**-Charakter (Bloom 5) in `course/13-verschluesselung.md`, `course/14-cms-signatur.md`, `course/18-tls-mit-hsm.md`, `course/19-ssh-mit-hsm.md`, `course/20-key-wrap.md`, `course/21-pin-management.md`, `course/22-csr-und-ca-workflow.md`, `course/24-ecdh-hkdf.md`, `course/25-rfc3161-timestamps.md`. Schliesst F3: bisher war das einzige Vehikel fuer Bloom 5/6 die Uebungs-Reflexion; ein Lerner, der nur Kapitel liest, blieb auf Stufe 1-3. Jetzt enthaelt jedes Vertiefungskapitel ohne klares Eval-Item im Selbsttest ein Szenario-basiertes Mini-Eval-Item im selben `<details>`/`<summary>`-Pattern wie die anderen Fragen.
+- Vorwissen-Selbstcheck in `course/00-kursuebersicht.md` mit vier Crypto-Basisbegriffen plus Ressourcen-Pointer (F9). Bisher war das Vorwissen implizit; jetzt expliziert ein 5-Zeilen-Block, was vor Kap. 01 sitzen muss.
+- Curriculare Reduktionen als eigener Abschnitt in `course/00-kursuebersicht.md` (F10). Die vierte Spalte "Bewusst weggelassen" der 0.20-Lernpfad-Tabelle wird zu einer separaten Liste — Tabelle bleibt dreispaltig (Schritt/Kapitel/Begruendung), Reduktionen kommen darunter als kompakte Bullet-Liste. Gleicher Informationsgehalt, bessere Lesbarkeit auf schmalen Markdown-Renderern.
+- `## Lab-Bezug`-Block in `course/10-abschlussprojekt.md` und `course/26-abschlussprojekt-advanced.md` (F2). Beide Capstones hatten den Block bisher nicht — er macht jetzt den Ausgangszustand explizit ("`make init-token gen-rsa import-cert`") und verweist auf die internen Strukturabschnitte. Pattern-Konsistenz zu den 24 anderen Inhaltskapiteln.
+- `## Eigenexperiment`-Block in `course/03-token-und-objekte.md` (`CKA_EXTRACTABLE`-Einbahnstrasse selbst klicken) und `course/11-ec-und-pss.md` (ECDSA-DER-Format-Falle, PSS-Salt-Mismatch). Schliesst F7 — die letzten beiden Lab-Kapitel ohne Eigenexperiment-Pattern.
+- `## Fehlerfaelle direkt ausfuehren — Devcontainer vs. Docker Compose` als neuer Referenzabschnitt in `course/02-lab-setup.md` mit Pattern A (Devcontainer) und Pattern B (Compose). Schliesst F8: die Wiederholung des Devcontainer-vs-Compose-Aufrufmusters in jeder ENV-basierten Fehlerfall-Uebung (`exercises/03`–`06`) ist extraneous load. Jetzt eine zentrale Referenz, die Uebungen verweisen drauf und reduzieren ihren Fehlerfall-Block auf "Compose-Service X, ENV Y, Befehl Z".
+- `### Cookbook: fork-Falle ohne neue Demo reproduzieren` in `course/17-session-pooling.md`: Zwei-Terminal-Bash-Pattern, das den fork-Effekt mit dem bestehenden Lab-Code sichtbar macht. Ersetzt F6 — Uebung 11 Aufgabe 5 war als "mach es als Cookbook-Notiz" formuliert und damit nicht ausfuehrbar; jetzt liegt das Cookbook im Kapitel, die Uebung verweist darauf.
+
+### Geaendert
+- `course/12-sprachbindings.md`: Lernziel 4 traegt jetzt den expliziten `(Bloom 5 — evaluate)`-Marker (F5). Inhaltlich war es schon ein Evaluate-Item, aber asymmetrisch zur 0.20-Konvention "Marker in jedem Vertiefungskapitel 13–25". Jetzt einheitlich.
+- `exercises/03-java.md`, `exercises/04-go.md`, `exercises/05-kotlin.md`, `exercises/06-csharp.md`: Fehlerfall-Bloecke verweisen auf den neuen `02-lab-setup.md`-Referenzabschnitt, statt Devcontainer-/Compose-Aufrufmuster jeweils einzeln zu wiederholen.
+- `exercises/11-session-pooling.md` Aufgabe 5: umstrukturiert von "mach es als Cookbook-Notiz" auf "fuehre das Cookbook aus `course/17-session-pooling.md` aus". Reproduzierbar geworden ohne neue Lab-Binary.
+- `solutions/README.md`: Tabelle um die seit 0.16 nachgereichten Vertiefungs-Loesungen (`17-random`, `18-ecdh-hkdf`, `19-rfc3161-timestamps`, `20-ec-und-pss`) und die beiden 0.20-Rahmen-Selbsttests (`00-glossar`, `21-production-audit`) ergaenzt (F1 — der einzige harte Nav-Bruch des Review).
+
+### Didaktischer Hintergrund
+- Diese Iteration setzt das eigene Folge-Review zur 0.20.0 um (Bezugsrahmen unveraendert: Biggs' konstruktives Alignment, Anderson/Krathwohl-Taxonomie, Cognitive Load Theory, Modell der Didaktischen Rekonstruktion).
+- Adressiert werden konkret: (F1) Nav-Bruch in `solutions/README.md`, (F2) `## Lab-Bezug`-Pattern in den Capstones, (F3) Bloom-Coverage fuer reine Leser ueber alle Vertiefungskapitel, (F4) vier weitere Conceptual-Change-Stellen mit dokumentierter Misconception, (F5) Bloom-Marker-Konsistenz in Kap. 12, (F6) reproduzierbare fork-Falle ohne neue Demo-Binary, (F7) Eigenexperiment-Pattern in Kap. 03 und 11, (F8) Reduktion extraneous load in den vier Sprach-Uebungs-Fehlerfaellen, (F9) Vorwissen-Selbstcheck vor Kap. 01, (F10) bessere Lesbarkeit der Lernpfad-Tabelle.
+- Die zehn Findings sind dem Bericht "Didaktik-Review PKCS#11-Kurs (Stand 0.20.0)" entnommen. Nichts an der Substanz des Kurses wurde umgebaut; alle Aenderungen sind additiv (neue Hooks, neue Eval-Fragen) oder Pattern-Vereinheitlichungen (Capstone-`Lab-Bezug`, Fehlerfall-Referenzpattern, solutions/README-Pflege).
+
 ## 0.20.0 - 2026-06-04
 
 ### Hinzugefuegt

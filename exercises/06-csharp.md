@@ -36,29 +36,10 @@ make gen-rsa
 
 ## Fehlerfall
 
-Modul- oder PIN-Manipulation ueber `make csharp-demo` wuerde an der Dependency-Kette `gen-rsa -> init-token` scheitern, bevor C# laeuft. Vorstufe daher mit echten Werten starten und nur die .NET-Demo umschalten.
+Modul- oder PIN-Manipulation ueber `make csharp-demo` wuerde an der Dependency-Kette `gen-rsa -> init-token` scheitern, bevor C# laeuft. Vorstufe daher mit echten Werten starten und nur die .NET-Demo umschalten — Aufrufmuster nach Modus: siehe [`course/02-lab-setup.md` §Fehlerfaelle direkt ausfuehren](../course/02-lab-setup.md#fehlerfaelle-direkt-ausfuehren--devcontainer-vs-docker-compose). Compose-Service ist `pkcs11-csharp`, der Befehl `cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release`. Vorstufe: `make init-token gen-rsa`.
 
-Falscher Modulpfad:
-
-```bash
-make init-token gen-rsa
-docker compose -f lab/docker-compose.yml run --rm \
-  -e PKCS11_MODULE=/does/not/exist.so \
-  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
-```
-
-Erwartet: Klarer Library-Load-Fehler vor Login oder Signatur.
-
-Falsche PIN:
-
-```bash
-make init-token gen-rsa
-docker compose -f lab/docker-compose.yml run --rm \
-  -e PKCS11_USER_PIN=000000 \
-  pkcs11-csharp bash -lc 'cd lab/csharp/Pkcs11Demo && dotnet run --configuration Release'
-```
-
-Erwartet: `CKR_PIN_INCORRECT` als Pkcs11Exception aus `Session.Login`.
+- **Falscher Modulpfad**: ENV `PKCS11_MODULE=/does/not/exist.so`. Erwartet: Klarer Library-Load-Fehler vor Login oder Signatur.
+- **Falsche PIN**: ENV `PKCS11_USER_PIN=000000`. Erwartet: `CKR_PIN_INCORRECT` als Pkcs11Exception aus `Session.Login`.
 
 ## Reflexionsfragen
 

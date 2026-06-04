@@ -83,6 +83,27 @@ Wer Worker-Prozesse forkt (Gunicorn-Style, Apache prefork), darf die PKCS#11-Lib
 
 Pattern: jeder Worker-Prozess ruft selbst `C_Initialize`/`C_Login` nach dem `fork()`. Im Parent passiert nur Bind/Listen/Dispatch, kein PKCS#11-Call.
 
+### Cookbook: fork-Falle ohne neue Demo reproduzieren
+
+Der Effekt laesst sich ohne neue Lab-Binary mit dem bestehenden Bash-Pfad sichtbar machen. Idee: ein Sign-Prozess haelt den Token-State offen, ein paralleler Init-Versuch trifft auf das Storage-Lock von SoftHSM.
+
+```bash
+# Terminal A: lang laufender Sign-Prozess
+make init-token gen-rsa
+while :; do make -s sign >/dev/null; done &
+SIGN_PID=$!
+
+# Terminal B: paralleler Token-Reinit simuliert das fork+second-C_Initialize
+SOFTHSM2_CONF=/etc/softhsm/softhsm2.conf \
+  pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --list-token-slots
+# Erwartet: erscheint manchmal ohne Token, manchmal mit anderem Slot-Index.
+# Auf realen HSMs ist das Verhalten dramatischer (CKR_DEVICE_ERROR).
+
+kill $SIGN_PID
+```
+
+Lessen: SoftHSM zeigt das Phaenomen abgeschwaecht (Datei-basiertes Backend statt Vendor-Library mit Pro-Process-State), aber das **Lehr-Pattern** ist da — `C_Initialize` in zwei Prozessen mit demselben Token bringt einen Lab-Effekt; auf einer realen Vendor-Library bringt es `CKR_DEVICE_ERROR` oder Hangs. In Produktion gilt: `C_Initialize` immer nach `fork()`, nie davor.
+
 ## Eigenexperiment
 
 - Aendere `POOL_SIZE` auf 1 und `TOTAL_OPS` auf 100 — beobachte den `CKR_OPERATION_ACTIVE`-Fehler... der NICHT kommt, weil die Demo eine einzige Session sequenziell nutzt. Setze stattdessen `POOL_SIZE = 1` UND spawne `TOTAL_OPS = 8` Worker, die alle die selbe Session direkt nutzen — `CKR_OPERATION_ACTIVE` ist da.

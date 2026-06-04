@@ -1,5 +1,13 @@
 # 04 — Signieren und Verifizieren
 
+## Bevor du anfaengst — was vermutest du?
+
+> Du nimmst `CKM_RSA_PKCS` und gibst dem Token einen SHA-256-Hash deiner Daten als Input. Hinterher prueft `openssl dgst -sha256 -verify` die Signatur. Geht das durch?
+
+Wahrscheinliche Vermutung: ja, der Mechanism heisst nicht umsonst RSA-PKCS — Token paddet, ich habe schon gehasht, OpenSSL hasht intern dieselben Bytes. Mentale Karte: **Mechanism = "wie wird gepaddet", Hashing macht jeder fuer sich**.
+
+Genau diese Karte fuehrt zur DigestInfo-Falle. `CKM_RSA_PKCS` hasht nicht *und* erwartet auch nicht den rohen Hash, sondern eine vollstaendige DER-Struktur `SEQUENCE { algorithmIdentifier, OCTET STRING hash }`. Wer den rohen Hash gibt, bekommt eine Signatur, die OpenSSL ohne ersichtlichen Grund mit `Verification Failure` ablehnt. Halte die "Hash = Hash"-Karte fest; dieses Kapitel zeigt, warum der Mechanism-Name diktiert, **was genau** in den Token wandert.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:

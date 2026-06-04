@@ -211,3 +211,9 @@ Drei Gruende: RSA-OAEP verschluesselt nur ~190 Byte pro Aufruf (bei RSA-2048 SHA
 
 AES-GCM hat ein Authenticated-Tag am Ende. Die Verifikation des Tags scheitert, Bash meldet `bad decrypt`/`gcm decryption failed`, Java wirft `AEADBadTagException`. Genau dafuer ist GCM da: Modifikation wird mit hoher Wahrscheinlichkeit erkannt, nicht nur stillschweigend mitentschluesselt.
 </details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Ein Architekt fordert "FIPS-zertifizierte OAEP-Decrypt". Java-Service auf Linux. Der Kurs hat zwei Pfade gezeigt — JCA-Software-OAEP (<code>RSA/ECB/NoPadding</code> + manuelles Unpadding) und HSM-resident (Go-/C#-Pattern, nicht direkt in JCA). Welcher gewinnt unter dieser Anforderung — und welche zwei Achsen begruenden den Trade-off?</summary>
+
+HSM-resident gewinnt — der Software-OAEP-Pfad nimmt das Unpadding aus dem zertifizierten Modul heraus und macht die Compliance-Aussage angreifbar. Die zwei tragenden Achsen sind (a) **Crypto-Boundary**: nur was im FIPS-Modul passiert, faellt unter das Zertifikat — Hash, Padding, RSA-Operation duerfen den Boundary nicht verlassen; (b) **Audit-Sichtbarkeit**: ein HSM-`C_Decrypt(CKM_RSA_PKCS_OAEP)`-Call landet im HSM-Audit-Log mit Mechanism-Tag, ein in-JVM-Unpadding nicht — der Auditor sieht keinen Beweis, dass die Operation tatsaechlich konform lief. Java-seitig heisst das: BouncyCastle-Provider mit PKCS#11-Bridge oder Pkcs11Wrapper statt SunPKCS11-Fallback. Die Performance-Achse zaehlt hier sekundaer — ein Compliance-Audit ueberschreibt sie regelmaessig.
+</details>

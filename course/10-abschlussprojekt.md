@@ -9,6 +9,17 @@ Nach diesem Kapitel kannst du:
 - HSM-Fehler in stabile API-Fehler uebersetzen.
 - Akzeptanztests fuer Token, Key, Mechanism und Signaturverifikation formulieren.
 
+## Lab-Bezug
+
+Dieses Kapitel **ist** das Lab. Du baust selbst. Als Ausgangszustand bringst du den Token plus signing-key plus Cert:
+
+```bash
+make init-token gen-rsa import-cert
+make java-demo                 # optional: validiert die Toolchain
+```
+
+Konkrete Targets, Akzeptanzkriterien und Bewertungsstufen stehen unter [`## Mindestumfang`](#mindestumfang), [`## Akzeptanzkriterien`](#akzeptanzkriterien) und [`## Bewertung — drei Niveau-Stufen`](#bewertung--drei-niveau-stufen).
+
 ## Aufgabe
 
 Baue einen Signatur-Service, der Daten ueber PKCS#11 signiert und die wichtigsten Betriebsfaelle sichtbar macht.

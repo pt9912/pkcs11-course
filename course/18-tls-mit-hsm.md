@@ -154,3 +154,9 @@ Alle modernen ECDHE-RSA-/ECDHE-ECDSA-Suiten und alle TLS-1.3-Suiten — sie nutz
 
 `pin-value=987654` steht im Klartext in der nginx-Config, also auf der Platte und in jedem Backup. Loesungen: `ssl_password_file` (nginx-Mechanism, Datei mit 0600 + root als Owner), oder `pin-source=|/path/to/pin-script` in der PKCS#11-URI — das Skript holt die PIN aus Vault/SSM und gibt sie auf stdout aus. Beide schaffen ein Indirekt-Modell, in dem die PIN nicht in der Service-Config landet.
 </details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Ein Team will den HSM-TLS-Pfad auf Edge-Pods skalieren: 200 Pods, einer pro Region, ein zentraler HSM-Cluster. Worker-Latenz beim HSM-Roundtrip liegt bei ~8 ms. Welcher Aspekt limitiert zuerst — und welche zwei Architektur-Knoepfe drehst du, bevor du mehr HSM-Hardware kaufst?</summary>
+
+Limit ist die **HSM-Session-Quote** (Pro-Partition-Limits sind oft zweistellig), nicht der RSA-Rechen-Durchsatz. Knopf 1: **TLS-1.3 + Session-Resumption** — der HSM-Sign-Call faellt nur beim initialen Handshake an; Resumption ueber PSK braucht keinen HSM. Knopf 2: **OCSP-Stapling und Session-Cache** statt jeder Verbindung neu — beide reduzieren die Anzahl HSM-Operationen pro Geschaeftsvorgang. Erst wenn beides sichtbar genutzt ist und Session-Quote nachweisbar saturiert, lohnt sich HSM-Cluster-Ausbau. Die Falle: die Naturreaktion "mehr Pods → mehr nginx-Worker → mehr Sessions" pumpt Last in den HSM, die durch TLS-Protokollwahl gar nicht haette entstehen muessen.
+</details>

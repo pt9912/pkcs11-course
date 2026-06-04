@@ -1,5 +1,13 @@
 ## 20 — Key Wrap und Unwrap (Backup, Escrow, Migration)
 
+## Bevor du anfaengst — was vermutest du?
+
+> Du sollst einen produktiven HSM-Key sichern. Du rufst `C_WrapKey` auf, bekommst ein Backup-Blob, legst es auf S3 mit Object Lock. Ist der Key damit safe gesichert?
+
+Wahrscheinliche Vermutung: ja — Wrap heisst, der Key ist verschluesselt rausgekommen, ich habe ein Blob, das ich jederzeit unwrappen kann. Mentale Karte: **Wrap = Backup. Der Key ist jetzt eine Datei wie jede andere — sicher genug, weil verschluesselt**.
+
+Diese Karte ueberspringt zwei Realitaeten. Erstens: was sichert das *Wrapping-Key* (KEK)? Wenn du den verlierst, ist das Blob mathematisch zwar verschluesselt, praktisch aber unwiederherstellbar — derselbe Single-Point-of-Failure, den du eigentlich vermeiden wolltest, nur eine Ebene tiefer. Zweitens: PKCS#11 §10.2.6 macht `CKA_EXTRACTABLE` zur **Einbahnstrasse**. Wer den Backup-Bedarf nicht *bei der Key-Erzeugung* miteinplant, kann spaeter nicht mehr wrappen — auch nicht mit einem KEK, der einen Tag spaeter eingespielt wird. Halte die "Wrap = Backup-erledigt"-Karte fest. Dieses Kapitel zeigt, dass Backup eine **Policy** ist und ein paar Bytes Krypto, nicht ein einzelner API-Call.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -131,4 +139,10 @@ Strukturierte Aufgaben in [`exercises/14-key-wrap.md`](../exercises/14-key-wrap.
 <summary>3. <code>pkcs11-tool --unwrap</code> bricht auf SoftHSM mit <code>CKR_ATTRIBUTE_READ_ONLY</code>. Warum, und welcher Pfad funktioniert?</summary>
 
 `pkcs11-tool --unwrap` setzt im Template **immer** `CKA_VALUE_LEN`. SoftHSM 2.6 lehnt das bei AES-Key-Wrap ab — die Laenge ist bereits im Blob enthalten, redundante Angabe ist Spec-Verletzung. Die Sprach-Demos (Go, C#) bauen das Template selbst und lassen `CKA_VALUE_LEN` weg, deshalb funktioniert der Restore-Roundtrip dort.
+</details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Du sollst die KEK-Policy fuer ein eIDAS-Signing-HSM entwerfen. Zwei Vorschlaege liegen vor: (A) ein KEK mit <code>CKA_WRAP=true</code>, <code>CKA_UNWRAP=true</code> auf dem Produktiv-HSM, gewrappte Backups im S3-Bucket; (B) zwei separate Keys: ein Wrap-Only-KEK im Produktiv-HSM und ein Unwrap-Only-KEK im Restore-HSM. Welche zwei Compliance-/Operations-Achsen entscheiden, und welcher Entwurf gewinnt — und warum ist die naheliegende Antwort "A spart Hardware" hier irrefuehrend?</summary>
+
+Entwurf **B** gewinnt. Achse 1 — **Mehraugen/Separation of Duty**: ein KEK, der gleichzeitig wrappen und unwrappen kann, erlaubt es einem einzelnen kompromittierten Operator, ein Backup *und* dessen Restore durchzufuehren — die gesamte Backup-Kette bricht ohne externe Pruefung. Wrap-Only/Unwrap-Only erzwingt physischen Wechsel der HSM-Partition fuer Restore. Achse 2 — **Audit-Trail-Klarheit**: getrennte Keys schreiben unterschiedliche Operationen in den Audit-Log, ein Restore-Vorgang ist als solcher erkennbar; bei (A) ist `C_UnwrapKey` mit demselben KEK ein normaler "der Operator wollte einen Backup-Test machen"-Pattern und faellt nicht auf. Die "A spart Hardware"-Antwort uebersieht, dass ein Restore-HSM in einer eIDAS-Umgebung ohnehin vorhanden sein muss (Disaster Recovery Site) — die "Hardware-Ersparnis" ist eine Phantom-Ersparnis. Der echte Cost-Treiber ist nicht das zweite HSM, sondern die Operator-Trainings und das Mehraugen-Ceremony-Skript. Beides aber ist Compliance-Pflicht, kein Spar-Knopf.
 </details>

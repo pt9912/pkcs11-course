@@ -141,3 +141,9 @@ Der Agent cached den HSM-Login fuer die Lebenszeit des Agent-Prozesses. `ssh-add
 
 Der entfernte Server-Admin kann waehrend deiner SSH-Session deinen HSM nutzen — Signaturen erstellen, weitere SSH-Verbindungen authentifizieren. Das HSM unterscheidet nicht zwischen "lokaler Login-Request" und "ueber Agent-Forwarding angefragt". Forwarding nur auf vertrauenswuerdigen Hops aktivieren oder per Default auf `false` setzen.
 </details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Du baust SSH-Login fuer eine Admin-Crew: 8 Personen, jeder mit YubiKey (PIV-Applet, PKCS#11-Pfad). Zielserver-Flotte ist 400 Hosts. Vergleiche das Pattern "PKCS#11-Pubkey in <code>authorized_keys</code> pro Host" mit "SSH-Certificates ueber HSM-CA". Welche zwei Operations-Achsen kippen die Wahl Richtung SSH-Certificates — und welche bleibt fuer reine PKCS#11-Pubkeys das einzige Argument?</summary>
+
+SSH-Certificates gewinnen auf **Rotation** und **Offboarding**. Pubkey-pro-Host bedeutet 400 `authorized_keys` editieren, wenn ein neuer Admin dazukommt oder ein YubiKey verloren geht — operational nicht haltbar. Mit CA-signierten SSH-Certs steht eine TrustedUserCAKey-Zeile pro Host, das Lifecycle-Management passiert an einem zentralen Punkt. Validity-Window (z.B. 8h) verhindert vergessene Schluessel auf alten Hosts. Reine PKCS#11-Pubkeys bleiben sinnvoll, wenn (a) **keine CA** existiert oder gebaut werden darf — Compliance-Setups ohne Online-CA, isolierte Lab-Umgebungen, sehr kleine Crews. Die Pubkey-pro-Host-Strategie ist die richtige Antwort fuer einen 5-Hosts-Lab, nicht fuer eine 400-Hosts-Flotte. Konkret im Kurs: Kap. 19 zeigt den Pubkey-Pfad, weil das den HSM-Kontakt sichtbar macht; SSH-Certificates sind eine eigene Domain und in `00-kursuebersicht.md` Schritt 18 als "bewusst weggelassen" markiert.
+</details>

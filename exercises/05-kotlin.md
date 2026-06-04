@@ -32,16 +32,7 @@ Keine. `make kotlin-demo` haengt an `import-cert -> gen-rsa -> init-token` und s
 
 ## Fehlerfall
 
-`PKCS11_USER_PIN=000000 make kotlin-demo` wuerde schon in der Dependency-Kette `import-cert -> gen-rsa -> init-token` aussteigen. Damit der Fehler in der Kotlin-Demo selbst sichtbar wird, Vorstufe mit echter PIN laufen lassen und nur die Demo umschalten:
-
-```bash
-make init-token gen-rsa import-cert
-docker compose -f lab/docker-compose.yml run --rm \
-  -e PKCS11_USER_PIN=000000 \
-  pkcs11-kotlin bash -lc 'cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run'
-```
-
-(Im Devcontainer: `make init-token gen-rsa import-cert && PKCS11_USER_PIN=000000 (cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run)`.)
+`PKCS11_USER_PIN=000000 make kotlin-demo` wuerde schon in der Dependency-Kette `import-cert -> gen-rsa -> init-token` aussteigen. Damit der Fehler in der Kotlin-Demo selbst sichtbar wird, Vorstufe mit echter PIN laufen lassen und nur die Demo umschalten — Aufrufmuster nach Modus: siehe [`course/02-lab-setup.md` §Fehlerfaelle direkt ausfuehren](../course/02-lab-setup.md#fehlerfaelle-direkt-ausfuehren--devcontainer-vs-docker-compose). Compose-Service ist `pkcs11-kotlin`, der Befehl `cd lab/kotlin/pkcs11-demo && ./gradlew --quiet --no-daemon run`, die ENV `PKCS11_USER_PIN=000000`. Vorstufe: `make init-token gen-rsa import-cert`.
 
 Erwartet: Der `reportFailure`-Helper druckt eine `ProviderException`-Kette mit `CKR_PIN_INCORRECT` beim `KeyStore.load`.
 

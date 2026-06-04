@@ -84,6 +84,12 @@ Im Kurs spielt das Attribut an drei Stellen eine konkrete Rolle:
 
 Im Lab erzwingt seit 0.16.0 der Go-Helper `lab/go/pkcs11-keygen` ein sortenreines Template — das macht `make validate-key-usage` als Drift-Check sichtbar.
 
+## Eigenexperiment
+
+- **`CKA_EXTRACTABLE`-Einbahnstrasse empirisch zeigen.** Erzeuge einen Test-Key bewusst mit `CKA_EXTRACTABLE=true`, lies den Wert ueber `pkcs11-tool --read-object` aus, setze ihn dann via `--set-attr CKA_EXTRACTABLE:false` und versuche den Read erneut. Erwartet: nach dem Wechsel meldet das Token `CKR_ATTRIBUTE_SENSITIVE` (oder leeren Wert), und der Versuch, ihn zurueck auf `true` zu setzen, faellt mit `CKR_ATTRIBUTE_READ_ONLY`. Das ist die Spec-§10.2.6-Realitaet, einmal selbst geklickt.
+
+- **Vertiefende Aufgaben.** Die strukturierten Lab-Aufgaben fuer dieses Kapitel — Token initialisieren, Key erzeugen, Slot-Wandern beobachten — liegen in [`exercises/01-token.md`](../exercises/01-token.md) und [`exercises/02-key-signature.md`](../exercises/02-key-signature.md).
+
 ## Selbsttest
 
 <details>

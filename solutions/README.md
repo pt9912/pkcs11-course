@@ -4,6 +4,7 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 
 | Uebung | Loesung | Fokus |
 |---|---|---|
+| `exercises/00-glossar.md` | `00-glossar.md` | Vokabel-Selbsttest fuer Praefix-Familien (CKR/CKM/CKA/CKO/CKK/CKF/CKU/CKZ) |
 | `exercises/01-token.md` | `01-token.md` | Token initialisieren, Slot-Beobachtung |
 | `exercises/02-key-signature.md` | `02-key-signature.md` | RSA-Key, Signatur, OpenSSL Verify |
 | `exercises/03-java.md` | `03-java.md` | SunPKCS11, KeyStore, Zertifikat |
@@ -20,6 +21,11 @@ Die Loesungen sind bewusst knapp gehalten. Sie sollen bestaetigen, dass dein Erg
 | `exercises/14-key-wrap.md` | `14-key-wrap.md` | C_WrapKey, KEK-Policy, CKA_EXTRACTABLE one-way, Backup-Strategie |
 | `exercises/15-pin-management.md` | `15-pin-management.md` | C_SetPIN/InitPIN, CKF_USER_PIN_*-Flags, SO-Recovery, Lockout-Realitaet |
 | `exercises/16-csr-und-ca-workflow.md` | `16-csr-und-ca-workflow.md` | CSR-Generierung ueber HSM, Mini-CA-Aufbau, CA-Signing, Cross-Lib-Workflow |
+| `exercises/17-random.md` | `17-random.md` | HSM-RNG, `C_GenerateRandom`, Throughput-Messung, Verteilungs-Check |
+| `exercises/18-ecdh-hkdf.md` | `18-ecdh-hkdf.md` | ECDH-Derive, HKDF-SHA256, Vier-Sprachen-Shared-Secret-Konsistenz |
+| `exercises/19-rfc3161-timestamps.md` | `19-rfc3161-timestamps.md` | RFC-3161-TSA, CAdES-T-Embedding, Cross-Sprach-Verify, extKU-Negativbeweis |
+| `exercises/20-ec-und-pss.md` | `20-ec-und-pss.md` | ECDSA-DER-Falle, PSS-Spiegelparameter, Mechanism-Entscheidung |
+| `exercises/21-production-audit.md` | `21-production-audit.md` | Production-Readiness-Audit gegen die zwoelf Kap.-09-Fragen, Risiko-Ranking |
 
 Wenn Loesung und eigene Ausgabe abweichen, klaere zuerst:
 

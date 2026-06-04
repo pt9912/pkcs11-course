@@ -1,5 +1,13 @@
 # 25 — RFC-3161-Timestamps fuer CMS (CAdES-T)
 
+## Bevor du anfaengst — was vermutest du?
+
+> Deine CMS-Signatur enthaelt schon ein `signingTime`-Attribut (`signedAttrs.signingTime`, RFC 5652). Reicht das fuer den Beweis "der Vertrag wurde am 14.03.2026 unterschrieben"?
+
+Wahrscheinliche Vermutung: ja — `signingTime` ist Teil der `signedAttrs`, also kryptographisch in die Signatur eingebunden. Wer das veraendert, bricht die Signatur. Mentale Karte: **Signiert = nicht manipulierbar = beweisbar**.
+
+Diese Karte verwechselt *kryptographische Integritaet* mit *Beweisbarkeit gegen einen Dritten*. `signingTime` ist die Zeit, die der **Signer** behauptet — aus seiner Uhr, ohne externen Zeugen. Wer rueckdatieren will, stellt einfach die Systemuhr und signiert. Die Signatur bleibt mathematisch gueltig. Vor Gericht oder im eIDAS-Audit fragt der Pruefer aber: *wer bezeugt, dass die Uhr richtig ging?* — und genau die Antwort fehlt. RFC 3161 trennt das, indem eine vertrauenswuerdige Time-Stamping-Authority mit auditierter Uhr **ihre Sicht** auf den Signatur-Hash signiert. Halte die "signingTime = Beweis"-Karte fest. Dieses Kapitel zeigt, wo sie reisst — und wie ein TSA-Token, eingebettet als `signatureTimeStampToken`, das CAdES-T-Profil rechtsverwertbar macht.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -174,4 +182,10 @@ Die Signatur (genauer: `SHA-256(SignerInfo.signature)`). Damit entsteht der Bewe
 <summary>3. Welches CAdES-Profil baust du im Lab, und was fehlt fuer Langzeit-Beweiskraft (10+ Jahre)?</summary>
 
 CAdES-T. Es fehlen **CAdES-LT** (Embedding von CRL/OCSP-Material — auch nach Cert-Revocation noch verifizierbar) und **CAdES-LTA** (periodische `archive-time-stamp`s, die den Beweis auch nach kryptographischem Bruch — z.B. SHA-256 nicht mehr sicher — zukunftssicher machen). Beide brauchen Revocation-Logik und einen periodischen Re-Timestamp-Scheduler — eigene Domaene und nicht im Kurs-Lab.
+</details>
+
+<details>
+<summary>4. <strong>(evaluate)</strong> Du sollst fuer einen Vertragsdienst eine TSA waehlen: (A) Free-Tier-TSA (FreeTSA, DigiCert-Public), (B) Commercial-TSA (DigiCert Enterprise, GlobalSign), (C) qualifizierter eIDAS-TSA (D-TRUST, A-Trust). Eingangs-Bedingung sei "Vertraege mit eIDAS-Geltungsbereich, 7 Jahre Aufbewahrung, kein expliziter QES-Bedarf". Welche TSA gewinnt — und welcher Faktor verschiebt die Antwort, wenn die Aufbewahrungspflicht auf 35 Jahre (qualifizierte eIDAS) steigt?</summary>
+
+7 Jahre + kein QES-Bedarf: **(B) Commercial-TSA** ist die richtige Antwort. (A) reicht aus Krypto-Sicht, aber Free-Tier-TSAs liefern keine Verfuegbarkeits-SLA und keine garantierte Cert-Aufbewahrung — wer in 5 Jahren die TSA-Signatur verifizieren will, braucht den TSA-Pubkey *plus* den Cert-Pfad zur damaligen Zeit. (C) ist Overkill ohne QES-Anforderung und kostet Faktor 10-50. Die 35-Jahre-Verschiebung kippt das auf **(C)**: qualifizierte eIDAS-Aufbewahrung verlangt zusaetzlich (a) kontinuierliche Re-Timestamping (CAdES-LTA), das nur eIDAS-Qualified-TSAs aufrechterhalten, und (b) eine TSA mit gesicherter Existenz-Garantie ueber den Zeitraum — eine Commercial-TSA, die in 12 Jahren von einem Wettbewerber uebernommen und der TSA-Pubkey aus dem Trust-Anchor genommen wird, macht den gesamten Bestand unverifizierbar. eIDAS-Qualified-TSA traegt regulatorisch die Pflicht zur Schluessel-Archivierung. Der eigentliche Differenzierer ist also nicht das Krypto-Niveau (alle drei machen SHA-256-Timestamps), sondern die **rechtlich-organisationale Existenz-Garantie ueber die Aufbewahrungsdauer**.
 </details>

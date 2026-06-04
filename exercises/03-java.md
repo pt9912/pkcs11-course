@@ -32,15 +32,7 @@ Keine. `make java-demo` haengt selbst an `import-cert -> gen-rsa -> init-token` 
 
 ## Fehlerfall
 
-Setze `PKCS11_LIBRARY` auf einen nicht existierenden Pfad und starte die Java-Demo direkt — so bleibt die getrackte `softhsm.cfg` unveraendert und die `import-cert`-Kette wird umgangen:
-
-```bash
-PKCS11_LIBRARY=/nicht/da docker compose -f lab/docker-compose.yml run --rm \
-  -e PKCS11_LIBRARY \
-  pkcs11-lab bash -lc 'cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run'
-```
-
-(Im Devcontainer reicht `PKCS11_LIBRARY=/nicht/da (cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run)`.)
+Setze `PKCS11_LIBRARY` auf einen nicht existierenden Pfad und starte die Java-Demo direkt, ohne die `import-cert`-Kette zu beruehren. Aufrufmuster nach Modus: siehe [`course/02-lab-setup.md` §Fehlerfaelle direkt ausfuehren](../course/02-lab-setup.md#fehlerfaelle-direkt-ausfuehren--devcontainer-vs-docker-compose), Pattern A (Devcontainer) bzw. Pattern B (Compose). Die Demo-Variable heisst `PKCS11_LIBRARY`, der Befehl ist `cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run`.
 
 Erwartet: Der Fehler tritt bereits beim Provider-Load auf, nicht erst beim Signieren — der `reportFailure`-Helper im Demo druckt die `ProviderException`-Kette inklusive `CKR_*`-Code.
 
