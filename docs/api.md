@@ -40,6 +40,28 @@ Ziel: Du verstehst, was unter der Haube passiert, wenn du im Lab `make sign` ode
 
 Jeder Wrapper landet am Ende beim selben Set von `C_*`-Funktionen. Wer die C-API kennt, kann das Verhalten aller höheren Ebenen erklären — auch deren Fehler.
 
+### 1.1 Der Werkzeug-Pfad im Detail
+
+Das Lab kombiniert je nach Modul fuenf verschiedene Zugriffspfade auf dasselbe Token. Sie unterscheiden sich in Abstraktionshoehe, Sprachoekosystem und Lebensdauer pro Operation. Tabelle als Lese-Hilfe, wenn man in einem Sprach-Demo verloren geht oder einen Fehler von der falschen Ebene zugeordnet bekommt:
+
+| Pfad | Aufrufer | Bridge | Abstraktion | Lebensdauer pro Operation | Wo im Kurs? |
+|---|---|---|---|---|---|
+| `pkcs11-tool` | Shell/Make | direkter Cryptoki-Aufruf | sehr niedrig — fast 1:1 zu `C_*` | jede Invocation: `C_Initialize` → `C_OpenSession` → `C_Login` → 1 Operation → `C_CloseSession` → `C_Finalize` | Kap. 03, 04, 08; Debug-Spickzettel |
+| OpenSSL `engine_pkcs11` (libp11) | OpenSSL CLI / Bibliothek | `libp11` laedt das PKCS#11-Modul, mappt OpenSSL-`EVP_PKEY` auf Token-Handles | niedrig-mittel; Hash und Padding macht OpenSSL, Sign macht das Token | Engine wird einmal ge-`init`ed, Schluessel via PKCS#11-URI selektiert | Kap. 05, 13, 14, 18, 22 |
+| OpenSSL `pkcs11-provider` (OpenSSL ≥ 3) | OpenSSL 3 CLI / API | Provider-Modul `pkcs11.so` als modernerer Ersatz fuer die Engine | wie Engine, aber im OpenSSL-3-Provider-Modell | Provider wird per Config aktiviert | Kap. 18 als Hinweis, im Kurscontainer nicht aktiv |
+| SunPKCS11 (Java/Kotlin) | JCA-Code | Java-Provider `SunPKCS11` ueber JNI ins native Modul | hoch — `KeyStore`, `Signature`, `Cipher` als Java-API | Provider/KeyStore lebt typischerweise so lange wie die Anwendung | Kap. 06, 12, 15, 17, 18, 19, 22, 23, 24, 25 |
+| `miekg/pkcs11` (Go) | Go-Code | direkt ueber CGO ins native Modul | sehr niedrig — fast 1:1 zu `C_*`, expliziter Lifecycle | Anwendung verwaltet `C_Initialize`/`C_Finalize` und Sessions selbst | Kap. 12, 13, 14, 15, 17, 22, 24, 25 |
+| Pkcs11Interop (C#) | .NET-Code | C#-Wrapper, der selbst CGO-aequivalent ins native Modul geht | niedrig-mittel; `using`-Scopes statt explizitem Finalize | Library/Session in `using`-Bloecken oder Pool | Kap. 12, 13, 14, 15, 17, 20, 21, 22, 24, 25 |
+
+**Wer ruft wen?** Alle sechs Pfade landen am Ende im gleichen `libsofthsm2.so` (oder bei realen HSMs im jeweiligen Vendor-Modul). Die Diagrammspalte oben zeigt nur, **wie viel** Plumbing-Code zwischen Anwender und Cryptoki sitzt. Faustregeln:
+
+- **Lab-Debugging und Forensik**: `pkcs11-tool` und (falls nicht ausreicht) `pkcs11-spy` — siehe Kap. 08. Der Spy schiebt sich zwischen jeden Pfad und das echte Modul.
+- **OpenSSL-aequivalente Workflows** (CSR, Cert, CMS, TLS-Engine): Engine bzw. Provider — sie bringen `openssl req`, `openssl cms`, `openssl ts` direkt an HSM-Keys.
+- **Java/Kotlin-Anwendungen**: SunPKCS11. Cipher fuer OAEP fehlt, AES-Wrap fehlt — fuer beide bleibt die Software-Seite (SunJCE, BouncyCastle) der Default und nur die RSA-Operation selbst wandert ueber den Provider.
+- **Go und C#**: Native Bindings, naeher an PKCS#11. Geeignet, wenn man Attribut-Templates, Session-Pools oder ungewoehnliche Mechanismen explizit steuern muss.
+
+**Wann welcher Pfad gleich falsch ist:** wer in Java oder Kotlin AES-Key-Wrap, OAEP-Cipher oder PIN-Management braucht — alle drei Pfade existieren in SunPKCS11 nicht oder nur halb (Kap. 13, 20, 21 dokumentieren das pro Modul). Wer in OpenSSL einen TSA-Signing-Key betreibt, kann den nicht ueber die Engine ansprechen — `openssl ts -reply` laedt per `fopen()` (Kap. 25). In beiden Faellen ist der Pfad selbst die Limitierung, nicht das HSM.
+
 ---
 
 ## 2. Native C-API (Cryptoki)

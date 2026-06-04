@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.19.0 - 2026-06-04
+
+### Hinzugefuegt
+- `course/26-abschlussprojekt-advanced.md`: Track-2-Abschlussprojekt fuer Kap. 13–25. CMS-Signaturservice mit Session-Pool, JSON-Lines-Audit-Log, RFC-3161-Timestamp-Integration (CAdES-T). Architekturskizze, Akzeptanzkriterien, Erweiterungsideen (CAdES-LT, mTLS, OTel, Multi-Tenant, PIN-Rotation). Schliesst die Outcome-Luecke fuer die fortgeschrittenen Module (Kap. 10 deckt nur Kap. 01–11 ab).
+- `exercises/20-ec-und-pss.md` + `solutions/20-ec-und-pss.md`: neue Uebung fuer Kap. 11. ECDSA-DER-Encoding-Falle reproduzieren (rohe `r||s` gegen OpenSSL), RSA-PSS-Spiegelparameter (Salt-Laenge, MGF-Hash), schriftliche Mechanism-Entscheidung fuer drei Anforderungs-Szenarien. Kap. 11 war bisher als "optionale Erweiterung" ohne eigene Uebung gefuehrt — Outcome "entscheiden, welcher Mechanism fuer neue Systeme sinnvoll ist" wird jetzt assessiert.
+- `course/03-token-und-objekte.md` §`CKA_SENSITIVE` und `CKA_EXTRACTABLE`: neuer Abschnitt, der das Sicherheitsmodell der beiden Attribute frueh erklaert und auf Kap. 06, 13, 20 verweist. Bisher tauchten beide Attribute en passant in spaeteren Kapiteln auf, ohne dass das Einbahn-Verhalten von `CKA_EXTRACTABLE` (PKCS#11 §10.2.6) systematisch eingefuehrt war.
+- `course/10-abschlussprojekt.md` §Cross-Language-Akzeptanz: neuer Abschnitt mit Cross-Stack-Verify-Anforderung und neuem Akzeptanzkriterium. Schliesst den Alignment-Gap zum deklarierten Multi-Sprach-Outcome (`course/00-kursuebersicht.md`).
+- `docs/api.md` §1.1 Werkzeug-Pfad im Detail: neue Tabelle mit allen sechs Zugriffspfaden (`pkcs11-tool`, `engine_pkcs11`, `pkcs11-provider`, SunPKCS11, miekg/pkcs11, Pkcs11Interop), Abstraktionsebene, Lebensdauer pro Operation und Querverweisen in die Kurskapitel. Erklaert die "wann welcher Pfad gleich falsch ist"-Faelle (SunPKCS11 fuer AES-Wrap/OAEP/PIN, openssl ts fuer HSM-resident Signer).
+- Antwortbloecke "Antworten zur Selbstkontrolle" in `solutions/01-token.md`, `solutions/02-key-signature.md`, `solutions/03-java.md`, `solutions/04-go.md`, `solutions/05-kotlin.md`, `solutions/06-csharp.md`. Hebt die Selbstevaluierbarkeit der Reflexionsfragen auf das Niveau der technischen `make verify`-Tests; 07–19 hatten die Bloecke bereits.
+
+### Geaendert
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle bekommt Begruendungs-Spalte fuer jede Sprung-Stelle (z.B. warum Kap. 08 vor Kap. 09/10, warum Kap. 11 vor Kap. 13/14, warum Kap. 17 nach Kap. 16). Schritt 26 ergaenzt fuer das Track-2-Abschlussprojekt.
+- `course/01-grundlagen.md`: Mechanism-Distinktionen (`CKM_RSA_PKCS`, `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS`, `CKM_ECDSA_SHA256`) entschlackt — Kap. 01 fuehrt nur noch die Namen und Familien ein, die operative Semantik (DigestInfo-Falle, Wer-hasht-wer-paddet) wandert nach Kap. 04. Reduziert die Begriffsdichte des ersten Kapitels.
+- `course/04-signieren-und-verifizieren.md`: neuer Abschnitt "Wer hasht, wer paddet?" mit RSA-Mechanism-Familien-Tabelle und DigestInfo-Falle. Sammelt das, was vorher in Kap. 01 stand, an der operativen Stelle.
+- `course/06-java-sunpkcs11.md`: Verweis auf den neuen `CKA_SENSITIVE`/`CKA_EXTRACTABLE`-Abschnitt in Kap. 03; expliziter Hinweis, warum der Default-Provider-Pfad bei `CKA_EXTRACTABLE=false` fehlschlaegt.
+- `course/11-ec-und-pss.md`: Verweis auf die neue Uebung 20 am Kapitelende.
+- `docs/glossar.md`: Eintraege fuer `Sensitive` und `Extractable` geschaerft (PKCS#11-Spec-Referenz und Modul-Querverweise).
+- `README.md`: Kursstruktur-Tabelle um Kap. 26 erweitert; Uebung 20 fuer Kap. 11 verlinkt (war "optionale Erweiterung").
+
+### Didaktischer Hintergrund
+- Diese Aenderungen setzen die Findings aus dem Didaktik-Review um (Bezugsrahmen: Biggs' konstruktives Alignment, Anderson/Krathwohl-Taxonomie, Cognitive Load Theory, Modell der Didaktischen Rekonstruktion). Geschlossen werden Lueken bei (a) Outcome-Assessment fuer Kap. 13–25 (Track-2-Projekt), (b) Multi-Sprach-Outcome (Cross-Language-Akzeptanz), (c) frueher Konzept-Einfuehrung von `CKA_EXTRACTABLE` (Schemaaufbau), (d) Begriffsdichte in Kap. 01 (intrinsic load), (e) Selbst-Evaluierbarkeit der Reflexionsfragen, (f) Transparenz der curricularen Reihenfolge.
+
 ## 0.18.0 - 2026-05-31
 
 ### Hinzugefügt

@@ -66,3 +66,11 @@ docker compose -f lab/docker-compose.yml run --rm \
 ```
 
 Im Devcontainer ersetzt du das `docker compose ... run --rm ... bash -lc '...'` jeweils durch ein direktes `(cd lab/java/pkcs11-demo && ./gradlew --quiet --no-daemon run)` mit vorangestellten ENV-Variablen.
+
+## Antworten zu den Reflexionsfragen
+
+**Java sieht den Key ohne Zertifikat nicht "sauber":** `KeyStore.getInstance("PKCS11", provider)` exponiert Private Keys nur ueber Aliase, und ein Alias entsteht in SunPKCS11 erst, wenn das Token ein Cert-Objekt mit derselben `CKA_ID` wie der Privkey hat. Ohne Cert ist der Privkey zwar via Find-Operations sichtbar (Go/C# nutzen das direkt), aber `keyStore.getKey("signing-key", null)` liefert `null`, weil SunPKCS11 den Alias gar nicht erst eintraegt. Das ist eine reine Konvention der Java-KeyStore-Abstraktion, kein PKCS#11-Zwang.
+
+**Demo verifiziert ueber denselben Provider:** Public Keys aus dem Token koennen `CKA_EXTRACTABLE=false` tragen (typisch fuer EC-Keys auf restriktiven HSMs) — der Default-Provider kommt dann an deren Material nicht heran, weil die Pubkey-Instanz intern ein PKCS#11-Handle ist. Verifikation ueber denselben Provider bleibt damit funktional, auch wenn man den Wrap-Pfad spaeter haerter macht. In Produktion verifiziert man hingegen typisch auf der Gegenseite mit einem Default-Provider, weil dort der Pubkey als rohe `SubjectPublicKeyInfo`-Bytes bekannt ist.
+
+**`isCertificateEntry` ist false trotz Cert im Token:** `KeyStore.isCertificateEntry(alias)` meldet `true` nur fuer reine Trusted-Cert-Eintraege ohne Privkey (`TrustedCertificateEntry`). Sobald der Alias einen Privkey hat — also ein `PrivateKeyEntry` mit Zertifikatskette ist — gilt `isKeyEntry() == true` und `isCertificateEntry() == false`. Das Cert ist trotzdem da, abrufbar via `keyStore.getCertificate(alias)`, und die Demo nutzt es genau dafuer.

@@ -21,7 +21,9 @@ Am Ende kannst du:
 
 ## Lernpfad
 
-| Schritt | Kapitel | Praxis |
+Der Pfad weicht von der Dateinummerierung ab. Die Sprung-Stellen sind didaktisch begruendet — die Begruendung steht jeweils in der dritten Spalte.
+
+| Schritt | Kapitel | Praxis / Begruendung |
 |---|---|---|
 | 1 | `01-grundlagen.md` | Begriffe und Ablaufmodell verstehen |
 | 2 | `02-lab-setup.md` | Lab starten, Devcontainer-Modus verstehen |
@@ -29,25 +31,26 @@ Am Ende kannst du:
 | 4 | `04-signieren-und-verifizieren.md` | RSA signieren und mit OpenSSL verifizieren |
 | 5 | `05-zertifikate.md` | Zertifikat mit gleicher `CKA_ID` importieren |
 | 6 | `06-java-sunpkcs11.md` | Java ueber JCA/SunPKCS11 anbinden |
-| 7 | `12-sprachbindings.md` | Java, Go, Kotlin und C# vergleichen |
-| 8 | `08-debugging.md` | Fehler systematisch isolieren |
-| 9 | `11-ec-und-pss.md` | ECDSA und RSA-PSS ergaenzen |
-| 10 | `07-service-integration.md` | Signatur-Service als Architektur-Skizze |
-| 11 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren |
+| 7 | `12-sprachbindings.md` | Java, Go, Kotlin und C# vergleichen — bewusst direkt nach Kap. 06 gezogen, damit die JCA-Eigenheiten an einem stack-uebergreifenden Vergleich konkret werden, bevor die Fehlersystematik in Kap. 08 daran anknuepft. |
+| 8 | `08-debugging.md` | Fehler systematisch isolieren — vor Kap. 09/10, weil Debugging ein Grundwerkzeug ist und nicht erst kurz vor dem Abschlussprojekt nuetzlich wird. |
+| 9 | `11-ec-und-pss.md` | ECDSA und RSA-PSS ergaenzen — vorgezogen, weil "Mechanism-Wahl verstehen" das Hintergrundwissen ist, mit dem Kap. 13 (OAEP) und Kap. 14 (CMS-Signaturalgorithmen) operieren. |
+| 10 | `07-service-integration.md` | Signatur-Service als Architektur-Skizze — bewusst NACH Debugging, sonst landet man im "happy path"-Trugschluss. |
+| 11 | `09-production-checkliste.md` | Unterschiede zu echten HSMs klaeren — bildet das Reflexions-Sprungbrett zu den Vertiefungsmodulen. |
 | 12 | `13-verschluesselung.md` | Hybride RSA-OAEP + AES-GCM Verschluesselung |
-| 13 | `14-cms-signatur.md` | CMS/PKCS#7-Dokumentsignatur (S/MIME-Format) |
+| 13 | `14-cms-signatur.md` | CMS/PKCS#7-Dokumentsignatur — direkt nach der Verschluesselung, damit beide Schichten (Wrap, Sign) als Bausteine fuer Kap. 25 (CAdES-T) bereitstehen. |
 | 14 | `15-streaming.md` | Multi-Part-Ops fuer Grossdateien (Sign + Encrypt) |
 | 15 | `16-hmac.md` | HMAC, symmetrische Keys (GENERIC_SECRET), JWT-HS256 |
-| 16 | `17-session-pooling.md` | Pool-Pattern, Thread-Safety, fork-Falle |
+| 16 | `17-session-pooling.md` | Pool-Pattern, Thread-Safety, fork-Falle — voraus HMAC, weil die Pool-Demos HMAC-Throughput vermessen. |
 | 17 | `18-tls-mit-hsm.md` | nginx mit HSM-Key via openssl pkcs11-engine |
 | 18 | `19-ssh-mit-hsm.md` | SSH-Login ueber PKCS11Provider, Smartcard-Pattern |
-| 19 | `20-key-wrap.md` | Backup/Escrow via C_WrapKey + KEK-Strategie |
+| 19 | `20-key-wrap.md` | Backup/Escrow via C_WrapKey + KEK-Strategie — voraus HMAC/CMS, damit das KEK-Konzept eine vertraute Mechanik trifft. |
 | 20 | `21-pin-management.md` | PIN-Lifecycle, CKF-Flags, SO-Recovery, Lockout-Realitaet |
 | 21 | `22-csr-und-ca-workflow.md` | CSR-Generierung ueber HSM, Mini-CA, CA-Signing, Cert-Import |
 | 22 | `23-random.md` | HSM-RNG, `C_GenerateRandom`, TRNG vs CSPRNG, NIST SP 800-90 |
 | 23 | `24-ecdh-hkdf.md` | ECDH + HKDF: `C_DeriveKey(CKM_ECDH1_DERIVE)`, RFC-5869-Interop ueber 4 Sprachen |
 | 24 | `25-rfc3161-timestamps.md` | RFC-3161-TSA, CAdES-T, `signatureTimeStampToken` |
-| 25 | `10-abschlussprojekt.md` | Signatur-Service bauen |
+| 25 | `10-abschlussprojekt.md` | Signatur-Service bauen — Basistrack. |
+| 26 | `26-abschlussprojekt-advanced.md` | Track-2-Abschluss: CMS-T-Service mit Session-Pool und Audit-Log; optional fuer alle, die Kap. 13-25 systematisch abschliessen wollen. |
 
 ## Arbeitsweise
 

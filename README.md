@@ -57,7 +57,7 @@ Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didak
 | [`course/08-debugging.md`](course/08-debugging.md) | CKR-Fehler, Mechanism-Mapping, Slots, PINs | [alle Uebungen](exercises/) |
 | [`course/09-production-checkliste.md`](course/09-production-checkliste.md) | Was bei echten HSMs anders wird | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) |
 | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) | vollstaendiges Abschlussprojekt | [`course/10-abschlussprojekt.md`](course/10-abschlussprojekt.md) |
-| [`course/11-ec-und-pss.md`](course/11-ec-und-pss.md) | ECDSA und RSA-PSS in der Praxis | optionale Erweiterung |
+| [`course/11-ec-und-pss.md`](course/11-ec-und-pss.md) | ECDSA und RSA-PSS in der Praxis | [`exercises/20-ec-und-pss.md`](exercises/20-ec-und-pss.md) |
 | [`course/12-sprachbindings.md`](course/12-sprachbindings.md) | Java, Go, Kotlin und C# im Vergleich | [`exercises/03-java.md`](exercises/03-java.md) bis [`exercises/06-csharp.md`](exercises/06-csharp.md) |
 | [`course/13-verschluesselung.md`](course/13-verschluesselung.md) | Hybride Verschluesselung mit RSA-OAEP + AES-GCM | [`exercises/07-encrypt.md`](exercises/07-encrypt.md) |
 | [`course/14-cms-signatur.md`](course/14-cms-signatur.md) | CMS/PKCS#7-Dokumentsignatur (RFC 5652, detached SignedData) | [`exercises/08-cms.md`](exercises/08-cms.md) |
@@ -72,6 +72,7 @@ Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didak
 | [`course/23-random.md`](course/23-random.md) | HSM als Random-Quelle: `C_GenerateRandom`, `CKF_RNG`, TRNG vs CSPRNG, NIST SP 800-90 | [`exercises/17-random.md`](exercises/17-random.md) |
 | [`course/24-ecdh-hkdf.md`](course/24-ecdh-hkdf.md) | ECDH + HKDF: `C_DeriveKey(CKM_ECDH1_DERIVE)`, Alice+Bob-Beweis, RFC-5869-Interop | [`exercises/18-ecdh-hkdf.md`](exercises/18-ecdh-hkdf.md) |
 | [`course/25-rfc3161-timestamps.md`](course/25-rfc3161-timestamps.md) | RFC-3161-Timestamps fuer CMS: Lab-TSA, `signatureTimeStampToken`, CAdES-T | [`exercises/19-rfc3161-timestamps.md`](exercises/19-rfc3161-timestamps.md) |
+| [`course/26-abschlussprojekt-advanced.md`](course/26-abschlussprojekt-advanced.md) | Track-2-Abschlussprojekt: CMS-Service mit Pool, Audit-Log und RFC-3161 | Architektur-/Bau-Aufgabe |
 
 Weitere Materialien:
 

@@ -63,7 +63,7 @@ Die einzelnen Schritte sind nur dann zu nennen, wenn du eine Stufe gezielt isoli
 
 `Security.addProvider(...)` ist nicht noetig, wenn die Provider-Instanz direkt an `KeyStore.getInstance(..., provider)` und `Signature.getInstance(..., provider)` weitergereicht wird. Globale Registrierung erst dann, wenn man ueber Algorithmus-Namen ohne Provider-Argument arbeiten will.
 
-Verifizieren mit dem Default-Provider ist nur eine Variante: Public Keys sind nicht sensitiv, das ist das Trennungsmodell von HSMs gegenueber Konsumenten. Sobald aber `CKA_EXTRACTABLE=false` ist (auf vielen produktiven HSMs Default), klappt der Default-Provider-Pfad nicht mehr.
+Verifizieren mit dem Default-Provider ist nur eine Variante: Public Keys sind nicht sensitiv, das ist das Trennungsmodell von HSMs gegenueber Konsumenten. Sobald aber `CKA_EXTRACTABLE=false` ist (auf vielen produktiven HSMs Default — Grundlagen dazu in [03-token-und-objekte.md §`CKA_SENSITIVE` und `CKA_EXTRACTABLE`](03-token-und-objekte.md)), klappt der Default-Provider-Pfad nicht mehr, weil die JCA-Pubkey-Instanz dann nur noch ein PKCS#11-Handle ohne Material ist.
 
 ## Typische Stolpersteine
 

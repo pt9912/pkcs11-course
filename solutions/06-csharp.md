@@ -51,3 +51,14 @@ docker compose -f lab/docker-compose.yml run --rm \
 ```
 
 Erwartet: `CKR_PIN_INCORRECT` aus `Session.Login`.
+
+## Antworten zu den Reflexionsfragen
+
+**C# braucht keinen Cert, Java schon:** Pkcs11Interop ist ein duenner Wrapper ueber die native PKCS#11-API. Die `FindObjects`-Calls suchen direkt ueber `CKA_CLASS=CKO_PRIVATE_KEY` plus `CKA_ID=01` — kein Alias-Konstrukt, keine KeyStore-Abstraktion. Java/Kotlin nutzen SunPKCS11, das einen JCA-`KeyStore` aufbaut; dessen Alias-Konvention verlangt ein Cert mit derselben `CKA_ID`. Es ist also kein PKCS#11-Unterschied, sondern eine Konvention der jeweiligen Sprach-API.
+
+**Native Cleanup-Schritte:** Drei Stufen, alle muessen sauber laufen, sonst leakt der Anwendungsspeicher Handles oder das Token bleibt im `CKR_USER_ALREADY_LOGGED_IN`-State haengen:
+1. `Session.Logout()` (gilt prozessweit fuer den Token — nicht pro Session pflegen).
+2. `Session.Dispose()` schliesst die Session und gibt Handles frei.
+3. `Library.Dispose()` ruft `C_Finalize`.
+
+Pkcs11Interop nutzt `IDisposable`/`using`-Bloecke, die das in der richtigen Reihenfolge erzwingen. Bei Crash-Pfaden ohne `using` (Exceptions, frueher Return) muss man explizit `try/finally` setzen — `pkcs11-spy` zeigt fehlende `C_CloseSession` als Smell.

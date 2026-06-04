@@ -56,3 +56,9 @@ docker compose -f lab/docker-compose.yml run --rm \
 Erwartet: Provider-Load schlaegt mit `IOException`/`CKR_GENERAL_ERROR` fehl.
 
 Wenn das Zertifikat fehlt, ist der private Key fuer den Java-KeyStore nicht als Private-Key-Alias nutzbar. `make kotlin-demo` repariert das ueber die Abhaengigkeit `import-cert` automatisch; fuer den Fehlerfall musst du die Demo direkt starten.
+
+## Antworten zu den Reflexionsfragen
+
+**Java vs Kotlin fuer PKCS#11:** Fast nichts. Kotlin nutzt **denselben** JCA-Provider, denselben `KeyStore`, dieselbe `Signature`-API. Unterschiede sind syntaktisch (Properties statt Getter, `companion object` statt `static`, `?.let`-Idioms). Sicherheitsrelevant ist die Wahl der Sprache nicht — wer die JCA-Eigenheiten in Java verstanden hat, hat sie in Kotlin verstanden. Der eigentliche Unterschied ist ein Build-System-Detail: Kotlin braucht das `kotlin-stdlib` zur Laufzeit, Java nicht.
+
+**Zertifikat-Bedingung gilt auch fuer Kotlin:** Weil der Stack derselbe ist, gilt die SunPKCS11-Alias-Regel identisch — ohne Cert mit passender `CKA_ID` kein Private-Key-Alias. Wer das umgehen will, muss die JCA-Abstraktion verlassen (z.B. ueber den IAIK-PKCS11-Provider oder direkt ueber `sun.security.pkcs11`-Internals). In Lab und Produktion ist beides selten — der `make import-cert`-Pfad bleibt der pragmatische Default.

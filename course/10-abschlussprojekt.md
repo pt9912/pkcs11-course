@@ -113,10 +113,28 @@ Regeln:
 - **Append-only Sink** (z. B. journald, S3 mit Object Lock, Splunk-Index ohne Edit-Recht). Audit-Log darf vom Service selbst nicht ueberschreibbar sein.
 - **Rotation und Aufbewahrung** richten sich nach Compliance (eIDAS QSig oft 35 Jahre, intern oft 90 Tage).
 
+## Cross-Language-Akzeptanz
+
+Eines der deklarierten Kursziele ist, "Java, Kotlin, Go und C# gegen dasselbe Token anzubinden" (`course/00-kursuebersicht.md`). Damit das nicht nur eine Lese-Erfahrung bleibt, gehoert eine Cross-Language-Verifikation in das Assessment:
+
+1. Der Signatur-Service ist in einer Sprache implementiert (typischerweise Java/Micronaut nach der Skizze in Kap. 07).
+2. Ein **zweiter** Client in einer anderen Sprache (Go, C# oder Kotlin) ruft `POST /sign` auf und verifiziert die zurueckgegebene Signatur **lokal** mit dem Cert oder Pubkey, das `GET /keys` ausliefert — ohne den Service oder dieselbe JCA-Implementierung.
+3. Damit ist bewiesen, dass die Signatur als Bytefolge standard-kompatibel ist, nicht nur "in derselben JVM zurueck-verifizierbar".
+
+Praktisch genuegen ~50 Zeilen Skript pro Verifier:
+
+- **Bash**: `openssl dgst -sha256 -verify pub.pem -signature sig.bin payload.txt`
+- **Go**: `crypto/rsa.VerifyPKCS1v15` mit dem PEM-Pubkey aus `/keys`.
+- **C#**: `RSA.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1)`.
+- **Kotlin (ohne SunPKCS11)**: JCA-Default-Provider mit dem extrahierten Pubkey.
+
+Wer das Projekt didaktisch konsequent durchziehen will, baut den Verifier-Client als eigenen kleinen Service mit `POST /verify-remote` und laesst ihn im Lab-Compose zusammen mit dem Sign-Service laufen — dann ist die Cross-Stack-Kompatibilitaet automatisiert ueberpruefbar.
+
 ## Akzeptanzkriterien
 
 - Private Key ist nicht exportierbar.
 - Signatur ist mit OpenSSL oder Java Public Key verifizierbar.
+- **Eine Signatur des Service ist zusaetzlich in einer anderen Sprache (Go, C#, Kotlin oder Bash/OpenSSL) verifizierbar — Cross-Language-Roundtrip.**
 - Falsche PIN erzeugt verständlichen Fehler.
 - Falscher Mechanism erzeugt verständlichen Fehler.
 - README erklärt Setup und Betrieb.

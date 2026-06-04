@@ -7,7 +7,7 @@ Nach diesem Kapitel kannst du:
 - die Begriffe Module, Slot, Token, Session, Object und Mechanism unterscheiden.
 - erklaeren, warum private Schluessel im Token bleiben.
 - die typische PKCS#11-Aufrufkette grob einordnen.
-- Mechanism-Namen wie `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS` und `CKM_ECDSA_SHA256` auseinanderhalten.
+- Mechanism-Namen wie `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS` und `CKM_ECDSA_SHA256` als Namen wiedererkennen — die operative Semantik (was hasht, was paddet, was encoded der Token) lernst du in Kap. 04 und Kap. 11.
 
 ## Lab-Bezug
 
@@ -58,11 +58,13 @@ Anwendung
               -> Operation ausführen
 ```
 
-## Wichtige Unterscheidung
+## Mechanism-Familien (Namensorientierung)
 
-- `CKM_RSA_PKCS`: rohes RSA-PKCS#1-v1.5-Padding. Der Mechanismus signiert beliebige Eingaben bis Modulus-Länge minus 11 Bytes. Wenn daraus eine Hash-basierte Signatur (z. B. "SHA256withRSA") werden soll, ist es Aufgabe der Anwendung, vorab eine vollständige DigestInfo (`SEQUENCE { algorithm OID, OCTET STRING hash }`) zu bilden und genau diese an den Mechanismus zu uebergeben.
-- `CKM_SHA256_RSA_PKCS`: Token hasht und signiert.
-- `CKM_RSA_PKCS_PSS`: RSA-PSS, moderne Signaturvariante, aber Details wie Salt-Länge und MGF-Hash müssen passen.
-- `CKM_ECDSA_SHA256`: ECDSA mit SHA-256 auf einer EC-Kurve, kleiner und schneller als RSA.
+In diesem Kapitel reicht es, die Namensmuster wiederzuerkennen. Die operative Semantik — wer hasht, wer paddet, welches Encoding der Token zurueckgibt — folgt in [04 — Signieren und Verifizieren](04-signieren-und-verifizieren.md) und in [11 — ECDSA und RSA-PSS](11-ec-und-pss.md).
 
-Viele Fehler kommen daher, dass Anwendung und Token unterschiedliche Annahmen über Hashing, Padding oder Signatur-Encoding (raw `r||s` vs. DER `SEQUENCE`) haben. Details in [11 — ECDSA und RSA-PSS](11-ec-und-pss.md).
+| Mechanism-Name | Familie | Wo vertieft? |
+|---|---|---|
+| `CKM_RSA_PKCS` | RSA-PKCS#1-v1.5, ohne Token-Hashing | Kap. 04 (inkl. DigestInfo-Falle) |
+| `CKM_SHA256_RSA_PKCS` | RSA-PKCS#1-v1.5, Token hasht | Kap. 04 |
+| `CKM_RSA_PKCS_PSS` / `CKM_SHA256_RSA_PKCS_PSS` | RSA-PSS | Kap. 11 (Salt/MGF-Parameter) |
+| `CKM_ECDSA` / `CKM_ECDSA_SHA256` | ECDSA, `r\|\|s`-Encoding | Kap. 11 (DER- vs. Raw-Encoding) |

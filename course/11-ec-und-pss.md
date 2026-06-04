@@ -136,3 +136,5 @@ Praktische Hinweise:
 ## Harte Wahrheit
 
 Viele HSMs unterstützen PSS, aber mit Einschränkungen bei MGF-Hash und Salt-Länge. Vor dem produktiven Einsatz: `pkcs11-tool --list-mechanisms` lesen, im Zweifel beim Hersteller nachfragen.
+
+Strukturierte Aufgaben (DER-Falle, PSS-Spiegelparameter, Mechanism-Entscheidung) in [`exercises/20-ec-und-pss.md`](../exercises/20-ec-und-pss.md).

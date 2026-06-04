@@ -66,3 +66,20 @@ In PKCS#11 sind `CKA_LABEL` und `CKA_ID` wichtig.
 - `CKA_ID` ist für Zuordnung wichtig, z. B. Private Key ↔ Zertifikat.
 
 Bei Java wird daraus oft ein Alias. Wenn Alias-Mapping nicht passt, findet Java den Schlüssel nicht, obwohl er im Token existiert.
+
+## `CKA_SENSITIVE` und `CKA_EXTRACTABLE` — das Sicherheitsmodell in zwei Attributen
+
+Zwei Attribute steuern, was mit einem privaten oder symmetrischen Schluessel ausserhalb des Tokens passieren darf:
+
+- **`CKA_SENSITIVE=true`** verbietet das Lesen des Schluesselwerts ueber `C_GetAttributeValue(CKA_VALUE)`. Versuche enden mit `CKR_ATTRIBUTE_SENSITIVE`. Das ist der Default bei privaten und secret Keys auf realen HSMs.
+- **`CKA_EXTRACTABLE=false`** verbietet zusaetzlich den verschluesselten Export ueber `C_WrapKey`. Der Schluessel kann das Token also unter keinen Umstaenden in irgendeiner Form verlassen — auch nicht gewrappt.
+
+Wichtig ist die **Einbahnstrasse**: PKCS#11 §10.2.6 erlaubt fuer `CKA_EXTRACTABLE` nur den Uebergang `true → false`, nie `false → true`. Wer einen produktiven Key ohne Backup-Strategie auf `CKA_EXTRACTABLE=false` setzt, kann ihn spaeter nicht mehr aus dem HSM herausholen — auch nicht fuer ein Disaster-Recovery-Szenario.
+
+Im Kurs spielt das Attribut an drei Stellen eine konkrete Rolle:
+
+- **Java/SunPKCS11** in [Kapitel 06](06-java-sunpkcs11.md): wenn der Pubkey ueber den Default-Provider verifiziert werden soll, scheitert das bei `CKA_EXTRACTABLE=false`, weil die JCA-Pubkey-Instanz dann nur ein PKCS#11-Handle ist, kein materialgefuelltes Objekt.
+- **Hybride Verschluesselung** in [Kapitel 13](13-verschluesselung.md): der RSA-Wrap-Key ist bewusst `CKA_EXTRACTABLE=false`, der per RSA-OAEP gewrappte AES-Session-Key ist nur eine Datei und nie ein Token-Objekt — andere Welt.
+- **Backup/Wrap** in [Kapitel 20](20-key-wrap.md): hier braucht man bewusst `CKA_EXTRACTABLE=true`, sonst weist `C_WrapKey` mit `CKR_KEY_UNEXTRACTABLE` ab.
+
+Im Lab erzwingt seit 0.16.0 der Go-Helper `lab/go/pkcs11-keygen` ein sortenreines Template — das macht `make validate-key-usage` als Drift-Check sichtbar.

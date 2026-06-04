@@ -114,8 +114,8 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | Login-State | Anmeldestatus einer Anwendung gegenueber einem Token. Er wirkt in vielen Implementierungen tokenweit, nicht nur fuer eine einzelne Session. |
 | SO-PIN | Administrative PIN des Security Officers. Im Lab hauptsaechlich fuer Token-Initialisierung relevant. |
 | User-PIN | PIN fuer normale kryptografische Nutzung, z. B. Signieren oder Entschluesseln. |
-| Sensitive | Attributzustand, bei dem der Wert eines Schluessels nicht direkt gelesen werden darf. |
-| Extractable | Attributzustand, der entscheidet, ob Schluesselmaterial exportiert oder gewrapped werden darf. |
+| Sensitive | Attributzustand (`CKA_SENSITIVE=true`), bei dem `C_GetAttributeValue(CKA_VALUE)` mit `CKR_ATTRIBUTE_SENSITIVE` ablehnt. Default fuer Private und Secret Keys auf realen HSMs; siehe [course/03-token-und-objekte.md](../course/03-token-und-objekte.md). |
+| Extractable | Attributzustand (`CKA_EXTRACTABLE`), der zusaetzlich zu Sensitive entscheidet, ob ein Schluessel via `C_WrapKey` verschluesselt exportiert werden darf. PKCS#11 §10.2.6 erlaubt nur die Einbahnrichtung `true → false`. Operativ relevant in [Kapitel 03](../course/03-token-und-objekte.md), [06](../course/06-java-sunpkcs11.md), [13](../course/13-verschluesselung.md) und [20](../course/20-key-wrap.md). |
 | Wrap | Verschluesselter Export eines Schluessels durch einen anderen Schluessel, meistens einen KEK. |
 | Unwrap | Import eines gewrappten Schluessels zurueck in ein Token. |
 | Multi-Part-Operation | Operation mit Init/Update/Final-Aufrufen, z. B. fuer grosse Datenstroeme. |
