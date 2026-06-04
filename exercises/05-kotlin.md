@@ -49,8 +49,12 @@ Optional: Loesche das Zertifikat, aber lasse den privaten Key im Token. Erwartet
 
 ## Reflexionsfragen
 
-- Welche Unterschiede zwischen Java und Kotlin sind fuer PKCS#11 wirklich relevant?
-- Warum bleibt das Zertifikat auch bei Kotlin entscheidend?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Welche Unterschiede zwischen Java und Kotlin sind fuer PKCS#11 wirklich relevant?
+2. **(Analyse)** Warum bleibt das Zertifikat auch bei Kotlin entscheidend — und welche Stelle im JCA-Stack liesse sich theoretisch umbauen, sodass das nicht mehr gilt?
+3. **(Analyse)** Kotlin-Coroutines plus SunPKCS11: wenn du `Signature.getInstance(...)` in einem `withContext(Dispatchers.IO)`-Block aufrufst — wann genau wird die Coroutine an einen anderen Thread weitergeben, und wie betrifft das die `Signature`-Instanz-Lebensdauer? Vergleiche mit Kap. 17 §"Thread-Safety pro Binding".
+4. **(Evaluate)** In einem Team mit gemischten Java- und Kotlin-Skills sollst du entscheiden: SunPKCS11-Integration in **Java** schreiben (mit Kotlin-Frontend) oder direkt in **Kotlin**? Welche zwei nicht-technischen Faktoren wuerdest du gegenueber der reinen Code-Aequivalenz hoeher gewichten?
 
 ## Musterloesung
 

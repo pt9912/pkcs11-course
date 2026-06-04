@@ -9,6 +9,7 @@ Nach diesem Kapitel kannst du:
 - einen HMAC-Key im Token erzeugen, der weder ex- noch importierbar ist.
 - HMAC-SHA256 ueber Daten signieren und HSM-seitig via `C_Verify` pruefen.
 - einen HS256-JWT mit einem HSM-Key signieren und verifizieren.
+- **(Bloom 5 — evaluate)** fuer ein gegebenes API-Auth-Szenario (Service-to-Service, Webhook, Multi-Tenant) entscheiden, ob HMAC-im-HSM, JWT mit RS256 oder mTLS die richtige Wahl ist — und welcher der drei Faktoren (Trust-Boundary, Public-Verifiability, Key-Verteilung) den Ausschlag gibt.
 
 ## Lab-Bezug
 
@@ -99,3 +100,23 @@ Sicherheitshinweis: bei JWTs immer **die `alg`-Header pruefen** und nicht blind 
 - Tausch in einer Sprach-Demo `CKM_SHA256_HMAC` auf `CKM_SHA384_HMAC` oder `CKM_SHA512_HMAC`. JCA: `HmacSHA384`. Output-Laenge wechselt entsprechend (48 bzw. 64 Byte).
 
 Strukturierte Aufgaben in [`exercises/10-hmac.md`](../exercises/10-hmac.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Wann ist HMAC die richtige Wahl, wann RSA-Signatur?</summary>
+
+HMAC, wenn Sender und Verifier denselben Trust-Boundary teilen (gleicher Service-Cluster, geteilter HSM, geteiltes Geheimnis). RSA, wenn der Verifier den Sender nicht kennt oder nicht vertraut — dann braucht der Verifier nur den Pubkey. Faustregel: API-Auth innerhalb eines Trust-Boundaries: HMAC; oeffentlich verifizierbare Dokumentensignatur: RSA/ECDSA.
+</details>
+
+<details>
+<summary>2. Welche zwei Verify-Pfade sind in den Lab-Demos zu sehen, und welcher davon ist nicht constant-time?</summary>
+
+Go/C# nutzen `C_Verify` direkt — der HSM macht den constant-time-Vergleich. Java/Kotlin rechnen den HMAC ueber den HSM neu und vergleichen via `MessageDigest.isEqual` (constant-time). Das **Anti-Pattern** waere `==` oder `strcmp` zwischen den beiden HMAC-Bytes auf dem Host — timing-anfaellig.
+</details>
+
+<details>
+<summary>3. Welcher JWT-Header-Wert ist die historische Sicherheitsfalle, gegen die deine Verifikations-Lib explizit pruefen muss?</summary>
+
+`alg: none`. Bibliotheken, die das akzeptieren, validieren Tokens ohne Signatur als gueltig. Pflichtmuster: Whitelist-Verify (`verify(..., expectedAlg = "HS256")`), kein Default-Polymorphismus ueber den `alg`-Header. Lab-Demos vereinfachen das didaktisch; Production-Libs wie `jose4j`/`jose-jwt`/`Microsoft.IdentityModel.Tokens` setzen das richtig.
+</details>

@@ -8,6 +8,7 @@ Nach diesem Kapitel kannst du:
 - ein TLS-Cert vom HSM-Signing-Key ausstellen lassen (self-signed mit SAN).
 - nginx (und HAProxy, Apache analog) so konfigurieren, dass der Privkey via OpenSSL-Engine im HSM bleibt.
 - mit `curl` und `openssl s_client` nachweisen, dass der Handshake tatsaechlich ueber den HSM-Key gelaufen ist.
+- **(Bloom 5 — evaluate)** entscheiden, ob `pkcs11-engine` (Engine-Modell) oder `pkcs11-provider` (Provider-Modell) fuer ein neues Deployment der richtige Pfad ist — und welche Distro-Realitaeten (OpenSSL-3-Migration, Engine-Deprecation) die Wahl in zwei Jahren erzwingen werden.
 
 ## Lab-Bezug
 
@@ -133,3 +134,23 @@ Wer sehen will, dass tatsaechlich der HSM signiert hat (und nicht etwa ein gecac
 - Bau den nginx-Container mit `pkcs11-spy` als `MODULE_PATH` (siehe Kapitel 8) und beobachte den Handshake-RPC-Trail: `C_OpenSession`, `C_Login`, `C_FindObjects`, `C_SignInit` (CKM_RSA_PKCS oder PSS), `C_Sign`, ...
 
 Strukturierte Aufgaben in [`exercises/12-tls-mit-hsm.md`](../exercises/12-tls-mit-hsm.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Welche Cipher Suites schliessen <code>CKR_KEY_FUNCTION_NOT_PERMITTED</code> beim Handshake aus, wenn der Server-Key strikt CKA_SIGN-only ist?</summary>
+
+Alle modernen ECDHE-RSA-/ECDHE-ECDSA-Suiten und alle TLS-1.3-Suiten — sie nutzen den Server-Privkey nur fuer **Signaturen**, nicht fuer Decrypt. Auszuschliessen ist die TLS-1.2-**RSA-Kex**-Variante, die den Privkey zum Decrypt des Pre-Master-Secret braucht. Praktisch: `ssl_protocols TLSv1.2 TLSv1.3` plus `ssl_ciphers ECDHE+AESGCM:CHACHA20` reicht.
+</details>
+
+<details>
+<summary>2. Was bedeutet das doppelte <code>pkcs11:</code> in <code>ssl_certificate_key engine:pkcs11:pkcs11:token=...</code> ?</summary>
+
+`engine:<engine-name>:<key-uri>`. Erst der Engine-Schalter (`engine:`), dann der Engine-Name (`pkcs11`), dann die PKCS#11-URI (selbst mit `pkcs11:` als Schema nach RFC 7512). Kein Tippfehler, sondern eine geschachtelte Adressierung — Engine kapselt das Protokoll, das Protokoll hat sein eigenes URI-Schema.
+</details>
+
+<details>
+<summary>3. Warum ist die PIN im <code>pin-value=</code>-Teil der URI in Production problematisch — und welcher nginx-Mechanism loest es?</summary>
+
+`pin-value=987654` steht im Klartext in der nginx-Config, also auf der Platte und in jedem Backup. Loesungen: `ssl_password_file` (nginx-Mechanism, Datei mit 0600 + root als Owner), oder `pin-source=|/path/to/pin-script` in der PKCS#11-URI — das Skript holt die PIN aus Vault/SSM und gibt sie auf stdout aus. Beide schaffen ein Indirekt-Modell, in dem die PIN nicht in der Service-Config landet.
+</details>

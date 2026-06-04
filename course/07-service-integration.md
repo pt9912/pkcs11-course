@@ -150,3 +150,23 @@ Session-Lifecycle und Thread-Safety in einem Server sind nicht trivial: SunPKCS1
 ## Harte Wahrheit
 
 Ein Signatur-Service ist schnell gebaut. Ein robuster Signatur-Service braucht gute Fehlerbehandlung, saubere Observability, sichere Secret-Verwaltung und klare Betriebsprozesse für Token-Rotation, PIN-Rotation und HSM-Ausfall.
+
+## Selbsttest
+
+<details>
+<summary>1. Warum lebt die PIN in der Skizze als <code>pinEnv</code>-Name und nicht als <code>pin</code>-Wert?</summary>
+
+Damit der Wert nicht in der Config-Datei landet — sie ist typisch in Git, Helm-Templates, ConfigMaps eingecheckt. Nur der ENV-**Name** ist konfigurierbar; den **Wert** liest der Service zur Laufzeit aus der ENV (idealerweise von Vault/SSM dorthin injiziert). Nach dem Login wird das `char[]` mit `Arrays.fill(pin, '\0')` ueberschrieben.
+</details>
+
+<details>
+<summary>2. Worin liegt der Unterschied zwischen "Healthcheck pruef den Token" und "Healthcheck signiert eine Test-Nachricht"?</summary>
+
+`C_GetTokenInfo`/`C_GetSessionInfo` sind billige Operationen — sie pruefen Verfuegbarkeit ohne Audit-Spur. Eine Test-Signatur kostet Audit-Log-Eintraege auf produktiven HSMs (z.B. AWS CloudHSM trackt jeden `C_Sign`), erzeugt Lasten am HSM und verfaelscht Metriken. Healthchecks daher mit `C_GetTokenInfo` machen, nicht mit Test-Signaturen.
+</details>
+
+<details>
+<summary>3. Welche zwei Fehlerklassen muss der <code>SignatureController</code>-Fehlerhandler aufteilen, bevor er Status-Codes vergibt?</summary>
+
+Erstens **Client-Fehler** (`KeyNotFoundException` → 404, falscher Mechanism → 400, Body-Validation → 422) — der Caller hat falsch angefragt. Zweitens **Upstream-Fehler** (`CKR_DEVICE_ERROR`, `CKR_TOKEN_NOT_PRESENT`, `CKR_FUNCTION_FAILED` → 502/503) — das HSM ist nicht erreichbar. Die Trennung ist wichtig, damit Monitoring/Alerting den `5xx`-Anteil als Infrastruktur-Indikator nutzen kann und Client-Bugs nicht als HSM-Ausfall erscheinen.
+</details>

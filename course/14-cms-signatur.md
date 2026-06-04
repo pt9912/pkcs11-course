@@ -9,6 +9,7 @@ Nach diesem Kapitel kannst du:
 - ein Dokument detached mit dem HSM-Signing-Key signieren.
 - die Signatur ueber `openssl cms -verify` (oder die jeweilige Sprach-Lib) pruefen.
 - die zwei wiederkehrenden Bruecken-Probleme zwischen HSMs und Standard-CMS-Libs benennen.
+- **(Bloom 5 — evaluate)** fuer einen neuen .NET-/JVM-/Go-Service entscheiden, welche **eine** CMS-Library die geringste Brueckenkomplexitaet zum HSM produziert — und bei welcher Plattform die Bibliotheks-Wahl die Architektur dominiert (Linux-`SignedCms`-Verbot).
 
 ## Lab-Bezug
 
@@ -102,3 +103,23 @@ Daraus folgt fuer dieses Lab: die C#-Demo nutzt **nicht** `SignedCms`, sondern B
 - Lass dir die SignedData-Struktur anzeigen: `openssl cms -cmsout -print -inform DER -in lab/work/cms-document.p7s`. Die ASN.1-Felder werden direkt lesbar.
 
 Strukturierte Aufgaben in [`exercises/08-cms.md`](../exercises/08-cms.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Was wird in einer CMS-Signatur tatsaechlich signiert — das Dokument oder die <code>signedAttrs</code>?</summary>
+
+Die DER-Kodierung der `signedAttrs`-Menge. Sie enthaelt den Hash des Dokuments als ein Attribut (`messageDigest`), ist also ein indirektes Commitment auf das Dokument. Vorteil: contentType, signingTime und messageDigest sind alle kryptographisch zusammengebunden.
+</details>
+
+<details>
+<summary>2. Warum funktioniert <code>System.Security.Cryptography.Pkcs.SignedCms</code> auf Linux nicht mit HSM-Keys?</summary>
+
+Das OpenSSL-Backend von .NET ruft `ExportParameters(true)` auf das `X509Certificate2.CopyWithPrivateKey(RSA)`-Pendant — es will die Mathematik (n=p·q) pruefen. Ein HSM-Key kann die privaten Felder per Definition nicht liefern (`CKA_EXTRACTABLE=false`, `CKA_SENSITIVE=true`). Daher: BouncyCastle.Cryptography auf Linux, `SignedCms` nur auf Windows-CNG-Backend (das keine Math-Validierung macht).
+</details>
+
+<details>
+<summary>3. Was ist die Hauptlimitation von <code>signingTime</code> in CMS, und welcher Mechanismus loest sie?</summary>
+
+`signingTime` ist die Zeit, **die der Signer behauptet**. Sie kommt aus der Signer-Uhr, ist nicht extern verifizierbar, und kann vor- oder rueckdatiert werden. Loesung: ein RFC-3161-Timestamp als `unsignedAttribute.signatureTimeStampToken` (CAdES-T, Kap. 25) — eine vertrauenswuerdige Time Stamping Authority signiert mit einer audit-zertifizierten Uhr.
+</details>

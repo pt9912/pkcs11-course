@@ -118,3 +118,23 @@ Stolpersteine:
 - `exercises/04-go.md`
 - `exercises/05-kotlin.md`
 - `exercises/06-csharp.md`
+
+## Selbsttest
+
+<details>
+<summary>1. Welcher der vier Bindings braucht das Zertifikat im Token, damit der Privkey adressierbar wird — und warum die anderen drei nicht?</summary>
+
+Java/Kotlin (SunPKCS11). Die JCA-`KeyStore`-Abstraktion baut Aliase aus Cert/Privkey-Paaren mit gleicher `CKA_ID` — ohne Cert kein Alias. Go (`miekg/pkcs11`) und C# (`Pkcs11Interop`) sind duenne Wrapper ueber die C-API; sie suchen Privkeys direkt ueber `CKA_CLASS=CKO_PRIVATE_KEY` plus `CKA_ID=...`. Es ist keine PKCS#11-Pflicht, sondern eine Sprach-API-Konvention.
+</details>
+
+<details>
+<summary>2. Welche zwei Cleanup-Schritte sind bei <code>miekg/pkcs11</code> in Go explizit zu pflegen, die SunPKCS11 transparent erledigt?</summary>
+
+`CloseSession`/`Logout` (Session-Lifecycle) und `Finalize` (Library-Shutdown). SunPKCS11 macht das ueber JVM-Shutdown-Hooks und Provider-Lifecycle. miekg-Code muss `defer p.Finalize()` und `defer p.CloseSession(session)` explizit setzen, sonst leakt die Anwendung Handles und der Token bleibt im `CKR_USER_ALREADY_LOGGED_IN`-State.
+</details>
+
+<details>
+<summary>3. Du baust einen Service, in dem die Hauptanwendung in Java geschrieben ist, ein Background-Worker aber in Go. Beide nutzen denselben SoftHSM-Token. Was waere die wahrscheinlichste Falle?</summary>
+
+Sie nutzen unterschiedliche `CKA_*`-Konventionen. Java schreibt das Cert ueber SunPKCS11 mit bestimmten Default-Attributen, Go sucht ueber `CKA_ID=01` mit roher Byte-Equal. Klassische Falle: Java schreibt `CKA_ID` als String-Bytes (`"01"` = `0x30 0x31`), Go erwartet rohes Byte `0x01`. Resultat: derselbe Privkey, beide Stacks finden ihn nicht. Lab-Test mit `make list-objects` zeigt das immer; die SunPKCS11-Konvention setzt das Byte numerisch, aber das ist ein Implementations-Detail.
+</details>

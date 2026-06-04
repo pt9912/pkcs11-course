@@ -9,6 +9,7 @@ Nach diesem Kapitel kannst du:
 - den Shared-Secret-Match-Beweis ueber beide Seiten nachvollziehen (Alice und Bob erhalten dieselben Bytes).
 - HKDF (RFC 5869) als Extract+Expand verstehen und sehen, warum Salt-Default und Info-String byte-identisch sind, sobald die Spezifikation eingehalten wird.
 - die SoftHSM-Limitierung rund um `CKM_HKDF_DERIVE` einordnen und die SunPKCS11-Eigenheit zu CKA_SENSITIVE-Override kennen.
+- **(Bloom 5 — evaluate)** entscheiden, ob ECDH+HKDF, RSA-OAEP-Wrap (Kap. 13) oder ein KEM-Hybrid-Schema (Post-Quantum-Migration) fuer ein neues Protokoll-Design die richtige Wahl ist — und welche zwei Forward-Secrecy-/Performance-Eigenschaften die Entscheidung tragen.
 
 ## Lab-Bezug
 
@@ -118,3 +119,23 @@ Alle vier produzieren byte-identische AES-Keys aus denselben EC-Keys. Das ist ei
 - Versuche, einen der ECDH-Keys ohne `--derive` neu zu erzeugen (`make clean-tokens` + manuelle pkcs11-keygen-Aufrufe ohne `--derive`). `make ecdh-derive` scheitert mit `CKR_KEY_FUNCTION_NOT_PERMITTED` — die strikte CKA-Trennung aus 0.16.0 wirkt auch hier.
 
 Strukturierte Aufgaben in [`exercises/18-ecdh-hkdf.md`](../exercises/18-ecdh-hkdf.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum hat ECDH Forward Secrecy, RSA-Wrap (Kap. 13) aber nicht?</summary>
+
+Bei RSA-Wrap nutzt der Sender den langlebigen RSA-Pubkey des Empfaengers. Wer den RSA-Privkey spaeter kompromittiert, kann jede aufgezeichnete Vergangenheitsoperation entschluesseln. Bei ECDH-Ephemeral (TLS 1.3-Stil) wird pro Session ein neues EC-Keypair generiert; nach der Session werden die ephemeren Keys verworfen — Vergangenheitsoperationen bleiben damit auch nach Privkey-Kompromittierung sicher. Im Lab nutzen wir aus didaktischen Gruenden statische ECDH-Keys (Alice/Bob), die Mechanik des ephemer-Patterns waere dieselbe.
+</details>
+
+<details>
+<summary>2. Was ist der Unterschied zwischen "Shared Secret" und "AES-Key" — und warum brauchst du HKDF dazwischen?</summary>
+
+Das ECDH-Shared-Secret ist die x-Koordinate eines Kurvenpunkts — 256 Bit Entropie, aber **strukturiert**, nicht uniform verteilt. Direkt als AES-Key zu nutzen waere mathematisch gueltig, aber kein Standard-Pattern. HKDF (Extract+Expand) macht aus dem strukturierten Input einen uniform verteilten, kontext-getaggten Key. Der `info`-String bindet den Key an einen Verwendungskontext — `info="ECDH-Lab-V1"` produziert einen anderen Key als `info="ECDH-Lab-V2"`, das gleiche Shared Secret vorausgesetzt.
+</details>
+
+<details>
+<summary>3. SunPKCS11 macht beim ECDH-Derive ein <code>CKR_ATTRIBUTE_SENSITIVE</code>. Was ist der Workaround, und warum nur fuer das Lab?</summary>
+
+`KeyAgreement.getInstance("ECDH", sunPkcs11).generateSecret()` ruft `C_DeriveKey` mit `CKA_SENSITIVE=true` und versucht dann `CKA_VALUE` zu lesen. Lab-Workaround: `attributes(generate, CKO_SECRET_KEY, CKK_GENERIC_SECRET) = { CKA_SENSITIVE=false, CKA_EXTRACTABLE=true }` in der `softhsm.cfg`. **Nur fuer das Lab**, weil die Demo den Match-Beweis ueber Byte-Vergleich braucht. In Produktion nutzt man den abgeleiteten Schluessel direkt ueber `Cipher.init` mit dem SecretKey-Handle aus `generateSecret("AES")`, ohne Byte-Extraktion — dann bleibt `CKA_SENSITIVE=true` und alles ist sauber.
+</details>

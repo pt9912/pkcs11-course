@@ -176,3 +176,23 @@ pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --test --login --pin 987654
 ```
 
 Bei SoftHSM laufen damit Sign/Verify und Encrypt/Decrypt gegen jeden gefundenen Key. Bei echten HSMs oft langsam und mit Auswirkungen auf Audit-Logs.
+
+## Selbsttest
+
+<details>
+<summary>1. Du bekommst <code>CKR_KEY_HANDLE_INVALID</code>, obwohl <code>pkcs11-tool --list-objects</code> den Key zeigt. Wo suchst du zuerst?</summary>
+
+In der Session-Lebensdauer. Object-Handles sind sessionspezifisch (PKCS#11 §11.7). Der Code hat vermutlich ein Handle aus einer alten oder fremden Session weiterverwendet. Pruefen: wurde zwischen `FindObjects` und `Sign` `C_CloseSession`/`C_Finalize` aufgerufen? Wird das Handle ueber Thread-Grenzen geteilt?
+</details>
+
+<details>
+<summary>2. Du suchst dieselbe Operation in <code>pkcs11-tool</code>, OpenSSL und JCA. Welche der drei Spalten der Mechanism-Mapping-Tabelle musst du nachschlagen, wenn deine Anwendung in Java geschrieben ist und der Audit-Log <code>CKM_SHA256_RSA_PKCS</code> meldet?</summary>
+
+Die JCA-Spalte: `SHA256withRSA`. Das ist die "selbe Operation, anderer Name"-Falle. Ein Java-Engineer, der `CKM_SHA256_RSA_PKCS` ohne Mapping-Tabelle sieht, sucht im falschen Stack. Die Tabelle aus §"Mechanism-Namen über Stacks hinweg" macht aus dem `CKR_*`-Audit-Eintrag direkt die JCA-Mechanism-String-Form.
+</details>
+
+<details>
+<summary>3. Was ist die Hauptgefahr beim Einschalten von <code>pkcs11-spy</code> in einer produktiven Umgebung?</summary>
+
+Der Spy logt PIN-Werte unzensiert. Das Spy-Log wird typisch auf eine Datei oder stderr geschrieben — und landet damit in Container-Logs, Splunk, journald, S3. Wer das anschaltet, hat im naechsten Audit-Window einen Klartext-PIN-Leak. Nur Entwicklungs-Container, nie produktiv.
+</details>

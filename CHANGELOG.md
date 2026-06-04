@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.20.0 - 2026-06-04
+
+### Hinzugefuegt
+
+- `exercises/00-glossar.md` + `solutions/00-glossar.md`: Vokabel-Selbsttest fuer die acht PKCS#11-Praefix-Familien (`CKR_`, `CKM_`, `CKA_`, `CKO_`, `CKK_`, `CKF_`, `CKU_`, `CKZ_`) plus Diagnose der fuenf haeufigsten `CKR_*`-Fehler. Schliesst das Kursziel "PKCS#11-Begriffe sauber erklaeren" (`course/00-kursuebersicht.md` Z. 11) als pruefbares Outcome.
+- `exercises/21-production-audit.md` + `solutions/21-production-audit.md`: Production-Readiness-Audit gegen die zwoelf Produktionsfragen aus Kap. 09. Drei Aufgaben — Audit-Report (Befund/Soll/Aufwand), Risiko-Ranking (Showstopper/Operational Debt/Optimization), Schreibtisch-Migration einer Showstopper-Komponente. Schliesst das Outcome "abschaetzen, was sich bei echten HSMs aendert" (`course/00-kursuebersicht.md` Z. 20) als Artefakt. Musterloesung gegen die Micronaut-Skizze aus Kap. 07 durchgefuehrt.
+- Konfrontations-Hooks ("Bevor du anfaengst — was vermutest du?") am Anfang von `course/01-grundlagen.md`, `course/13-verschluesselung.md`, `course/17-session-pooling.md`, `course/21-pin-management.md`: aktivieren die typischen Lerner-Vorstellungen (Schluessel=Datei, RSA-direkt verschluesselt grosse Dateien, Session=TCP-Socket, PIN-Counter wie ein Passwort-Lockout) und konfrontieren sie, bevor die korrekte Sicht aufgebaut wird. Conceptual-Change-Pattern nach Posner et al.
+- Selbsttest-Bloecke (jeweils drei Closed-Form-Fragen mit Spoiler-Antworten via `<details>`/`<summary>`) am Ende **aller** Kapitel 01–26. Retrieval-Practice-Anker zwischen Kapiteln (Roediger/Karpicke); kein Mehraufwand zur Laufzeit, hoher Behaltensgewinn.
+- Zusaetzliches Bloom-5/6-Lernziel ("entscheiden", "bewerten", "entwerfen") in jedem Vertiefungskapitel 13–25. Bisher dominierten Verben der Bloom-Stufen 2-3; die tatsaechliche kognitive Anforderung war damit unter Wert verkauft. Jetzt sichtbar als zusaetzliche Bullet-Zeile mit "(Bloom 5 — evaluate)"-/"(Bloom 6 — create)"-Praefix.
+- Eigenexperimente in `course/05-zertifikate.md` und `course/06-java-sunpkcs11.md` (CKA_ID-Mismatch reproduzieren, Cert ohne Privkey, Default-Provider-Verify ueber nicht-extractable Pubkey). Schliesst die letzte Luecke im "Eigenexperiment in jedem Kapitel mit Lab-Bezug"-Pattern.
+
+### Geaendert
+
+- `course/00-kursuebersicht.md`: Lernpfad-Tabelle bekommt eine vierte Spalte "Bewusst weggelassen" — macht die curricularen Reduktionsentscheidungen pro Schritt explizit (z.B. CAdES-LT/LTA in Kap. 25, X25519 in Kap. 24, EdDSA-Hands-on in Kap. 11). Primaer fuer Adaptierende, hilft Erstlesern bei der Erwartungsbildung. Neue Schritte 0 (Glossar-Selbsttest) und 27 (Production-Audit) rahmen den Pfad. `Uebungs- und Loesungsstruktur` erwaehnt die zwei Rahmen-Uebungen und das Selbsttest-Block-Muster.
+- `course/10-abschlussprojekt.md` und `course/26-abschlussprojekt-advanced.md`: impressionistische `## Bewertung` ersetzt durch eine **3-Stufen-Rubric** (Akzeptanz erfuellt / + Erweiterungen / Production-ready). Stufe 3 verlinkt jeweils auf `exercises/21-production-audit.md`. Kap. 26 schliesst mit einer Vergleichstabelle Track-1 vs. Track-2 entlang der drei Stufen.
+- `course/13-verschluesselung.md` §"Drei Stolperfallen, ein Lab-Lauf": refaktoriert zum **Worked-Example-Pattern**. Der Bash-Pfad wird jetzt vollstaendig in sechs Schritten durchgearbeitet (mit Begruendung der `CKM_RSA_X_509`-Fallback-Entscheidung der Engine). Go, C# und Java/Kotlin folgen als **faded examples** mit je drei Leitfragen, die das Schema des Bash-Pfads gegen die jeweilige Sprach-Implementierung pruefen. Reduziert die element interactivity der vorherigen 4-Zeilen-Vergleichstabelle.
+- `exercises/02-key-signature.md` bis `exercises/06-csharp.md` plus die zugehoerigen `solutions/`: Reflexionsfragen auf einen Bloom-Mindest-Mix gehoben (Recall, Analyse, Evaluate). Bisher waren die fruehen Uebungen Recall-/Understand-lastig (Bloom 1-2); jetzt enthaelt jede Uebung mindestens eine Evaluate-Frage mit Architektur-/Entscheidungs-Charakter (z.B. globale `Security.addProvider`-Falle, miekg-Schicht-Wahl, Linux-vs-Windows-Pkcs11Interop-Entscheidung). Loesungen entsprechend ergaenzt.
+- `README.md`: zwei rahmende Selbsttest-Uebungen (00, 21) verlinkt; Hinweis auf Selbsttest-Bloecke pro Kapitel.
+
+### Didaktischer Hintergrund
+
+- Diese Iteration setzt das eigene Folge-Review zur 0.19.0 um (Bezugsrahmen unveraendert: Biggs' konstruktives Alignment, Anderson/Krathwohl-Taxonomie, Cognitive Load Theory, Modell der Didaktischen Rekonstruktion).
+- Adressiert werden konkret: (a) zwei offene Outcomes aus `course/00-kursuebersicht.md` ohne Assessment-Vehikel (Begriffe sauber erklaeren, abschaetzen was bei echten HSMs anders ist), (b) verkaufte Bloom-Stufe der Vertiefungskapitel unter Wert (jetzt Bloom 5/6 explizit), (c) impressionistische Bewertung der Capstones (jetzt 3-Stufen-Rubric mit Cross-Track-Vergleichbarkeit), (d) Worked-Example-Effekt in Kap. 13 ungenutzt (jetzt 1+3-Pattern), (e) Bloom-uneven Reflexionsfragen in den fruehen Uebungen (jetzt Mindest-Mix), (f) keine retrieval practice zwischen Kapiteln (jetzt Selbsttest-Bloecke), (g) Lerner-Vorstellungen nicht explizit konfrontiert (jetzt Conceptual-Change-Hooks an den vier neuralgischen Stellen), (h) Eigenexperimente nicht systematisch (Luecken in Kap. 05, 06 geschlossen), (i) Reduktions-Entscheidungen unsichtbar (jetzt vierte Spalte im Lernpfad).
+
 ## 0.19.0 - 2026-06-04
 
 ### Hinzugefuegt

@@ -62,8 +62,12 @@ Erwartet: `CKR_PIN_INCORRECT` als Pkcs11Exception aus `Session.Login`.
 
 ## Reflexionsfragen
 
-- Warum braucht C# hier kein Zertifikat, Java aber fuer den KeyStore-Alias schon?
-- Welche Cleanup-Schritte sind bei nativen PKCS#11-Bibliotheken kritisch?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum braucht C# hier kein Zertifikat, Java aber fuer den KeyStore-Alias schon?
+2. **(Analyse)** Welche Cleanup-Schritte sind bei nativen PKCS#11-Bibliotheken kritisch — und was passiert konkret, wenn eine Exception zwischen `OpenSession` und `Login` fliegt? Verfolge dazu die `using`-Reihenfolge in `lab/csharp/Pkcs11Demo/Program.cs`.
+3. **(Analyse)** Pkcs11Interop hat zwei `AppType`-Modi: `SingleThreaded` und `MultiThreaded`. Welcher wird in der Lab-Demo benutzt, was bedeutet das fuer die Library-internen Locks, und wann wuerde der andere Modus relevant?
+4. **(Evaluate)** Du planst einen .NET-Backend-Service, der auf Linux (Container, Production) und Windows (Workstation-Entwicklung) laufen soll. Welche **zwei** Pkcs11Interop-spezifischen Stolperfallen verlangen je nach Plattform andere Loesungen — und wuerdest du beide Plattformen unterstuetzen oder die Windows-Variante als "nicht supported" markieren?
 
 ## Musterloesung
 

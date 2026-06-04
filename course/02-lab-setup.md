@@ -104,3 +104,23 @@ Der Dockerfile pinnt keine apt-Paketversionen. Fuer einen Kurs ist das pragmatis
 ## Naechste Uebung
 
 Weiter mit `exercises/01-token.md`.
+
+## Selbsttest
+
+<details>
+<summary>1. Welche ENV-Variable schaltet das Makefile in den Devcontainer-Modus, und was ist die operative Folge?</summary>
+
+`PKCS11_IN_DEVCONTAINER=1`. Folge: das Makefile fuehrt Lab-Targets direkt aus, ohne `docker compose run` als Vorlauf. Im Devcontainer gesetzt, ausserhalb leer.
+</details>
+
+<details>
+<summary>2. Wo liegt SoftHSMs Token-Storage im Lab, und warum ist der Pfad in einem Container-Volume relevant?</summary>
+
+`/workspace/lab/work/tokens`. Im Volume liegend, weil sonst beim Container-Restart der Token (und damit alle Keys/Certs) verloren waere. Der Pfad wird durch `SOFTHSM2_CONF` festgelegt; `02-list-slots.sh` zeigt das implizit, wenn `make init-token` einmal lief.
+</details>
+
+<details>
+<summary>3. Warum gehoeren die Lab-PINs (User <code>987654</code>, SO <code>1234</code>) nicht in eine reale Anwendung — was waere der Mindest-Fix?</summary>
+
+Beide PINs sind hardcoded im Repository und auf der `make`-Kommandozeile ueber `ps -ef` sichtbar (`--pin <wert>`). Mindest-Fix: PIN ueber `--pin-source` aus einer 0600-geschuetzten Datei, ueber `--pin-env` aus einer ENV-Variable die zur Laufzeit aus Vault/SSM kommt, oder interaktiver Prompt. Hardcode in der Pipeline ist ein Compliance-Findung.
+</details>

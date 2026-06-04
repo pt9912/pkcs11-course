@@ -10,6 +10,7 @@ Nach diesem Kapitel kannst du:
 - den TSToken als `unsignedAttribute.signatureTimeStampToken` in eine CMS-Signatur einbauen (CAdES-T).
 - die Cert-Anforderung an die TSA verstehen (`extendedKeyUsage=critical,timeStamping`).
 - den Lab-Pfad von realen TSAs (DigiCert, Sectigo) und qualifizierten eIDAS-TSAs abgrenzen.
+- **(Bloom 5 — evaluate)** fuer ein konkretes Compliance-Niveau (interne Beweisbarkeit, eIDAS-T, eIDAS-LT, eIDAS-A) entscheiden, welcher CAdES-Profil-Aufbau und welche TSA-Vertragsklasse (Free-Tier, Commercial, Qualified) erforderlich sind — und welcher Faktor (Aufbewahrungsdauer, Krypto-Bruch-Sicherheit, Revocation-Validierbarkeit) die Wahl bestimmt.
 
 ## Lab-Bezug
 
@@ -154,3 +155,23 @@ Das Lab bleibt bei **CAdES-T**. CAdES-LT und CAdES-A brauchen CRL/OCSP-Logik und
 - Vergleiche Plain-CMS-Groesse (`make cms-sign` aus Modul 14) mit CMS+TSA-Groesse (`make java-cms-tsa-demo`). Differenz ~2.4 KB — die Groesse des eingebetteten TSToken inkl. TSA-Cert.
 
 Strukturierte Aufgaben in [`exercises/19-rfc3161-timestamps.md`](../exercises/19-rfc3161-timestamps.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Was hasht die TSA — das Dokument oder die Signatur des Dokuments?</summary>
+
+Die Signatur (genauer: `SHA-256(SignerInfo.signature)`). Damit entsteht der Beweis "diese konkrete Signatur existierte zum Zeitpunkt X". Vorteil: wer das Dokument aendert, invalidiert die Signature; der Timestamp bleibt formal korrekt, das Dokument bleibt aber unverifizierbar. So bindet der Timestamp die Existenz der Signatur an die Zeit, nicht den Inhalt direkt.
+</details>
+
+<details>
+<summary>2. Warum muss <code>extendedKeyUsage=timeStamping</code> als <code>critical</code> markiert sein?</summary>
+
+`critical` zwingt Verifier, die Extension zu verstehen. Verifier, die `timeStamping` nicht kennen, muessen das Cert ablehnen. So verhindert man, dass ein normales TLS- oder Code-Signing-Cert versehentlich als TSA-Cert akzeptiert wird. Ohne `critical` koennte ein Verifier die Extension uebersehen und ein falsches Cert akzeptieren.
+</details>
+
+<details>
+<summary>3. Welches CAdES-Profil baust du im Lab, und was fehlt fuer Langzeit-Beweiskraft (10+ Jahre)?</summary>
+
+CAdES-T. Es fehlen **CAdES-LT** (Embedding von CRL/OCSP-Material — auch nach Cert-Revocation noch verifizierbar) und **CAdES-LTA** (periodische `archive-time-stamp`s, die den Beweis auch nach kryptographischem Bruch — z.B. SHA-256 nicht mehr sicher — zukunftssicher machen). Beide brauchen Revocation-Logik und einen periodischen Re-Timestamp-Scheduler — eigene Domaene und nicht im Kurs-Lab.
+</details>

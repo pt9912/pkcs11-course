@@ -96,6 +96,73 @@ Go/C#-Tracks sind moeglich, brauchen aber zusaetzlich die `digitorus/pkcs7`- bzw
 - **Multi-Tenant-Mandantentrennung**: pro Mandant eigener `signing-key`, Cert-Plumbing, Pool-Quote. Wird in Kap. 09 als Cloud-HSM-Pattern angerissen.
 - **PIN-Rotation als Operator-Task**: separater Endpunkt `POST /admin/rotate-pin`, im Audit-Log als `pin.rotate.attempt`/`pin.rotate.ok` festgehalten. Kap. 21 dokumentiert das Lockout-Risiko.
 
-## Bewertung
+## Bewertung — drei Niveau-Stufen
 
-Wer Track 2 sauber abschliesst, hat einen HSM-gestuetzten Signaturdienst mit echtem Production-Pattern: Pool, qualifizierte Zeit, revisionssicherer Audit-Log, klare API-Fehler. Das ist der Punkt, an dem man PKCS#11 nicht mehr "lernt", sondern "betreibt".
+Track 2 spiegelt die Stufen-Logik aus [Kap. 10 §Bewertung](10-abschlussprojekt.md#bewertung--drei-niveau-stufen) wider, mit anderem Feature-Set. Die drei Stufen sind so kalibriert, dass sie sich zwischen den Tracks vergleichen lassen.
+
+### Stufe 1 — Akzeptanz erfuellt
+
+Die sieben Akzeptanzkriterien (`## Akzeptanzkriterien`) sind gruen. Konkret:
+
+- `POST /cms-sign` liefert `openssl cms -verify`-kompatible Datei (Cross-Stack-Verify).
+- `POST /cms-sign?timestamp=true` traegt einen `signatureTimeStampToken` ein, `openssl ts -verify` validiert ihn.
+- 50 Concurrent-Requests laufen ohne `CKR_OPERATION_ACTIVE`.
+- Mechanism-Allowlist greift, ungueltige Werte enden mit `400`.
+- Audit-Log enthaelt Event-Ketten mit gleicher `trace_id`, keine Payload als Klartext.
+- Healthcheck antwortet mit `503` bei TSA-Ausfall.
+- Service startet aus Compose/Devcontainer mit ENV-konfigurierbarer Pool-Groesse, Mechanism-Liste, TSA-URL.
+
+Auf Stufe 1 ist CAdES-T plus Pool plus Audit-Log gebaut. Production-Pattern sind sichtbar; Production-Reife noch nicht beleget.
+
+### Stufe 2 — Akzeptanz + Erweiterungen
+
+Stufe 1 plus mindestens **zwei** der folgenden Erweiterungen aus `## Erweiterungsideen`, mit Smoke-Test belegt:
+
+- **CAdES-LT**: Embedding von CRL/OCSP-Material als unsigned attribute, sobald der Service mit einer echten CA arbeitet.
+- **OpenTelemetry-Traces**: jede HSM-Operation als Span; Audit-Log und Trace teilen sich `trace_id`.
+- **mTLS am API-Endpoint**: Aufruferauthentifizierung selbst via HSM-Key.
+- **PIN-Rotation**: `POST /admin/rotate-pin` mit eigenen Audit-Events.
+- **Multi-Tenant-Mandantentrennung**: pro Mandant ein eigener `signing-key` und Cert.
+
+Stufe 2 zeigt, dass du eine der zwei Production-Achsen aus Kap. 09 (Non-Repudiation oder Observability oder Multi-Tenancy) explizit gebaut hast.
+
+### Stufe 3 — Production-ready
+
+Stufe 2 plus das **vollstaendige Audit aus [`exercises/21-production-audit.md`](../exercises/21-production-audit.md)** auf den Track-2-Service angewendet. Zusaetzlich:
+
+- TSA-URL ueber Service-Discovery (nicht hardcoded), Fallback auf einen Backup-TSA.
+- Pool-Groesse kalibriert gegen das **dokumentierte** HSM-Session-Limit (nicht geraten).
+- Audit-Sink ist append-only und an ein SIEM angeschlossen (S3 mit Object Lock + Forwarder, journald + remote, Splunk-Index ohne Edit-Recht).
+- Reconnect-Strategie fuer TSA- und HSM-Ausfall, mit Circuit-Breaker-Verhalten unter Last.
+- README dokumentiert Mechanism-Allowlist, TSA-Vertragspartner-Variante, PIN-Rotation, Recovery-Pfade.
+
+Auf dieser Stufe haettest du einen Service, der bei einem realen Wirtschaftsprueferaudit auf eIDAS-T oder Code-Signing-Compliance verteidigbar waere — natuerlich noch nicht zertifiziert, aber als Pattern und Doku tragfaehig.
+
+### Track-1 vs Track-2 im Stufen-Vergleich
+
+| Track | Stufe 1 | Stufe 2 | Stufe 3 |
+|---|---|---|---|
+| 1 (Kap. 10) | RSA-Sign + Cross-Language-Verify | + Audit, Multi-Key, PSS/ECDSA | + Production-Audit, PIN-Strategie, Reconnect |
+| 2 (Kap. 26) | CMS + CAdES-T + Pool + Audit | + CAdES-LT oder mTLS oder OTel | + Production-Audit, kalibrierter Pool, SIEM-Sink |
+
+Beide Stufen-3-Erreichungen markieren denselben Punkt: PKCS#11 nicht mehr lernen, sondern betreiben. Track 1 ist der schnellere Weg dorthin, Track 2 zeigt mehr Production-Pattern.
+
+## Selbsttest
+
+<details>
+<summary>1. Welche zwei Module aus den Vertiefungskapiteln (13-25) treffen sich im Track-2-Service in einer einzigen API-Operation, und wo?</summary>
+
+Kap. 14 (CMS) und Kap. 25 (RFC-3161). Beide treffen sich in `POST /cms-sign?timestamp=true`: der Service erstellt erst die CMS-Signatur (Kap. 14-Pattern), dann holt er einen TSA-Stempel und bettet ihn als `signatureTimeStampToken` in die `unsignedAttributes` ein (Kap. 25-Pattern). CAdES-T-Profil.
+</details>
+
+<details>
+<summary>2. Warum kann Track 2 in Go nur einen <em>nicht-embeddenden</em> CAdES-T-Pfad anbieten?</summary>
+
+Die digitorus/pkcs7-Library hat keine UnsignedAttributes-API. Embedding wuerde nachtraegliche ASN.1-Manipulation erfordern, die fragil und schlecht maintainbar ist. Der Go-Pfad gibt CMS und TSR als zwei Dateien aus und dokumentiert die Library-Limitierung — die Architektur des Service muss das wissen, wenn Go als Stack gewaehlt wird.
+</details>
+
+<details>
+<summary>3. Welcher HTTP-Status fuer ein <code>POST /cms-sign?mechanism=CKM_FOO</code> ist die richtige Antwort, und warum nicht 500?</summary>
+
+`400 Bad Request`. Der Caller hat einen ungueltigen Mechanism angefragt — das ist ein Client-Fehler, kein Server-Fehler. Ein `500` wuerde Monitoring/Alerting ausloesen und dem Caller suggerieren, "das HSM ist kaputt". Eine Mechanism-Allowlist im Controller (mit `400` bei Miss) trennt Client- von Infrastruktur-Fehlern sauber — siehe auch Kap. 07 Selbsttest Frage 3.
+</details>

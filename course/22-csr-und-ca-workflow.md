@@ -9,6 +9,7 @@ Nach diesem Kapitel kannst du:
 - eine kleine Test-CA aufsetzen, deren CA-Key ebenfalls im HSM liegt.
 - den vollstaendigen Workflow Generate-CSR → CA-Sign → Cert-Import durchspielen.
 - den Hack aus Kapitel 5 (self-signed Cert via `08-import-cert.sh`) sauber in einen Production-aequivalenten Pfad ueberfuehren.
+- **(Bloom 5 — evaluate)** entscheiden, welche **drei** X.509-Extensions in einer Leaf-CSR fuer ein gegebenes Use-Case-Szenario (TLS-Server, Code-Signing, TSA) zwingend sind — und welche von der CA stillschweigend ueberschrieben werden duerfen, ohne den Use-Case zu brechen.
 
 ## Lab-Bezug
 
@@ -104,3 +105,23 @@ Wer die Java-Variante nutzt, braucht **zwingend** den Cert im Token (das `08-imp
 - Importiere das Leaf-Cert in einen Browser oder ein TLS-Tool und vergleiche, wie das Subject vs SAN angezeigt wird. Praktischer Aha-Moment fuer "Common-Name vs SubjectAltName" (Browser akzeptieren Hostnames seit RFC 6125 nur noch ueber SAN, nicht mehr ueber CN).
 
 Strukturierte Aufgaben in [`exercises/16-csr-und-ca-workflow.md`](../exercises/16-csr-und-ca-workflow.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Was beweist die CSR-Signatur kryptographisch — und was nicht?</summary>
+
+Sie beweist, dass der Antragsteller den Privkey zum CSR-enthaltenen Pubkey besitzt ("Proof-of-Possession"). Sie beweist **nicht** die Identitaet — das macht die CA durch externes Prueferverfahren (Domain-Validation, Org-Vetting, Identitaetspruefung). Die CSR-Signatur ist die untere Sicherheitsschwelle "wer hier signiert hat, kann auch spaeter signieren", nicht "wer hier signiert hat, ist tatsaechlich X".
+</details>
+
+<details>
+<summary>2. Warum hat die Java-Demo das Cert im Token, die Go-Demo aber nicht — und reichen beiden dieselbe CSR-Funktionalitaet?</summary>
+
+Beide produzieren funktional identische CSRs. Der Unterschied ist Sprach-API-bedingt: Java braucht ueber SunPKCS11 ein Cert mit gleicher `CKA_ID`, damit `keyStore.getCertificate(alias).getPublicKey()` den Pubkey liefert. Go (miekg) liest `CKA_MODULUS`/`CKA_PUBLIC_EXPONENT` direkt aus dem Privkey-Objekt und rekonstruiert den Pubkey ohne Cert.
+</details>
+
+<details>
+<summary>3. Welche Extension hat dieser CA-Key, die der Leaf-Key NICHT haben darf?</summary>
+
+`basicConstraints=critical,CA:TRUE` plus `keyUsage=critical,keyCertSign,cRLSign`. Der CA-Key darf andere Certs signieren — der Leaf-Key nicht. Wer auf einem Leaf-Cert `basicConstraints=CA:TRUE` ausstellt, hat eine versehentliche Intermediate-CA — ein klassischer Cross-Signing-Bug, der zu kompromittierten Vertrauensketten fuehrt.
+</details>

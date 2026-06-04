@@ -1,5 +1,15 @@
 # 17 — Session-Pooling und Thread-Safety
 
+## Bevor du anfaengst — was vermutest du?
+
+> Wenn ein PKCS#11-`C_Logout` ein `close()` auf einem TCP-Socket waere — was wuerde dann beim Logout in einer Anwendung mit Pool zerbrechen?
+
+Wahrscheinliche Vermutung: nichts Besonderes. Eine Session schliessen bedeutet, *diese* Session schliessen. Die anderen Sessions im Pool laufen weiter, weil sie ja "eigene Verbindungen" sind. So funktionieren Connection-Pools fuer Datenbanken oder HTTP — pro Session ein State.
+
+Diese Vermutung ist falsch. `C_Login` und `C_Logout` wirken **anwendungsweit gegen das Token**, nicht session-weit (PKCS#11 §11.4). Ein versehentliches `Logout` pro Request wuerde alle anderen Sessions im Pool sofort in `CKR_USER_NOT_LOGGED_IN` schicken. Pool-Sessions teilen sich einen einzigen Login-State.
+
+Halte die TCP-Socket-Karte fest. Dieses Kapitel ersetzt sie durch ein anderes Modell: Sessions sind Ausfuehrungs-Slots, der Login ist Anwendungs-global.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +18,7 @@ Nach diesem Kapitel kannst du:
 - ein Sessions- bzw. Operationen-Pool-Pattern in der jeweiligen Sprache aufbauen.
 - empirisch einschaetzen, wann Pooling tatsaechlich Durchsatz bringt — und wann nicht (SoftHSM-Eigenheit).
 - die typischen Stolperfallen rund um `C_Login`-Lebensdauer und `fork()` benennen.
+- **(Bloom 5 — evaluate)** anhand eines gemessenen Benchmarks bewerten, ob ein gegebener Speedup vom HSM, vom Pool oder vom Anwendungs-Overhead stammt — und welche Pool-Groesse fuer einen Production-Service (mit dokumentiertem HSM-Session-Limit) die richtige Wahl ist.
 
 ## Lab-Bezug
 
@@ -79,3 +90,23 @@ Pattern: jeder Worker-Prozess ruft selbst `C_Initialize`/`C_Login` nach dem `for
 - Setze auf einem echten HSM (Cloud-HSM, YubiHSM) die Pool-Groesse und vergleiche.
 
 Strukturierte Aufgaben in [`exercises/11-session-pooling.md`](../exercises/11-session-pooling.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum ist Pooling auf SoftHSM kaum spuerbar, auf realen HSMs aber stark?</summary>
+
+SoftHSM 2.6 nimmt eine globale Library-Mutex pro Crypto-Operation — Anwendungs-Parallelitaet bringt nichts, wenn die Library im Backend serialisiert. Reale HSMs haben Hardware-Parallelitaet (mehrere Crypto-Engines, parallele Channels), Pooling skaliert dann annaehernd linear bis zur Anzahl interner Engines.
+</details>
+
+<details>
+<summary>2. Du forkst einen Worker-Prozess. PKCS#11 wurde im Parent initialisiert. Was geht kaputt?</summary>
+
+Sessions sind nicht fork-safe. Das Child erbt File-Descriptors zum HSM, aber der Token-internal State (Login-Status, Object Handles) ist beim ersten Aufruf inkonsistent — typisches Symptom `CKR_DEVICE_ERROR` oder unerklaerliche Hangs. Pattern: jeder Worker-Prozess ruft selbst `C_Initialize`/`C_Login` nach dem `fork()`. Im Parent passiert nur Bind/Listen/Dispatch, kein PKCS#11-Call.
+</details>
+
+<details>
+<summary>3. Dein Service liefert 200 Request/s, das HSM 50 ops/s. Mehr Pool-Sessions — Loesung oder Symptom?</summary>
+
+Symptom. Wer auf einem HSM-Limit haengt, kommt mit mehr Sessions an die Saettigung schneller, aber nicht ueber sie hinaus. Loesungen: HSM-Cluster (mehrere Geraete parallel), Cache-Layer (idempotente Operationen nicht wiederholen), Batching wo erlaubt, oder Re-Architektur (z.B. JWT mit Caching statt jeden Request neu zu signieren). Pool-Tuning ist nur die richtige Antwort, wenn das HSM noch nicht saturiert ist.
+</details>

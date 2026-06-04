@@ -1,5 +1,15 @@
 # 13 — Hybride Verschluesselung mit RSA-OAEP und AES-GCM
 
+## Bevor du anfaengst — was vermutest du?
+
+> Du sollst eine 50 MB grosse Datei mit RSA verschluesseln. Welche API rufst du auf?
+
+Wahrscheinliche Vermutung: irgendwo gibt es `RSA.encrypt(publicKey, data)` mit beliebiger Eingabelaenge. Vielleicht muss man die Datei in Stuecke schneiden, aber das macht die Library schon.
+
+Diese Vermutung ist falsch — und genau hier setzt das Kapitel an. RSA verschluesselt nur **einen** Block kleiner als der Modulus (rund 190 Byte bei RSA-2048 mit SHA-256 OAEP). Wer 50 MB direkt mit RSA verschluesselt, bekommt entweder einen Fehler oder versucht, die Datei in Hunderttausende RSA-Operationen zu zerlegen — beides praktisch unbrauchbar. Die Loesung ist **hybrid**: AES verschluesselt die Daten, RSA verschluesselt nur den AES-Schluessel.
+
+Halte die "RSA-direkt"-Karte fest. Sie wird durch das hybride Schema ersetzt — und das ist genau die Architektur, die S/MIME, age und TLS-Resumption nutzen.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +19,7 @@ Nach diesem Kapitel kannst du:
 - ein Dokument hybrid verschluesseln (AES-Session-Key wird per RSA-OAEP gewrappt, Dokument per AES-GCM).
 - den Empfaengerpfad ueber den HSM ausfuehren.
 - die typischen Stolperfallen bei OAEP-Parametern und SoftHSM einordnen.
+- **(Bloom 5 — evaluate)** entscheiden, wann ein HSM-residenter OAEP-Decrypt-Pfad gegenueber dem JCA-Software-OAEP-Pfad (`RSA/ECB/NoPadding` plus manuelles Unpadding) der richtige Weg ist — und welche Compliance-/Performance-Achsen die Wahl tragen.
 
 ## Lab-Bezug
 
@@ -98,16 +109,72 @@ Dieses Lab traegt zwei reale Quirks offen:
 1. **SoftHSM 2.6.x lehnt `CKM_RSA_PKCS_OAEP` mit `hashAlg=CKM_SHA256` direkt ab** (`CKR_ARGUMENTS_BAD`). SHA-1 OAEP funktioniert.
 2. **SunPKCS11 registriert keinen OAEP-Cipher** — nur `RSA/ECB/PKCS1Padding` und `RSA/ECB/NoPadding` stehen zur Verfuegung.
 
-Daraus ergeben sich drei Wege durch dasselbe Ziel:
+Daraus ergeben sich vier Wege durch dasselbe Ziel. Statt sie alle parallel zu listen, arbeiten wir **einen Pfad vollstaendig durch** (Bash) und lassen dich an den anderen drei pruefen, ob du das Schema verstanden hast.
 
-| Demo | Wrap-Pfad | Decrypt-Pfad |
-|---|---|---|
-| **Bash** (`17/18-*`) | `openssl pkeyutl -encrypt -pubin` (host) | `openssl pkeyutl -decrypt -engine pkcs11` → die Engine faellt intern auf `CKM_RSA_X_509` zurueck und macht OAEP in Software. **SHA-256 OAEP**. |
-| **Go** (`pkcs11-encrypt-demo`) | `miekg/pkcs11` mit `CKM_RSA_PKCS_OAEP` | `miekg/pkcs11` mit `CKM_RSA_PKCS_OAEP`. **SHA-1 OAEP** wegen SoftHSM-Quirk. |
-| **C#** (`Pkcs11EncryptDemo`) | `Pkcs11Interop` mit `CKM_RSA_PKCS_OAEP` | wie Go. **SHA-1 OAEP**. |
-| **Java / Kotlin** | SunJCE mit Pubkey aus dem Cert (kein HSM-Call) | SunPKCS11 mit `RSA/ECB/NoPadding` + **Software-OAEP-Unpadding** im Anwendungscode. **SHA-1 OAEP** wegen SoftHSM. |
+### Worked Example: der Bash-Pfad (vollstaendig)
 
-Reale HSMs (Thales, Utimaco, AWS CloudHSM, YubiHSM 2) akzeptieren SHA-256 OAEP problemlos. Die Werkstatt-HSM-Erfahrung "der Mechanism ist da, aber die Parameter sind irgendwo zickig" gehoert allerdings dazu.
+```bash
+make encrypt   # Schritt-fuer-Schritt unten
+make decrypt   # symmetrisch
+```
+
+**Schritt 1 — Pubkey vom Token holen.** `lab/scripts/17-encrypt.sh` ruft `pkcs11-tool --read-object --type pubkey --id 03` und konvertiert den DER-Pubkey nach PEM. Kein HSM-Login, weil Pubkeys `CKA_PRIVATE=FALSE` sind.
+
+**Schritt 2 — AES-Session-Key auf dem Host wuerfeln.** `openssl rand -hex 32` → 32 Byte AES-256-Key, plus 12 Byte IV. Bei jeder Encrypt-Operation neu. **Diese Bytes existieren nur auf dem Host**, das Token sieht sie nie als Klartext.
+
+**Schritt 3 — Dokument mit AES-256-GCM verschluesseln.** `openssl enc -aes-256-gcm -K $AES_HEX -iv $IV_HEX -in document.txt -out document.enc`. AES-GCM ist authenticated — eine Manipulation des Ciphertexts wird beim Decrypt als `InvalidTag` sichtbar.
+
+**Schritt 4 — AES-Key per RSA-OAEP wrappen (Host-Seite).** `openssl pkeyutl -encrypt -pubin -inkey pub.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 -in aes-key.bin -out wrapped.bin`. SHA-256 OAEP. Achtung — der naechste Schritt ist die eigentliche Falle.
+
+**Schritt 5 — Decrypt-Seite: `openssl pkeyutl -decrypt -engine pkcs11`.** Die OpenSSL-Engine erkennt, dass der Privkey hinter PKCS#11 sitzt. Sie *koennte* `CKM_RSA_PKCS_OAEP` mit SHA-256 anfordern — SoftHSM 2.6 lehnt das aber mit `CKR_ARGUMENTS_BAD` ab. Die Engine erkennt den Fehler intern und faellt auf **`CKM_RSA_X_509`** zurueck: sie laesst das Token nur die rohe RSA-Operation machen, das OAEP-Padding wird **in Software auf dem Host** entfernt. Aus Anwendungssicht (`openssl pkeyutl -decrypt`) ist das transparent — die Schicht-Trennung "Token rechnet RSA, Engine paddet" passiert tief unten in der Engine. Der gewrappte AES-Key kommt korrekt zurueck.
+
+**Schritt 6 — Mit dem AES-Key entschluesseln.** Symmetrisch zu Schritt 3. `openssl enc -d -aes-256-gcm` — bei verfaelschtem Ciphertext kommt `bad decrypt`/`gcm decryption failed`.
+
+Der gewonnene Schema-Kern: **Wrap auf dem Host (Pubkey ist nicht sensitiv), Unwrap am HSM (Privkey bleibt im Token), OAEP-Padding kann je nach Pfad entweder vom HSM oder von der Anwendung gemacht werden — der Punkt ist nur, dass beide Seiten dieselbe Wahl treffen.**
+
+### Faded Examples — die drei Sprach-Pfade
+
+Du hast jetzt das Schema. Pruefe an den drei anderen Pfaden, ob du die jeweils relevante Variante des Schemas erkennst. Pro Pfad: eine kurze Tabellen-Beschreibung und **drei Leitfragen**, die du beantworten koennen solltest, bevor du `make ...-encrypt-demo` aufrufst.
+
+#### Go (`pkcs11-encrypt-demo`)
+
+| Wrap-Pfad | Decrypt-Pfad |
+|---|---|
+| `miekg/pkcs11` direkt mit `CKM_RSA_PKCS_OAEP`. **SHA-1 OAEP** statt SHA-256 wegen SoftHSM-Quirk. | `miekg/pkcs11` direkt mit `CKM_RSA_PKCS_OAEP`, SHA-1. |
+
+Leitfragen:
+
+1. **Was unterscheidet diesen Pfad vom Bash-Pfad in Schritt 4?** (Stichworte: wer macht das Padding, welche Hashfunktion.)
+2. **Warum ist hier kein Fallback auf `CKM_RSA_X_509` noetig?** (Tipp: die Engine bei Bash entscheidet selbst; Go ruft direkt auf, mit welcher Hashfunktion?)
+3. **Was passiert, wenn du im Go-Code `sha256.New()` statt `sha1.New()` in den `CK_RSA_PKCS_OAEP_PARAMS` setzt?** Beobachte den Fehler und vergleiche mit dem `CKR_ARGUMENTS_BAD`-Quirk oben.
+
+#### C# (`Pkcs11EncryptDemo`)
+
+| Wrap-Pfad | Decrypt-Pfad |
+|---|---|
+| `Pkcs11Interop` direkt mit `CKM_RSA_PKCS_OAEP`. **SHA-1**. | wie Go. |
+
+Leitfragen:
+
+1. **Was unterscheidet den C#-Pfad strukturell vom Go-Pfad?** (Antwort: fast nichts — beides ist eine duenne Library-Schicht ueber die C-API. Die OAEP-Parameter sind in `CkRsaPkcsOaepParams`.)
+2. **Warum benutzt C# auch SHA-1, obwohl `System.Security.Cryptography` SHA-256-OAEP problemlos kann?** (Stichwort: HSM-Seite, nicht Host-Seite, entscheidet.)
+3. **Was musst du auf der Encrypt-Seite tun?** Schau in den Code — der Pubkey wird hier ueber `CKA_MODULUS`/`CKA_PUBLIC_EXPONENT` aus dem Token gelesen und in eine `RSACryptoServiceProvider`-Instanz gebaut, dann macht .NET den Encrypt mit SHA-1 OAEP auf dem Host. Warum nicht ueber den HSM-Wrap-Pfad?
+
+#### Java / Kotlin
+
+| Wrap-Pfad | Decrypt-Pfad |
+|---|---|
+| SunJCE mit Pubkey aus dem Cert (kein HSM-Call). Encrypt-Seite ist *kein* HSM-Pfad. | SunPKCS11 mit `RSA/ECB/NoPadding` + **Software-OAEP-Unpadding** im Anwendungscode. **SHA-1**. |
+
+Leitfragen:
+
+1. **Warum geht SunPKCS11 hier NICHT den `Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")`-Weg, der scheinbar naheliegend waere?** (Quirk Nr. 2 oben — SunPKCS11 registriert die OAEP-Cipher gar nicht.)
+2. **Welche zwei Stufen werden im Anwendungscode zusammengesetzt, weil die Library das nicht tut?** (Stichwort: roh RSA + manuelles OAEP-Unpadding ueber Bouncy oder eigenen Code.)
+3. **Wieso ist das in der Demo nicht so schlimm, wie es klingt?** Vergleiche mit dem Bash-Engine-Fallback: dort wird auch in Software gepaddet. Der einzige Unterschied: bei Java siehst du das im *Anwendungscode*, bei Bash versteckt es die Engine.
+
+### Wenn alle vier Pfade im Kopf zusammenkommen
+
+Reale HSMs (Thales, Utimaco, AWS CloudHSM, YubiHSM 2) akzeptieren SHA-256 OAEP problemlos. Die Werkstatt-HSM-Erfahrung "der Mechanism ist da, aber die Parameter sind irgendwo zickig" gehoert allerdings dazu — wer eine der vier Implementierungen verstanden hat, hat den Reflex: **vor Annahme der Mechanism-Wahl `pkcs11-tool --list-mechanisms` lesen, dann das HSM-Vendor-Handbuch, dann erst die Sprach-Lib.**
 
 ## Was bleibt im HSM, was nicht
 
@@ -124,3 +191,23 @@ Reale HSMs (Thales, Utimaco, AWS CloudHSM, YubiHSM 2) akzeptieren SHA-256 OAEP p
 - Setze in `19-issue-wrap-cert.sh` den Subject auf einen anderen Namen und beobachte, was SunPKCS11 dann als Alias zurueckgibt — der KeyStore liest den Cert-Subject als Alias-Hinweis.
 
 Strukturierte Aufgaben dazu findest du in [`exercises/07-encrypt.md`](../exercises/07-encrypt.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum nutzt das hybride Schema RSA <em>nur</em> fuer den AES-Key und nicht direkt fuer das Dokument?</summary>
+
+Drei Gruende: RSA-OAEP verschluesselt nur ~190 Byte pro Aufruf (bei RSA-2048 SHA-256 OAEP), nicht beliebige Datenmengen; RSA ist 100-1000x langsamer als AES; und der Stream-Aspekt — AES-GCM kann groessere Dokumente streamen, RSA kann das per Spec nicht.
+</details>
+
+<details>
+<summary>2. Welcher der vier Sprach-Pfade macht den OAEP-Decrypt komplett im HSM, und welcher macht ihn in Software?</summary>
+
+**Komplett im HSM:** Go und C# (`miekg/pkcs11` und Pkcs11Interop rufen `CKM_RSA_PKCS_OAEP` mit SHA-1 direkt am Token auf). **In Software auf dem Host:** Bash (Engine faellt auf `CKM_RSA_X_509` zurueck) und Java/Kotlin (SunPKCS11 mit `RSA/ECB/NoPadding` + manuelles OAEP-Unpadding im Anwendungscode). Das gewrappte AES-Key-Byte-Muster ist in allen Faellen dasselbe.
+</details>
+
+<details>
+<summary>3. Was passiert beim Decrypt, wenn du <em>nur</em> ein Byte des Ciphertexts veraenderst?</summary>
+
+AES-GCM hat ein Authenticated-Tag am Ende. Die Verifikation des Tags scheitert, Bash meldet `bad decrypt`/`gcm decryption failed`, Java wirft `AEADBadTagException`. Genau dafuer ist GCM da: Modifikation wird mit hoher Wahrscheinlichkeit erkannt, nicht nur stillschweigend mitentschluesselt.
+</details>

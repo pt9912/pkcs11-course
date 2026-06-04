@@ -147,3 +147,23 @@ func (p *SessionPool) Return(s pkcs11.SessionHandle) {
     p.in <- s
 }
 ```
+
+## Selbsttest
+
+<details>
+<summary>1. Welche zwei der zwoelf Produktionsfragen aus diesem Kapitel sind <em>Compliance-Showstopper</em>, ohne deren Antwort kein Production-Go zustande kommt?</summary>
+
+Mindestens **3 (PIN-Verwaltung)** und **8 (Audit-Logs)**. Beide sind regulatorisch verpflichtend (eIDAS, ISO 27001, PCI-DSS) und sind auch ohne tiefen Compliance-Stack nicht umgehbar. Je nach Kontext kommen **1, 2, 11, 12** dazu — siehe die Risiko-Ranking-Diskussion in [`exercises/21-production-audit.md`](../exercises/21-production-audit.md).
+</details>
+
+<details>
+<summary>2. Warum laufen <code>C_Login</code>/<code>C_Logout</code> beim Pool-Aufbau, nicht bei jeder Anfrage?</summary>
+
+Login-State ist **anwendungsweit gegen das Token**, nicht session-weit (PKCS#11 §11.4). Login pro Request waere semantisch ueberfluessig — auf realen HSMs ist es zudem auditrelevant und langsam (Smartcards mit PIN-Pad: hunderte Millisekunden). Ein versehentliches `Logout` pro Request bricht alle anderen Sessions desselben Pools. Login einmal beim Startup, Logout einmal beim Shutdown.
+</details>
+
+<details>
+<summary>3. Welcher Healthcheck-Call ist <em>billig genug</em>, dass er gegen einen produktiven HSM-Pool laufen darf, ohne Audit-Logs zu fluten?</summary>
+
+`C_GetTokenInfo` oder `C_GetSessionInfo`. Beide sind reine State-Reads ohne Crypto-Operation und ohne Audit-Spur. Ein "richtiger" Test-Sign wuerde pro Healthcheck einen Audit-Log-Eintrag erzeugen — bei 1 Hz Healthcheck-Frequenz und einem Dutzend Pods sind das 86400 Eintraege pro Tag, alle Lab-getrieben, alle ohne Geschaeftsbedeutung.
+</details>

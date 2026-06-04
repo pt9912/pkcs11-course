@@ -48,9 +48,12 @@ Optional: Loesche das Zertifikat direkt und starte die Java-Demo ohne das Make-T
 
 ## Reflexionsfragen
 
-- Warum sieht Java den privaten Key nicht sauber, wenn das Zertifikat fehlt?
-- Warum signiert UND verifiziert die Demo mit demselben `SunPKCS11`-Provider, statt fuer das Verify den Default-Provider zu nutzen? (Tipp: Public Keys mit `CKA_EXTRACTABLE=false` lassen sich nicht so einfach an einen JCA-Provider aushaendigen, und der Pubkey hier kommt aus dem KeyStore-Cert, das vom selben Provider verwaltet wird.)
-- Warum gibt `keyStore.isCertificateEntry("signing-key")` `false` zurueck, obwohl ein Zertifikat im Token liegt?
+Vier Stufen — Recall, Analyse (zwei) und Evaluate:
+
+1. **(Recall)** Warum sieht Java den privaten Key nicht sauber, wenn das Zertifikat fehlt?
+2. **(Analyse)** Warum signiert UND verifiziert die Demo mit demselben `SunPKCS11`-Provider, statt fuer das Verify den Default-Provider zu nutzen? (Tipp: Public Keys mit `CKA_EXTRACTABLE=false` lassen sich nicht so einfach an einen JCA-Provider aushaendigen, und der Pubkey hier kommt aus dem KeyStore-Cert, das vom selben Provider verwaltet wird.)
+3. **(Analyse)** Warum gibt `keyStore.isCertificateEntry("signing-key")` `false` zurueck, obwohl ein Zertifikat im Token liegt?
+4. **(Evaluate)** Ein Architekt schlaegt vor, in einem Spring-Boot-Service den `SunPKCS11`-Provider per `Security.addProvider(...)` global zu registrieren, damit "alle JCA-Calls automatisch ueber das HSM gehen". Welche zwei konkreten Probleme entstehen dadurch — eines fuer **Cross-Cutting Concerns** wie TLS, eines fuer den **Recovery-Pfad** bei HSM-Ausfall? Was wuerdest du stattdessen tun?
 
 ## Musterloesung
 

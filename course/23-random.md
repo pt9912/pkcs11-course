@@ -9,6 +9,7 @@ Nach diesem Kapitel kannst du:
 - TRNG, PRNG, RDRAND und HSM-RNG voneinander abgrenzen und NIST SP 800-90A/B/C zumindest aus der Vogelperspektive einordnen.
 - den Performance-Trade-off zwischen Host-RNG und HSM-RNG bewerten — und entscheiden, wann der HSM-RNG es wert ist.
 - den HSM-RNG aus Bash, Go, C# und Java/Kotlin (JCA `SecureRandom`) ansprechen.
+- **(Bloom 5 — evaluate)** fuer ein gegebenes Compliance-Szenario (FIPS-zertifizierte Signatur, Cold-Start einer Cloud-VM, Audit-pflichtige Key-Genese) entscheiden, **welche** Bytes aus dem HSM kommen muessen und welche aus `/dev/urandom` reichen — und welcher Kostenfaktor (Roundtrip, Auditierbarkeit, Throughput) die Entscheidung kippt.
 
 ## Lab-Bezug
 
@@ -149,3 +150,23 @@ Drei Schritte, in jeder Sprache identisch:
 - Erzeuge in der Java-Demo einen RSA-2048-Key via `KeyPairGenerator.getInstance("RSA", sunPkcs11Provider)` und uebergib den HSM-`SecureRandom` als Quelle. Beobachte: das `C_GenerateKeyPair` im HSM ignoriert den uebergebenen `SecureRandom` komplett — JCA-Konvention vs PKCS#11-Realitaet.
 
 Strukturierte Aufgaben in [`exercises/17-random.md`](../exercises/17-random.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum ist auch HSM-Output letztlich PRNG-Output — und welcher Aspekt rechtfertigt ihn fuer Compliance trotzdem?</summary>
+
+Reale HSMs kombinieren TRNG (Hardware-Entropie-Quelle) mit CTR_DRBG (CSPRNG nach NIST SP 800-90A). `C_GenerateRandom` liefert DRBG-Output. Compliance-Trumpf: der gesamte Pfad (TRNG, DRBG, Reseed-Strategie, Health-Checks nach SP 800-90B) ist FIPS-140-3-zertifiziert. Der Host-RNG ist mathematisch nicht schlechter, aber nicht zertifiziert.
+</details>
+
+<details>
+<summary>2. <code>C_SeedRandom</code> mit einem externen Seed — was sagt PKCS#11, und warum lehnen viele HSMs es ab?</summary>
+
+PKCS#11 erlaubt es als optionale Funktion (`CKF_RNG` impliziert sie **nicht**). Viele HSMs lehnen mit `CKR_RANDOM_SEED_NOT_SUPPORTED` ab. Grund: ein zertifizierter Entropie-Pfad endet, sobald externes Material einfliessen darf. Wer denkt, er muesse einen HSM "seeden", verwechselt typisch HSM mit Userland-PRNG. Akzeptierte Varianten betrachten den Seed als zusaetzlichen Input in den DRBG, nicht als Ersatz.
+</details>
+
+<details>
+<summary>3. Du wirst gefragt, "ist der HSM-RNG schneller als /dev/urandom?". Was ist die ehrliche Antwort?</summary>
+
+Kommt drauf an: auf SoftHSM gewinnt der HSM-Pfad scheinbar (OpenSSL `RAND_bytes` ist in-Process); auf realer Hardware verliert er oft (USB-RTT, Netzwerk-Latenz). Aber: das ist die *falsche Frage*. Bei einzelnen kleinen Calls (32 Byte IV) dominiert der Roundtrip; bei Stream-Anforderungen die Hardware-Engine-Throughput. Compliance-Anforderungen sind unabhaengig von Performance — entweder der HSM-Pfad ist Pflicht, oder er ist optional.
+</details>

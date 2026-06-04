@@ -8,6 +8,7 @@ Nach diesem Kapitel kannst du:
 - ein `CKK_AES`-Key mit `CKA_EXTRACTABLE=true` anlegen — und sagen, warum man das in Produktion sehr bewusst entscheidet.
 - ein backup-faehiges Blob ueber `CKM_AES_KEY_WRAP_PAD` erzeugen und mit demselben KEK wieder ins Token unwrappen.
 - die HSM-Library- und Tool-Quirks rund um Unwrap-Templates (`CKA_VALUE_LEN`, fehlende SunPKCS11-Registrierung) einordnen.
+- **(Bloom 6 — create)** eine KEK-Policy fuer ein gegebenes Setup **entwerfen**: welche Attribute, welche `CKA_WRAP_TEMPLATE`-Constraints, welcher Restore-Workflow, welche Mehraugen-Anforderung beim Unwrap — und gegen welche zwei realistischen Angriffsszenarien dieses Design verteidigt.
 
 ## Lab-Bezug
 
@@ -111,3 +112,23 @@ Bei Cloud-HSMs (AWS CloudHSM, GCP Cloud HSM, Azure Dedicated HSM) loggt der Serv
 - Verschluessele eine Datei direkt mit dem KEK (z.B. `pkcs11-tool --encrypt --mechanism AES-CBC-PAD --id 06 --iv ...`). Seit 0.16.0 antwortet das Token mit `CKR_KEY_FUNCTION_NOT_PERMITTED`, weil der KEK strikt `CKA_ENCRYPT=false` hat — genau die Use-Case-Trennung, um die es geht. Zum Gegentest: temporaer `--encrypt` im Generate-Helper hinzufuegen, neu generieren, Versuch wiederholen.
 
 Strukturierte Aufgaben in [`exercises/14-key-wrap.md`](../exercises/14-key-wrap.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum ist <code>CKA_EXTRACTABLE</code> die wichtigste Backup-Strategie-Entscheidung — und wie wirkt PKCS#11 §10.2.6?</summary>
+
+`CKA_EXTRACTABLE=true` ist Voraussetzung fuer `C_WrapKey`. PKCS#11 §10.2.6 erlaubt nur den Uebergang `true → false`, nie zurueck. Ein produktiver Key, der ohne Backup-Strategie als `CKA_EXTRACTABLE=false` erzeugt wurde, ist permanent nicht backupbar. Die Entscheidung "extractable oder nicht" faellt bei der Key-Generierung und ist endgueltig.
+</details>
+
+<details>
+<summary>2. Welche zwei <code>CKA_*</code>-Attribute muss der KEK selbst NICHT haben, damit Use-Case-Trennung greift?</summary>
+
+`CKA_ENCRYPT=false` und `CKA_DECRYPT=false`. Der KEK darf nur `CKA_WRAP=true`/`CKA_UNWRAP=true`. Wer Daten direkt mit dem KEK verschluesseln liesse, mischt Use-Cases — der KEK ist dann gleichzeitig Backup-Tool und Daten-Cipher, und Audit-Logs werden unscharf. SoftHSM ab 0.16.0 erzwingt das im Lab via `pkcs11-keygen`-Template.
+</details>
+
+<details>
+<summary>3. <code>pkcs11-tool --unwrap</code> bricht auf SoftHSM mit <code>CKR_ATTRIBUTE_READ_ONLY</code>. Warum, und welcher Pfad funktioniert?</summary>
+
+`pkcs11-tool --unwrap` setzt im Template **immer** `CKA_VALUE_LEN`. SoftHSM 2.6 lehnt das bei AES-Key-Wrap ab — die Laenge ist bereits im Blob enthalten, redundante Angabe ist Spec-Verletzung. Die Sprach-Demos (Go, C#) bauen das Template selbst und lassen `CKA_VALUE_LEN` weg, deshalb funktioniert der Restore-Roundtrip dort.
+</details>

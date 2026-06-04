@@ -83,3 +83,23 @@ Im Kurs spielt das Attribut an drei Stellen eine konkrete Rolle:
 - **Backup/Wrap** in [Kapitel 20](20-key-wrap.md): hier braucht man bewusst `CKA_EXTRACTABLE=true`, sonst weist `C_WrapKey` mit `CKR_KEY_UNEXTRACTABLE` ab.
 
 Im Lab erzwingt seit 0.16.0 der Go-Helper `lab/go/pkcs11-keygen` ein sortenreines Template — das macht `make validate-key-usage` als Drift-Check sichtbar.
+
+## Selbsttest
+
+<details>
+<summary>1. Du siehst beim <code>make list-objects</code> einen Privkey mit Label <code>signing-key</code> und <code>CKA_ID=01</code>. Was muss am Zertifikat zwingend uebereinstimmen, damit Java es als zusammengehoerig erkennt?</summary>
+
+Die `CKA_ID` muss identisch sein (`01`). Das `CKA_LABEL` ist hilfreich, aber nicht zwingend. SunPKCS11 baut den Alias aus dem Cert mit gleicher `CKA_ID` wie der Privkey — kein passendes Cert, kein Alias, kein Private-Key-Entry im KeyStore.
+</details>
+
+<details>
+<summary>2. Welche Folge hat es, einen produktiven Privkey versehentlich mit <code>CKA_EXTRACTABLE=false</code> anzulegen, wenn man spaeter ein Backup will?</summary>
+
+Keine Backup-Moeglichkeit. PKCS#11 §10.2.6 erlaubt fuer `CKA_EXTRACTABLE` nur den Uebergang `true → false`, nie zurueck. Ein nachtraegliches Wrap-Backup ist damit unmoeglich; einziger Recovery-Pfad ist Vendor-spezifisches HSM-Backup (Cluster-Sync oder Hersteller-Backup-Format).
+</details>
+
+<details>
+<summary>3. Warum verlaesst du dich nicht auf Slot <code>0</code>, obwohl SoftHSM frisch initialisiert genau dort den Token zeigt?</summary>
+
+Slot-IDs sind nicht stabil. SoftHSM verschiebt initialisierte Tokens haeufig in einen anderen Slot, und Hardware-HSMs vergeben Slot-IDs nach Einsteck-Reihenfolge. Stabile Identifier sind Token-Label oder PKCS#11-URI (RFC 7512); Anwendungen, die `slotListIndex=0` hartcodieren, brechen, sobald ein zweites Token erscheint.
+</details>

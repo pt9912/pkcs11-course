@@ -8,6 +8,7 @@ Nach diesem Kapitel kannst du:
 - ein mehrere hundert MB grosses Dokument mit konstantem Speicherbedarf signieren und verschluesseln.
 - begruenden, warum AES-CBC-PAD im Streaming-Modus ueberlebt, AES-GCM aber Probleme macht.
 - typische HSM-Limits (Single-Shot-Buffer, Mechanism-Support fuer Update) benennen.
+- **(Bloom 5 — evaluate)** fuer einen gegebenen Throughput- und Latenz-Bedarf entscheiden, ob Chunk-Groessen-Tuning, Mechanism-Wechsel oder ein paralleler Pool (Kap. 17) die effektive Stellschraube ist — und welche Messung den Engpass beweist (`pkcs11-spy`-Trace oder Wallclock-Differenz).
 
 ## Lab-Bezug
 
@@ -87,3 +88,23 @@ Bei einem 100MB-File mit 64KB-Chunks ergibt das eine `C_SignInit`-Zeile, ~1600 `
 - Versuche `CKM_AES_GCM` statt `CKM_AES_CBC_PAD` in einer der Sprach-Demos. Wenn SoftHSM nicht mitspielt (siehe Kapitel 13 — SHA-256-OAEP-Quirk), bekommst du eine erhellende Fehlermeldung.
 
 Strukturierte Aufgaben in [`exercises/09-streaming.md`](../exercises/09-streaming.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Warum sind <code>CKM_RSA_PKCS</code> und <code>CKM_SHA256_RSA_PKCS</code> bei Streaming unterschiedlich?</summary>
+
+`CKM_RSA_PKCS` (rohes Sign) ist Single-Shot mit max ~245 Byte Input. `CKM_SHA256_RSA_PKCS` ist streamfaehig — das Token hashed selbst, daher reichen `C_SignUpdate`-Aufrufe in Chunks. Praktisch heisst das: bei grossen Files **muss** Token-hasht-Variante her, sonst gibt es `CKR_DATA_LEN_RANGE`.
+</details>
+
+<details>
+<summary>2. Wieso ist AES-GCM beim Streaming oft problematisch, AES-CBC-PAD nicht?</summary>
+
+GCM-Tag sitzt am Ende und ergibt sich aus dem gesamten Klartext. `C_EncryptFinal` muss den Tag liefern; manche HSMs verbieten Multi-Part fuer GCM komplett, andere implementieren es eingeschraenkt. AES-CBC-PAD ist linear (IV + Block-Rest fuer Padding) und stream-friendly. Trade-off: CBC ist nicht authenticated — Tamper-Erkennung muss separat (HMAC-then-Encrypt, eigenes Auth-Tag) gebaut werden.
+</details>
+
+<details>
+<summary>3. Du sollst entscheiden, ob 4 KB, 64 KB oder 1 MB die richtige Chunk-Groesse sind. Welche zwei Faktoren bestimmen die Antwort?</summary>
+
+**RTT zum HSM** und **HSM-Side-Buffer-Limit**. Bei SoftHSM (in-Process): kleine Chunks kosten kaum, weil keine Netzwerk-Roundtrips. Bei einem PCIe-HSM mit ~50us Pro-Call-Overhead: 4 KB heisst 1600 Calls je 100 MB, also ~80 ms reine Overhead-Zeit. Bei Netz-HSMs (Cloud-HSM, ~5 ms RTT) wird das prohibitiv. Faustregel: 64 KB ist ein guter Default, der bei den meisten Setups durchblickt. Beweis ueber `pkcs11-spy`-Trace + Wallclock-Vergleich.
+</details>

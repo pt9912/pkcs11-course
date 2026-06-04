@@ -47,8 +47,11 @@ Erwartet: Die Verifikation schlaegt fehl, weil die Signatur zu den urspruenglich
 
 ## Reflexionsfragen
 
-- Warum kann OpenSSL die Signatur ohne privaten Key verifizieren?
-- Welche Rolle spielt `CKA_ID=01` spaeter beim Zertifikat?
+Drei Stufen — eine Recall-, eine Analyse-, eine Evaluate-Frage:
+
+1. **(Recall)** Warum kann OpenSSL die Signatur ohne privaten Key verifizieren?
+2. **(Analyse)** Schau in `lab/scripts/06-sign.sh`, welcher `--mechanism` aufgerufen wird, und vergleiche mit `lab/scripts/07-verify.sh`. Wo passiert das Hashing — im Token, in OpenSSL, oder gar nicht? Begruende anhand der Mechanism-Familien-Tabelle aus [Kap. 04](../course/04-signieren-und-verifizieren.md).
+3. **(Evaluate)** Ein Teamkollege schlaegt vor, `make sign` umzustellen, sodass `pkcs11-tool --mechanism RSA-PKCS` (ohne SHA-Praefix) genutzt wird, damit der Token weniger Arbeit hat. Welche eine Frage stellst du, bevor du zustimmst — und welcher Lab-Fehler waere die wahrscheinlichste Konsequenz?
 
 ## Musterloesung
 

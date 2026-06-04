@@ -1,5 +1,17 @@
 # 01 — Grundlagen
 
+## Bevor du anfaengst — was vermutest du?
+
+Bevor du in die Definitionen einsteigst, halt einen Moment inne und beantworte fuer dich:
+
+> Wenn du in einer beliebigen Programmiersprache `RSA-Schluessel-aus-Datei laden` schreibst — wie *ungefaehr* sieht der Code dann aus? Welche Datentyp-Konstanten erwartest du am Ende im Heap?
+
+Wahrscheinliche Vermutung: ein Pfad, ein `read()`, am Ende ein Objekt mit Modulus und Exponenten als BigInteger-Feldern. Vielleicht eine Wrapper-Klasse `RSAPrivateKey`. Die mentale Karte ist: **Schluessel = Datei = Bytes im Heap**.
+
+Genau diese Karte stoesst hier an die Wand. PKCS#11 ist gebaut, damit der Privkey *nie* als Bytes im Heap landet. Die Anwendung bekommt ein Handle — eine Zahl, mit der das Token Operationen ausfuehrt — aber keinen Zugriff auf die `d`-Komponente. Wer in Java `(privateKey).getEncoded()` aufruft, bekommt `null` zurueck, ohne Exception.
+
+Halte deine alte Karte fest. Dieses Kapitel ist der Punkt, an dem sie sich aendert.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -68,3 +80,25 @@ In diesem Kapitel reicht es, die Namensmuster wiederzuerkennen. Die operative Se
 | `CKM_SHA256_RSA_PKCS` | RSA-PKCS#1-v1.5, Token hasht | Kap. 04 |
 | `CKM_RSA_PKCS_PSS` / `CKM_SHA256_RSA_PKCS_PSS` | RSA-PSS | Kap. 11 (Salt/MGF-Parameter) |
 | `CKM_ECDSA` / `CKM_ECDSA_SHA256` | ECDSA, `r\|\|s`-Encoding | Kap. 11 (DER- vs. Raw-Encoding) |
+
+## Selbsttest
+
+Drei Closed-Form-Fragen zur Wissens-Verankerung. Antworte ohne Glossar.
+
+<details>
+<summary>1. Welcher der sechs zentralen Begriffe (Module, Slot, Token, Session, Object, Mechanism) ist <strong>nicht persistent</strong>?</summary>
+
+Slot, Session und Mechanism sind **nicht persistent** — sie existieren nur zur Laufzeit. Module ist eine Datei am Filesystem, Token und Object liegen persistent im HSM-Speicher.
+</details>
+
+<details>
+<summary>2. Du rufst <code>C_Login</code> in einer Session erfolgreich auf. Eine zweite Session im selben Prozess greift auf denselben Token zu. Muss sie ebenfalls einloggen?</summary>
+
+Nein. Der Login wirkt **anwendungsweit** gegen das Token — eine zweite Session im selben Prozess sieht den Login-State. Eine *fremde* Anwendung auf demselben Slot nicht (separater `C_Login` noetig).
+</details>
+
+<details>
+<summary>3. Was ist der Unterschied zwischen einem <code>Mechanism</code> und einem <code>Object</code>?</summary>
+
+`Object` ist eine im Token gespeicherte Entitaet (Key, Cert, Datenobjekt) mit Attributen. `Mechanism` ist der Algorithmus + Modus, mit dem eine Operation auf einem Object ausgefuehrt wird. Ein Object hat keine Mechanism-Eigenschaft — derselbe RSA-Privkey kann mit `CKM_RSA_PKCS`, `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS` und weiteren genutzt werden, je nach Aufrufer-Entscheidung.
+</details>

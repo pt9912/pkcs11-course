@@ -141,6 +141,67 @@ Wer das Projekt didaktisch konsequent durchziehen will, baut den Verifier-Client
 - Healthcheck erkennt fehlenden Token.
 - Logs enthalten Key-ID, Algorithmus und Fehlerklasse, aber keine PIN und keine Rohdaten.
 
-## Bewertung
+## Bewertung — drei Niveau-Stufen
 
-Wenn du das Abschlussprojekt sauber baust, kannst du PKCS#11 produktiv einsetzen. Nicht perfekt, aber weit über Tutorial-Niveau.
+Statt einer pauschalen "fertig"-Wertung gibt es drei explizite Stufen. Ordne dich selbst zu, *nachdem* du den Service gebaut und die Akzeptanzkriterien gegengeprueft hast.
+
+### Stufe 1 — Akzeptanz erfuellt
+
+Du erreichst diese Stufe, wenn **alle acht Akzeptanzkriterien** (`## Akzeptanzkriterien`) gruen sind. Das bedeutet konkret:
+
+- `POST /sign` liefert eine Signatur, die `openssl dgst -verify` validiert.
+- **Cross-Language-Roundtrip** klappt — siehe `## Cross-Language-Akzeptanz`.
+- Falsche PIN und falscher Mechanism geben verstaendliche Fehler, nicht 500er.
+- Healthcheck erkennt fehlenden Token.
+- Logs enthalten keine PIN und keine Rohdaten.
+
+Auf dieser Stufe ist die Lab-Lernleistung dokumentiert. PKCS#11 ist verstanden, ein produktionsnaher Aufbau ist noch nicht beleget.
+
+### Stufe 2 — Akzeptanz + Erweiterungen
+
+Stufe 1 plus mindestens **drei** der folgenden Erweiterungen aus `## Erweiterung`, sichtbar im Code und ueber einen Smoke-Test belegt:
+
+- mehrere Key-Aliase mit unterschiedlichen Mechanism-Whitelists pro Alias.
+- RSA-PSS und/oder ECDSA als zusaetzliche Mechanism-Familien.
+- strukturiertes Audit-Log nach dem Schema aus `## Audit-Log-Schema`, append-only-Sink.
+- Integrationstest, der den Service im Container startet und gegen das Lab-SoftHSM faehrt.
+- OpenTelemetry-Traces mit Mechanism, Key-ID und CKR-Code als Span-Attribute.
+
+Hier zeigst du, dass du den Service nicht nur zum Laufen, sondern in mehrere produktions-typische Belastungsdimensionen gebracht hast.
+
+### Stufe 3 — Production-ready
+
+Stufe 2 plus das **vollstaendige Audit aus [`exercises/21-production-audit.md`](../exercises/21-production-audit.md)**: alle zwoelf Produktionsfragen mit Befund/Soll/Aufwand dokumentiert, Showstopper-Liste gepflegt, eine Migrations-Skizze. Zusaetzlich:
+
+- PIN nicht in der Config (Vault, KMS oder mindestens dokumentierter Migrationspfad).
+- Pool-Groesse aus Config, Healthcheck pruef Pool-Auslastung gegen Limit.
+- Reconnect-Strategie fuer `CKR_DEVICE_REMOVED` / `CKR_SESSION_HANDLE_INVALID`.
+- README dokumentiert: Mechanism-Allowlist, PIN-Strategie, Audit-Sink, Recovery-Pfad bei HSM-Ausfall.
+
+Auf dieser Stufe haettest du den Service einem internen Tech-Review vorlegen koennen, ohne erst von vorne anzufangen. Track 2 ([Kap. 26](26-abschlussprojekt-advanced.md)) ist hier der konsequente naechste Schritt: dieselbe Stufe-3-Idee, anderes Feature-Set (CMS, Pool, RFC-3161).
+
+### Wo stehst du wahrscheinlich?
+
+- Nach erstmaligem Durchlauf des Kurses: **Stufe 1**.
+- Nach zwei Iterationen in einem Projekt-Kontext oder dem Track-2-Abschluss: **Stufe 2**.
+- **Stufe 3** ist die Marke fuer "ich kann PKCS#11 nicht nur lernen, sondern betreiben" — Bewerbungsrelevanz, nicht Kurs-Pflicht.
+
+## Selbsttest
+
+<details>
+<summary>1. Warum reicht der OpenSSL-Verify mit demselben Pubkey nicht aus, um das Outcome "Cross-Language-Roundtrip" zu beweisen?</summary>
+
+OpenSSL ist *eine* Verifikations-Implementierung. Wer in derselben Sprache und Library wie der Signer arbeitet, garantiert nicht, dass die Bytefolge **standard-kompatibel** ist — Bouncy-Castle, Go-`crypto/rsa`, .NET-`RSA.VerifyData` koennten alle scheitern, obwohl OpenSSL passt. Das Outcome verlangt einen Verifier in **anderer Sprache und ohne SunPKCS11** (Go/C#/Kotlin-Default-Provider/Bash), damit die Standard-Kompatibilitaet wirklich nachgewiesen ist.
+</details>
+
+<details>
+<summary>2. Welche zwei Felder eines Audit-Events sind <em>verboten</em>, auch wenn der Stakeholder sie verlangt?</summary>
+
+**Payload-Klartext** und **PIN (auch nicht als Hash)**. Der Payload landet in der `data_sha256`-Spalte mit Hash + Laenge; das volle Dokument waere ein Datenleck-Magnet. Die PIN ist unter PKCS#11 nicht hashbar (kein KDF dahinter), ein Hash-Wert ist Compliance-Findung. Selbst auf Stakeholder-Druck: schriftlich begruenden, nicht einbauen.
+</details>
+
+<details>
+<summary>3. Warum ist eine WhiteList <code>mechanisms: [SHA256withRSA, RSASSA-PSS]</code> wichtiger als eine <em>BlackList</em> <code>blocked: [SHA1withRSA, MD5withRSA]</code>?</summary>
+
+Whitelist faellt auf der sicheren Seite: jeder neue PKCS#11-Mechanism, der spaeter aufgenommen wird, ist automatisch nicht erlaubt. Blacklist erweitert sich bei jedem neuen unsicheren Algorithmus retroaktiv — wer den Codepfad nicht updated, transportiert das Risiko unbemerkt. Mit dem Whitelist-Ansatz ist die Aussagekraft "wir signieren nur mit X, Y" stabil.
+</details>

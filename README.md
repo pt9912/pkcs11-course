@@ -74,9 +74,14 @@ Die folgende Tabelle listet die Kapitel in Dateinummern-Reihenfolge. Der **didak
 | [`course/25-rfc3161-timestamps.md`](course/25-rfc3161-timestamps.md) | RFC-3161-Timestamps fuer CMS: Lab-TSA, `signatureTimeStampToken`, CAdES-T | [`exercises/19-rfc3161-timestamps.md`](exercises/19-rfc3161-timestamps.md) |
 | [`course/26-abschlussprojekt-advanced.md`](course/26-abschlussprojekt-advanced.md) | Track-2-Abschlussprojekt: CMS-Service mit Pool, Audit-Log und RFC-3161 | Architektur-/Bau-Aufgabe |
 
+Zwei rahmende Selbsttest-Uebungen ohne eigenes Kapitel:
+
+- [`exercises/00-glossar.md`](exercises/00-glossar.md) - Vokabel-Selbsttest fuer Praefix-Familien (CKR/CKM/CKA/CKO/CKK/CKF/CKU/CKZ). Vor Kapitel 01 oder zwischendurch.
+- [`exercises/21-production-audit.md`](exercises/21-production-audit.md) - Production-Readiness-Audit fuer deinen Service nach Track 1 oder Track 2.
+
 Weitere Materialien:
 
-- [`exercises/`](exercises/) - Aufgaben im einheitlichen Format
+- [`exercises/`](exercises/) - Aufgaben im einheitlichen Format (siehe auch die Selbsttest-Bloecke am Ende jedes Kapitels)
 - [`solutions/`](solutions/) - Musterloesungen und erwartete Ergebnisse
 - [`lab/`](lab/) - ausfuehrbares Docker-/Devcontainer-Lab
 - [`docs/cheatsheet.md`](docs/cheatsheet.md) - schneller Spickzettel

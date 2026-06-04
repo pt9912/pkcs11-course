@@ -8,6 +8,7 @@ Nach diesem Kapitel kannst du:
 - die Public Keys aus dem HSM in OpenSSH-Format extrahieren und in `authorized_keys` einsetzen.
 - ssh mit `PKCS11Provider`-Option oder ueber ssh-agent loginieren lassen.
 - die typischen Smartcard-/YubiKey-Use-Cases erkennen, die hier dieselbe Mechanik nutzen.
+- **(Bloom 5 — evaluate)** entscheiden, ob in einem konkreten Operations-Team `PKCS11Provider` pro Login, ssh-agent mit Modul-Cache oder eine SSH-Certificate-Authority die richtige Pubkey-Verteilung ist — und welche Kosten (PIN-Prompts pro Tag, Forwarding-Risiko, CA-Aufbau) die Entscheidung tragen.
 
 ## Lab-Bezug
 
@@ -120,3 +121,23 @@ In Enterprise-Umgebungen wird `authorized_keys` zentral verwaltet (LDAP-Attribut
 - Setze deinen lokalen ssh-Client auf `IdentitiesOnly=yes` und `IdentityFile=` (leer) — ohne `-o PKCS11Provider` muss der Login fehlschlagen. Nimm es wieder rein und alles funktioniert.
 
 Strukturierte Aufgaben in [`exercises/13-ssh-mit-hsm.md`](../exercises/13-ssh-mit-hsm.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Welcher der drei SSH-Auth-Schritte (Pubkey-Senden, Server-Lookup, Challenge-Signatur) braucht den Privkey im HSM?</summary>
+
+Nur Schritt 3. Schritt 1 nutzt den Pubkey (offen lesbar), Schritt 2 ist Server-seitig auf der `authorized_keys`. Schritt 3 — die Challenge-Signatur — ist der einzige `C_SignInit`/`C_Sign`-Call. Damit ist `CKA_SIGN=true` plus eingeloggte Session die einzige HSM-Anforderung.
+</details>
+
+<details>
+<summary>2. Du nutzt ssh-agent mit <code>ssh-add -s libsofthsm2.so</code>. Warum siehst du danach mehrere Pubkeys auch ohne erneuten PIN-Prompt?</summary>
+
+Der Agent cached den HSM-Login fuer die Lebenszeit des Agent-Prozesses. `ssh-add -s` laedt das PKCS#11-Modul in den Agent, der Agent macht `C_Login` einmal, dann sind alle Pubkeys im Token verfuegbar. Folge-Logins gehen ueber den Agent, kein erneutes `C_Login` noetig. Sicherheitsfolge: wer den Agent-Socket kompromittiert, hat HSM-Login fuer die Session-Dauer.
+</details>
+
+<details>
+<summary>3. Was ist die Hauptgefahr von <code>ssh -A</code> (Agent-Forwarding) mit HSM-Backed-Login?</summary>
+
+Der entfernte Server-Admin kann waehrend deiner SSH-Session deinen HSM nutzen — Signaturen erstellen, weitere SSH-Verbindungen authentifizieren. Das HSM unterscheidet nicht zwischen "lokaler Login-Request" und "ueber Agent-Forwarding angefragt". Forwarding nur auf vertrauenswuerdigen Hops aktivieren oder per Default auf `false` setzen.
+</details>

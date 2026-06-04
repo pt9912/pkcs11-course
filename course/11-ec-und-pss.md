@@ -8,6 +8,7 @@ Nach diesem Kapitel kannst du:
 - PSS-Parameter wie Hash, MGF und Salt-Laenge konsistent setzen.
 - ECDSA-Signaturencoding fuer OpenSSL korrekt behandeln.
 - entscheiden, welcher Mechanism fuer neue Systeme sinnvoll ist.
+- **(Bloom 5 — evaluate)** fuer ein gegebenes System-Szenario (Bestand, FIPS, Cloud) **begruenden**, welcher Mechanism die richtige Wahl ist — und welche zwei HSM-Eigenschaften die Entscheidung tatsaechlich tragen, nicht nur die kryptographische Theorie.
 
 ## Lab-Bezug
 
@@ -138,3 +139,23 @@ Praktische Hinweise:
 Viele HSMs unterstützen PSS, aber mit Einschränkungen bei MGF-Hash und Salt-Länge. Vor dem produktiven Einsatz: `pkcs11-tool --list-mechanisms` lesen, im Zweifel beim Hersteller nachfragen.
 
 Strukturierte Aufgaben (DER-Falle, PSS-Spiegelparameter, Mechanism-Entscheidung) in [`exercises/20-ec-und-pss.md`](../exercises/20-ec-und-pss.md).
+
+## Selbsttest
+
+<details>
+<summary>1. <code>pkcs11-tool</code> liefert ECDSA-Signaturen standardmaessig als <code>r||s</code>. OpenSSL erwartet DER. Welcher Schalter loest das auf der Sign-Seite?</summary>
+
+`--signature-format openssl`. Setzt der Schalter, gibt `pkcs11-tool` die Signatur als `SEQUENCE { INTEGER r, INTEGER s }` DER-codiert aus. Ohne diesen Schalter sind die Bytes mathematisch korrekt, OpenSSL-Verify lehnt aber mit `Verification Failure` ab.
+</details>
+
+<details>
+<summary>2. Welche zwei PSS-Parameter muessen Signer und Verifier zwingend uebereinstimmen, damit die Verifikation klappt?</summary>
+
+**Salt-Laenge** und **MGF-Hash**. Hash-Algorithmus der Nachricht ist offensichtlich; die beiden anderen sind die haeufige Falle, weil JCA-Defaults (`MGF1ParameterSpec.SHA1`, Salt 20 Byte) typisch nicht mit `CKM_SHA256_RSA_PKCS_PSS`-HSM-Defaults uebereinstimmen — Resultat: `CKR_MECHANISM_PARAM_INVALID` oder `Verification Failure` ohne klare Begruendung.
+</details>
+
+<details>
+<summary>3. Du sollst fuer ein neues System eine Mechanism-Empfehlung abgeben. Welche Frage stellst du zuerst — Krypto-Theorie oder HSM-Capabilities?</summary>
+
+HSM-Capabilities. `pkcs11-tool --list-mechanisms` zuerst. Was der Token nicht kann, hilft theoretisch nicht. EdDSA waere kryptographisch oft die beste Wahl — auf SoftHSM v2 (Debian-Default) gibt es kein `CKM_EDDSA`, also nicht moeglich. Brainpool ist in vielen US-Cloud-HSMs nicht aktiviert. Erst nachdem die Mechanism-Liste bekannt ist, kommt die Theorie-Diskussion (PSS vs ECDSA vs Ed25519).
+</details>

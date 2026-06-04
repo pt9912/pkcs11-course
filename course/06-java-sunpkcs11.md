@@ -70,3 +70,35 @@ Verifizieren mit dem Default-Provider ist nur eine Variante: Public Keys sind ni
 - Leerer KeyStore, obwohl `pkcs11-tool --list-objects` Objekte zeigt → meistens kein Zertifikat oder unpassende `CKA_ID`.
 - `KeyStore.aliases()` zeigt zwei Aliase für einen Key → manche Provider exponieren Cert-Alias und Key-Alias getrennt.
 - `Signature.getInstance("SHA256withRSA")` ohne Provider beim Signieren → der Default-Provider versucht den Key zu extrahieren, das schlägt bei `sensitive`/`non-extractable` Keys fehl.
+
+## Eigenexperiment
+
+- **Provider ohne Argument benutzen.** Aendere `Signature.getInstance(MECH, provider)` zu `Signature.getInstance(MECH)`. Erwartet: bei einem `CKA_EXTRACTABLE=false`-Key bricht der Default-Provider-Pfad mit `ProviderException` oder mit einer leeren Signatur. Genau die Stolperfalle Nr. 3 oben.
+
+  ```bash
+  # Im Lab-Code: einmal den Provider-Parameter entfernen, lab/java/pkcs11-demo neu starten.
+  ```
+
+- **Falscher `slotListIndex`.** Setze `slotListIndex = 5` in `lab/java/pkcs11-demo/src/main/resources/softhsm.cfg`. Erwartet: `CKR_SLOT_ID_INVALID` beim Provider-Load (oder ein Token-Label-Mismatch, je nach SoftHSM-Belegung). Reproduziert genau die Schwaeche, die der Kapiteltext am Anfang nennt.
+
+- **Default-Provider fuer Verify probieren.** Modifiziere die Demo so, dass sie den Pubkey via `keyStore.getCertificate(alias).getPublicKey()` holt und dann mit `Signature.getInstance(MECH)` (default provider) verifiziert. Im Lab klappt das, **weil** das Cert ein selbst-signed Cert ist, dessen Pubkey extrahierbar ist. Auf einem produktiven HSM mit `CKA_EXTRACTABLE=false`-EC-Pubkey wuerde dieser Pfad scheitern. Lehrreicher Punkt: warum die Demo den Provider-explizit-Verify als Default zeigt.
+
+## Selbsttest
+
+<details>
+<summary>1. Du legst einen RSA-Privkey mit <code>CKA_ID=01</code> an, importierst aber das Cert nicht. <code>keyStore.aliases()</code> gibt eine leere Liste zurueck — warum?</summary>
+
+SunPKCS11 baut die Alias-Liste aus Cert-Objekten, denen es ueber gleiche `CKA_ID` einen Privkey zuordnen kann. Ohne Cert kein Eintrag. Der Privkey ist im Token vorhanden (Go/C# wuerden ihn ueber `CKA_ID=01` direkt finden), aber das `KeyStore`-Abstraktion entscheidet, ihn nicht als Alias zu exponieren.
+</details>
+
+<details>
+<summary>2. Warum reicht <code>Provider.configure(inlineConfigString)</code> ohne <code>Security.addProvider(...)</code>?</summary>
+
+Wenn die Provider-Instanz **direkt** an `KeyStore.getInstance(name, provider)` und `Signature.getInstance(name, provider)` weitergegeben wird, ist eine globale Registrierung nicht noetig. `addProvider` ist nur fuer Faelle relevant, in denen Algorithmus-Namen ohne Provider-Argument aufgeloest werden — und das hat (siehe Uebung 03 Reflexionsfrage 4) eigene Risiken.
+</details>
+
+<details>
+<summary>3. Welche Anweisung in der <code>softhsm.cfg</code> ist fragil, wenn ein zweites Token im selben Modul auftaucht?</summary>
+
+`slotListIndex = 0`. SoftHSM kann Slots neu sortieren, sobald ein zweites Token initialisiert wird. Stabiler ist Token-Label-basierte Auswahl — OpenJDKs SunPKCS11 kennt dafuer kein portables Property, daher entweder vorgelagerte Slot-Ermittlung im App-Code oder IAIK-PKCS11-Provider.
+</details>

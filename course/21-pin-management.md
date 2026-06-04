@@ -1,5 +1,15 @@
 # 21 — PIN-Management und Lockout
 
+## Bevor du anfaengst — was vermutest du?
+
+> Du bekommst die Aufgabe, in einem Backend-Service "die Lockout-Logik fuer falsche PINs einzubauen". Wie sieht die Loesung aus?
+
+Wahrscheinliche Vermutung: ein Zaehler (`failed_attempts++`) in Redis oder einer DB-Tabelle, nach drei falschen Versuchen ein 15-Minuten-Block, dann Reset. So baut man Passwort-Brute-Force-Schutz fuer normale Login-Endpunkte.
+
+Diese Vermutung ist falsch — und gefaehrlich, wenn man sie auf PKCS#11 anwendet. Bei einem HSM ist der Counter **im Token**, nicht in deinem Service. Wer in der Anwendung einen separaten Counter pflegt und die echte PIN dabei mehrfach ausprobiert, sperrt den Token aus und merkt es erst beim naechsten echten Sign-Versuch. Beim YubiKey nach 3 Versuchen, bei Smartcards nach 3-5, bei Cloud-HSMs nach konfiguriertem Wert — und der Recovery braucht den Security-Officer. Eine PIN-Logik *neben* dem Token ist nicht nur redundant, sondern aktiv schaedlich.
+
+PIN-Management heisst hier: das Token-State **lesen** (Flags), Operations gegen **C_Login**/**C_SetPIN**/**C_InitPIN** disziplinieren, und niemals einen Zaehler in der Anwendung neben dem Token-Counter pflegen.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +18,7 @@ Nach diesem Kapitel kannst du:
 - den PIN-Status eines Tokens anhand der `CKF_USER_PIN_*`/`CKF_SO_PIN_*`-Flags ablesen.
 - `C_SetPIN` (User aendert eigene PIN) und `C_InitPIN` (SO setzt User-PIN) sicher einsetzen.
 - die Unterschiede zwischen SoftHSM (kein echter Lockout), Smartcards (3 Versuche) und Cloud-HSMs (mit Konfiguration) einordnen.
+- **(Bloom 5 — evaluate)** entscheiden, welcher Recovery-Pfad (SO-Reset, Vendor-Werks-Reset, Operator-Eingriff bei BouncyHsm) fuer eine konkrete Token-Klasse angemessen ist — und warum eine Anwendung **niemals** einen eigenen Retry-Counter neben dem Token-Counter pflegen darf.
 
 ## Lab-Bezug
 
@@ -127,3 +138,23 @@ Konsequenz fuers Lab: **keine Java/Kotlin-PIN-Demo**. Die Modul-Demos decken Bas
 - Versuche eine SO-PIN-Aenderung: `pkcs11-tool --change-pin --login --login-type so --so-pin 1234 --new-pin 9999` — und wieder zurueck. Niemals (!) die SO-PIN absichtlich falsch eingeben, ohne den Recovery-Pfad zu kennen.
 
 Strukturierte Aufgaben in [`exercises/15-pin-management.md`](../exercises/15-pin-management.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Was bedeutet <code>CKF_USER_PIN_FINAL_TRY</code>, und welche Aktion ist <em>verboten</em>, sobald die Anwendung dieses Flag sieht?</summary>
+
+Nur noch ein Versuch bis Lockout. Verboten: automatisierter Retry-Versuch ("vielleicht klappt es ja"). Die Anwendung muss den Anwender warnen und auf manuelle PIN-Eingabe warten. Ein automatischer Retry mit falscher PIN sperrt den Token, und der Recovery braucht den SO.
+</details>
+
+<details>
+<summary>2. Welcher Recovery-Pfad ist verfuegbar, wenn <code>CKF_USER_PIN_LOCKED</code> gesetzt ist? Welcher, wenn <code>CKF_SO_PIN_LOCKED</code>?</summary>
+
+`CKF_USER_PIN_LOCKED`: SO meldet sich an und ruft `C_InitPIN(session, neue_pin)` — die User-PIN wird neu gesetzt, der Counter zurueckgesetzt. `CKF_SO_PIN_LOCKED`: ueber PKCS#11 kein Recovery moeglich. Bei Smartcards typisch wegwerfen; bei Enterprise-HSMs Hersteller-spezifische Recovery-Pfade (M-of-N-Quorum, Cluster-Resync, Werks-Reset).
+</details>
+
+<details>
+<summary>3. Warum darf eine Anwendung niemals einen eigenen <code>failed_attempts</code>-Counter neben dem Token-Counter pflegen?</summary>
+
+Doppelte Counter sind nicht synchronisierbar. Die Anwendung weiss nicht, ob das Token gerade einen Versuch gezaehlt hat (etwa weil ein anderer Prozess die PIN probiert hat). Wer pro Anwendung einen Counter pflegt und die PIN testweise validiert, schickt echte PIN-Versuche an das Token und verbraucht dessen Counter. Ergebnis: der Token sperrt sich, ohne dass die Anwendung etwas davon bemerkt — bis der naechste echte Sign-Versuch scheitert.
+</details>

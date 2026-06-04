@@ -62,3 +62,23 @@ Wenn du mit `SHA256-RSA-PKCS` signierst, darfst du nicht noch einmal anders hash
 ## Eigenexperiment
 
 Ändere den Mechanism testweise auf einen nicht unterstützten oder falschen Mechanism. Beobachte die Fehlermeldung. Genau so sieht HSM-Debugging im echten Leben aus. Strukturierte Aufgaben dazu findest du in [`exercises/02-key-signature.md`](../exercises/02-key-signature.md).
+
+## Selbsttest
+
+<details>
+<summary>1. Du nutzt <code>CKM_RSA_PKCS</code> (Token hasht NICHT) und gibst den nackten SHA-256-Hash als Input. Verifiziert OpenSSL <code>dgst -sha256 -verify</code> die Signatur?</summary>
+
+Nein. OpenSSL erwartet, dass die signierte Bytefolge die DER-codierte `DigestInfo`-Struktur ist (`SEQUENCE { algorithmIdentifier, OCTET STRING hash }`), nicht der nackte Hash. Wer den Hash direkt uebergibt, signiert ihn als rohe Zahl — der Verifier findet keine DigestInfo und meldet `Verification Failure`.
+</details>
+
+<details>
+<summary>2. Welche zwei Bedingungen muessen Sender und Verifier teilen, damit eine RSA-Signatur ueberhaupt validieren kann?</summary>
+
+Dieselbe **Signatur-Semantik** (Hash-Algorithmus + Padding-Modus) und denselben **Public Key**. Auf der Mechanism-Familien-Achse heisst das: einigen sich beide auf `SHA256-RSA-PKCS` (RSA-PKCS#1-v1.5 mit SHA-256), muss der Verifier exakt dieselbe Familie waehlen — nicht `SHA384-RSA-PKCS`, nicht `RSASSA-PSS`.
+</details>
+
+<details>
+<summary>3. Warum brauchst du fuer <code>make verify</code> keinen Login am Token?</summary>
+
+Verifizieren nutzt den Public Key, der `CKA_PRIVATE=false` traegt und ohne Login lesbar ist. `make verify` exportiert den Pubkey vom Token (genauer: das Skript hat ihn beim Sign-Schritt bereits exportiert) und ruft OpenSSL ausserhalb des Tokens. Eine Sign-Operation braucht Login, eine Verify-Operation nicht.
+</details>
