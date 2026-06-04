@@ -1,5 +1,7 @@
 # 01 — Grundlagen
 
+> **Didaktischer Pfad:** Vorher → [`00-kursuebersicht.md`](00-kursuebersicht.md) · Nachher → [`02-lab-setup.md`](02-lab-setup.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 Bevor du in die Definitionen einsteigst, halt einen Moment inne und beantworte fuer dich:
@@ -20,6 +22,9 @@ Nach diesem Kapitel kannst du:
 - erklaeren, warum private Schluessel im Token bleiben.
 - die typische PKCS#11-Aufrufkette grob einordnen.
 - Mechanism-Namen wie `CKM_SHA256_RSA_PKCS`, `CKM_RSA_PKCS_PSS` und `CKM_ECDSA_SHA256` als Namen wiedererkennen — die operative Semantik (was hasht, was paddet, was encoded der Token) lernst du in Kap. 04 und Kap. 11.
+- **(Bloom 2 — understand)** das HSM-Sicherheitsmodell ("Handle statt Schluessel") in eigenen Worten erklaeren und vom Datei-basierten Mental-Modell abgrenzen.
+
+> **Geschaetzte Bearbeitungszeit:** ~30 min (Lesen 20 min + Lab 10 min). Kein Schreib-Lab, nur `make list-slots` / `make list-mechanisms` als Orientierung.
 
 ## Lab-Bezug
 

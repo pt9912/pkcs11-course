@@ -1,5 +1,7 @@
 # 21 — PIN-Management und Lockout
 
+> **Didaktischer Pfad:** Vorher → [`20-key-wrap.md`](20-key-wrap.md) · Nachher → [`22-csr-und-ca-workflow.md`](22-csr-und-ca-workflow.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Du bekommst die Aufgabe, in einem Backend-Service "die Lockout-Logik fuer falsche PINs einzubauen". Wie sieht die Loesung aus?
@@ -19,6 +21,8 @@ Nach diesem Kapitel kannst du:
 - `C_SetPIN` (User aendert eigene PIN) und `C_InitPIN` (SO setzt User-PIN) sicher einsetzen.
 - die Unterschiede zwischen SoftHSM (kein echter Lockout), Smartcards (3 Versuche) und Cloud-HSMs (mit Konfiguration) einordnen.
 - **(Bloom 5 — evaluate)** entscheiden, welcher Recovery-Pfad (SO-Reset, Vendor-Werks-Reset, Operator-Eingriff bei BouncyHsm) fuer eine konkrete Token-Klasse angemessen ist — und warum eine Anwendung **niemals** einen eigenen Retry-Counter neben dem Token-Counter pflegen darf.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Lab `pin-info`/`pin-change`/`pin-recovery` 20 min + Eigenexperiment 15 min). Wer mit echten HSMs zu tun hat, wird die Flag-Geometrie spaeter immer wieder brauchen.
 
 ## Lab-Bezug
 

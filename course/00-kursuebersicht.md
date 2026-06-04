@@ -1,5 +1,7 @@
 # 00 - Kursuebersicht
 
+> **Didaktischer Pfad:** Vorher → (Start) · Nachher → [`01-grundlagen.md`](01-grundlagen.md)
+
 ## Zielgruppe
 
 Dieser Kurs richtet sich an Entwickler, die PKCS#11 praktisch verstehen muessen: fuer Signaturen, TLS-Keys, Smartcards, HSMs, Java-Anwendungen oder Backend-Services.
@@ -106,10 +108,13 @@ Was an jeder Stelle **bewusst nicht** Teil des Kurses ist — gegliedert nach Sc
 
 Jedes Kapitel folgt demselben Muster:
 
-- **Lernziele**: Was du danach verstanden haben solltest.
+- **Lernziele**: Was du danach verstanden haben solltest. Mindestens das anspruchsvollste Outcome ist mit einem Bloom-Tag versehen (`(Bloom X — verb)`), damit die kognitive Erwartung sichtbar ist.
+- **Geschaetzte Bearbeitungszeit**: ~30–90 min pro Kapitel, ausser den beiden Capstones (Kap. 10 und Kap. 26) — die laufen ueber mehrere Sitzungen.
 - **Lab-Bezug**: Welche Targets oder Skripte du ausfuehrst.
 - **Kernaussagen**: Was fuer reale Systeme wichtig ist.
 - **Uebung**: Ein reproduzierbarer Auftrag mit Fehlerfall.
+
+Heuristik fuer die Selbsteinschaetzung: laeufst du deutlich ueber die Zeitangabe und es ist nicht das `make build` (initial), dann liegt der Engpass meist im verlinkten Vorgaengerkapitel. Zurueckspringen ist hier eine Optimierung, kein Eingestaendnis.
 
 ## Devcontainer vs. Docker Compose
 

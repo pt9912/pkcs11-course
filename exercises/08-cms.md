@@ -69,10 +69,12 @@ Suche im Output:
 
 ## Reflexionsfragen
 
-- Welche Aufgabe hat `messageDigest` in den signedAttrs — wozu nicht einfach den Hash direkt signieren?
-- Was wird konkret signiert, wenn das Dokument 1 GB gross ist? Wandert das ganze Dokument zum HSM?
-- Warum nutzen alle vier Sprach-Demos eine "Bruecke" zum HSM (Engine, Provider, Adapter) — was lehrt das ueber die API-Annahmen typischer Crypto-Libs?
-- Welches Stueck im SignerInfo wuerde ein Angreifer ohne HSM-Zugriff faelschen koennen, welches nicht?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Welche Aufgabe hat `messageDigest` in den signedAttrs — wozu nicht einfach den Hash direkt signieren?
+2. **(Analyse)** Was wird konkret signiert, wenn das Dokument 1 GB gross ist? Wandert das ganze Dokument zum HSM? Verknuepfe mit dem Streaming-Muster aus Kap. 15 — welche `C_*Update`-Calls passieren auf dem Hash, welche nicht?
+3. **(Analyse)** Warum nutzen alle vier Sprach-Demos eine "Bruecke" zum HSM (Engine, Provider, Adapter) — was lehrt das ueber die API-Annahmen typischer Crypto-Libs? Welche zwei API-Vertraege (Privkey-Material erreichbar / Privkey signiert "auf Anforderung") sind im Konflikt?
+4. **(Evaluate)** Du hast die Wahl zwischen `System.Security.Cryptography.Pkcs.SignedCms` (.NET) und BouncyCastle.Cryptography (.NET) fuer einen Linux-Container, der HSM-Keys nutzt. Welcher Faktor entscheidet — und welches Stueck im SignerInfo wuerde ein Angreifer ohne HSM-Zugriff faelschen koennen, welches nicht?
 
 ## Musterloesung
 

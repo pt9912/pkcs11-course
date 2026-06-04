@@ -78,10 +78,12 @@ Schau dir `85-tsa-setup.sh` an und beantworte:
 
 ## Reflexionsfragen
 
-- Warum gilt `signingTime` aus PKCS#9 fuer eIDAS-qualifizierte Signaturen nicht als ausreichende Zeitquelle?
-- Was ist der Unterschied zwischen CAdES-T und CAdES-LT? Welche Anwendung braucht typisch welches Profil?
-- Welche Eigenschaft eines RFC-3161-TSToken stellt sicher, dass er nicht von einem Angreifer "wiederverwendet" werden kann?
-- Wer in der Cert-Hierarchie (CA, TSA-Cert, Doc-Signer-Cert) muss `extendedKeyUsage=timeStamping` tragen, und wer **darf** das auf keinen Fall?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Wer in der Cert-Hierarchie (CA, TSA-Cert, Doc-Signer-Cert) muss `extendedKeyUsage=timeStamping` tragen, und wer **darf** das auf keinen Fall?
+2. **(Analyse)** Warum gilt `signingTime` aus PKCS#9 fuer eIDAS-qualifizierte Signaturen nicht als ausreichende Zeitquelle? Welche zwei Eigenschaften (externer Zeuge, auditierte Uhr) fehlen `signingTime`, die ein RFC-3161-TSToken mitbringt?
+3. **(Analyse)** Welche Eigenschaft eines RFC-3161-TSToken stellt sicher, dass er nicht von einem Angreifer "wiederverwendet" werden kann? Verfolge den Nonce-Pfad durch TSReq → TSResp und denke ueber Replay-Schutz nach.
+4. **(Evaluate)** Du sollst fuer einen Vertragsdienst eine TSA waehlen: (A) Free-Tier, (B) Commercial, (C) qualifizierter eIDAS-TSA. Eingangs-Bedingung "eIDAS-Geltung, 7 Jahre Aufbewahrung". Welche gewinnt — und welcher Faktor (Aufbewahrungsdauer, Krypto-Bruch-Sicherheit, Revocation-Validierbarkeit) verschiebt die Antwort auf (C), wenn die Aufbewahrungspflicht auf 35 Jahre steigt? Welches CAdES-Profil (-T, -LT, -LTA) gehoert dann dazu?
 
 ## Musterloesung
 

@@ -1,5 +1,7 @@
 # 25 — RFC-3161-Timestamps fuer CMS (CAdES-T)
 
+> **Didaktischer Pfad:** Vorher → [`24-ecdh-hkdf.md`](24-ecdh-hkdf.md) · Nachher → [`10-abschlussprojekt.md`](10-abschlussprojekt.md) (Track-1-Capstone)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Deine CMS-Signatur enthaelt schon ein `signingTime`-Attribut (`signedAttrs.signingTime`, RFC 5652). Reicht das fuer den Beweis "der Vertrag wurde am 14.03.2026 unterschrieben"?
@@ -19,6 +21,8 @@ Nach diesem Kapitel kannst du:
 - die Cert-Anforderung an die TSA verstehen (`extendedKeyUsage=critical,timeStamping`).
 - den Lab-Pfad von realen TSAs (DigiCert, Sectigo) und qualifizierten eIDAS-TSAs abgrenzen.
 - **(Bloom 5 — evaluate)** fuer ein konkretes Compliance-Niveau (interne Beweisbarkeit, eIDAS-T, eIDAS-LT, eIDAS-A) entscheiden, welcher CAdES-Profil-Aufbau und welche TSA-Vertragsklasse (Free-Tier, Commercial, Qualified) erforderlich sind — und welcher Faktor (Aufbewahrungsdauer, Krypto-Bruch-Sicherheit, Revocation-Validierbarkeit) die Wahl bestimmt.
+
+> **Geschaetzte Bearbeitungszeit:** ~75 min (Lesen 35 min + Lab-TSA-Setup + Bash-Roundtrip 20 min + Sprach-Demo 20 min). Lab-TSA-Key ist Software (dokumentierter Kompromiss); produktiv lebt der TSA-Key im eigenen HSM.
 
 ## Lab-Bezug
 

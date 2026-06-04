@@ -70,10 +70,12 @@ Erwartet: `ProviderException: Could not derive key` mit Ursache `PKCS11Exception
 
 ## Reflexionsfragen
 
-- Warum ist ECDH die Grundform jeder modernen TLS-1.3-Cipher-Suite, und nicht RSA-Wrap?
-- Welche Rolle spielt der `info`-Parameter in HKDF — und warum ist `salt=null` kein Sicherheitsproblem, wenn das IKM bereits hochentropisch ist?
-- SunPKCS11 verlangt den `attributes(...)`-Override fuer Generic-Secret-Keys. In Produktion will man das NICHT. Welcher API-Pfad umgeht das Problem, ohne `byte[]` zu extrahieren?
-- SoftHSM unterstuetzt `CKM_ECDH1_DERIVE`, aber nicht `CKM_HKDF_DERIVE`. Bei welcher Klasse von HSMs (siehe [HSM-Kategorien](../docs/hsm-kategorien.md)) erwartest du beide?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Welche Rolle spielt der `info`-Parameter in HKDF — und warum ist `salt=null` kein Sicherheitsproblem, wenn das IKM bereits hochentropisch ist?
+2. **(Analyse)** Warum ist ECDH die Grundform jeder modernen TLS-1.3-Cipher-Suite, und nicht RSA-Wrap? Welche Eigenschaft (Forward Secrecy, KEM-Vorlage fuer PQ-Migration) macht den Unterschied?
+3. **(Analyse)** SunPKCS11 verlangt den `attributes(...)`-Override fuer Generic-Secret-Keys, um den Derive-Output zu sehen. In Produktion will man das NICHT. Welcher API-Pfad (`generateSecret("AES")` ueber den SunPKCS11-Provider) umgeht das Problem, ohne `byte[]` zu extrahieren — und welche Eigenschaft des abgeleiteten Keys bleibt damit `CKA_SENSITIVE=true`?
+4. **(Evaluate)** Du sollst zwischen drei Key-Establishment-Pfaden fuer einen neuen Service waehlen: (A) RSA-OAEP-Wrap (Kap. 13), (B) statisches ECDH+HKDF, (C) ephemerales ECDH+HKDF (TLS-1.3-Stil). Welcher gewinnt fuer "asynchrones Document-Sharing zwischen Org-Boundaries", welcher fuer "interaktive Session zwischen zwei Endpoints"? Welcher Faktor (Liveness-Erfordernis, Forward Secrecy) entscheidet?
 
 ## Musterloesung
 

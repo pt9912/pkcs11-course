@@ -1,5 +1,7 @@
 # 15 — Multi-Part / Streaming-Operationen
 
+> **Didaktischer Pfad:** Vorher → [`14-cms-signatur.md`](14-cms-signatur.md) · Nachher → [`16-hmac.md`](16-hmac.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +11,8 @@ Nach diesem Kapitel kannst du:
 - begruenden, warum AES-CBC-PAD im Streaming-Modus ueberlebt, AES-GCM aber Probleme macht.
 - typische HSM-Limits (Single-Shot-Buffer, Mechanism-Support fuer Update) benennen.
 - **(Bloom 5 — evaluate)** fuer einen gegebenen Throughput- und Latenz-Bedarf entscheiden, ob Chunk-Groessen-Tuning, Mechanism-Wechsel oder ein paralleler Pool (Kap. 17) die effektive Stellschraube ist — und welche Messung den Engpass beweist (`pkcs11-spy`-Trace oder Wallclock-Differenz).
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 20 min + Bash-Worked-Example mit 100 MB-File 20 min + ein Sprach-Faded 20 min). Die Speicher-Messung (`/usr/bin/time -v`) ist der Lerneffekt-Knoten — keep RSS klein, file beliebig gross.
 
 ## Lab-Bezug
 
@@ -55,31 +59,84 @@ Der Token haelt den **State** (Hash, Cipher-Position, IV-Counter). Der Host muss
 
 Fuer **Bulk-Verschluesselung grosser Files** ist AES-CBC-PAD die HSM-freundlichste Wahl. Trade-off: kein AEAD — Tamper-Erkennung muss separat (HMAC-then-Encrypt, eigenes Auth-Tag) gebaut werden.
 
-## Sprach-API-Patterns
+## Sprach-API-Patterns: Ueberblick
 
-Jede der vier Bindings hat eine eigene Hoehenebene fuer Streaming:
+Jede der vier Bindings hat eine eigene Hoehenebene fuer Streaming. Wir arbeiten den Bash-Pfad mit `pkcs11-spy` vollstaendig durch und lassen die drei Sprach-Pfade als Faded Examples folgen.
 
-| Stack | Pattern |
-|---|---|
-| pkcs11-tool (Bash) | `--sign --input-file large.bin` — wenn Mechanism Streaming kann, ruft pkcs11-tool intern C_SignUpdate in Chunks. Beobachtbar via `pkcs11-spy`. |
-| miekg/pkcs11 (Go) | Expliziter Loop: `SignInit + for { read chunk; SignUpdate(chunk) } + SignFinal`. Maximale Kontrolle. |
-| SunPKCS11 (Java/Kotlin) | `Signature.update(buf, off, len)` und `Cipher.update(buf)` mappen 1:1 auf `C_SignUpdate`/`C_EncryptUpdate`. Mit `CipherInputStream` wird daraus ein Standard-Java-Stream-Pattern. |
-| Pkcs11Interop (C#) | `ISession.Sign(mech, key, Stream)` und `ISession.Encrypt(mech, key, in, out)` machen Update/Final hinter den Kulissen. |
+### Worked Example: der Bash-Pfad mit pkcs11-spy-Beweis (vollstaendig)
 
-## Speicher-Beweis: das Lab-Setup
+```bash
+make gen-aes-stream    # Voraussetzung: AES-Key auf ID=04
+make stream-sign       # 100 MB-File via CKM_SHA256_RSA_PKCS signieren
+make stream-verify     # openssl dgst -verify
+```
 
-Das Lab generiert `lab/work/large.bin` mit 100 MB. Mit `PKCS11_STREAM_SIZE_MB=1000` kannst du auf 1 GB hochdrehen — alle vier Sprach-Demos und der Bash-Pfad bleiben bei ~30 MB RSS, weil intern Chunk-Buffer von 64 KB genutzt werden.
+**Schritt 1 — File-Erzeugung.** Das Lab generiert `lab/work/large.bin` mit 100 MB (default; via `PKCS11_STREAM_SIZE_MB=1000` auf 1 GB hochdrehbar). Das Ziel ist, dass **keine** Software-Komponente das File komplett im Heap halten muss.
 
-Beweis fuer den Bash-Pfad ueber `pkcs11-spy`:
+**Schritt 2 — Init: HSM allokiert Hash-Context.** `pkcs11-tool --sign --mechanism SHA256-RSA-PKCS --input-file large.bin --output-file large.sig` ruft intern `C_SignInit(CKM_SHA256_RSA_PKCS, signing-key)`. Der Token allokiert einen leeren SHA-256-State. **Kein** Byte vom Dokument ist bisher transportiert.
+
+**Schritt 3 — Update-Loop: Chunks fliessen ins Token, RSS bleibt konstant.** `pkcs11-tool` liest das File in Chunks (Default 64 KB) und ruft pro Chunk `C_SignUpdate(buf, 65536)`. Das Token mischt den Chunk in den SHA-256-State und **vergisst** ihn dann — kein Buffering im Token. Der Host-Heap braucht nur einen Chunk-Buffer (64 KB), das File auf der Platte bleibt unangetastet.
+
+**Schritt 4 — Final: SHA-256 wird abgeschlossen + signiert.** `C_SignFinal()` liefert die fertige Signatur (256 Byte bei RSA-2048). Hash-Closure + RSA-Operation auf 32 Byte SHA-Output passieren in einem Step im Token. Output: `large.sig`, 256 Byte.
+
+**Schritt 5 — Beweis via pkcs11-spy.** Genau diesen Loop kannst du sichtbar machen:
 
 ```bash
 export PKCS11SPY=/usr/lib/softhsm/libsofthsm2.so
 export PKCS11SPY_OUTPUT=/tmp/spy.log
 PKCS11_MODULE=/usr/lib/x86_64-linux-gnu/pkcs11-spy.so make stream-sign
-grep -E "C_Sign(Init|Update|Final)" /tmp/spy.log | wc -l
+grep -cE "C_Sign(Init|Update|Final)" /tmp/spy.log
 ```
 
-Bei einem 100MB-File mit 64KB-Chunks ergibt das eine `C_SignInit`-Zeile, ~1600 `C_SignUpdate`-Zeilen und eine `C_SignFinal`-Zeile.
+Bei 100 MB / 64 KB = ~1600 `C_SignUpdate`-Zeilen, je eine `C_SignInit` und `C_SignFinal`.
+
+**Schritt 6 — RSS-Beweis.** `/usr/bin/time -v` auf das Sign-Skript zeigt "Maximum resident set size" ≪ 100 MB — typisch 5–30 MB. Das ist der harte Beweis, dass das File nie als Ganzes im Heap stand.
+
+Der gewonnene Schema-Kern: **Multi-Part = Token haelt den State, Host pumpt nur Chunks. Das funktioniert nur fuer Mechanismen, deren Operationen ueber den Stream linear akkumulierbar sind (Hash, CBC-Padding). Mechanismen mit terminalem Tag (GCM) verlangen Sonderbehandlung.**
+
+### Faded Examples — die drei Sprach-Pfade
+
+Pro Pfad: kurze Tabellen-Beschreibung und **drei Leitfragen**.
+
+#### Go (`pkcs11-stream-demo`)
+
+| Pattern | Chunk-Groesse |
+|---|---|
+| Expliziter Loop: `SignInit + for { read chunk; SignUpdate(chunk) } + SignFinal`. Maximale Kontrolle, jeder Schritt sichtbar. | `chunkSize` als Konstante, default 64 KB. |
+
+Leitfragen:
+
+1. **Was unterscheidet diesen Pfad vom Bash-Pfad in Schritt 3?** (Stichwort: Bash `pkcs11-tool` macht den Loop intern; Go macht ihn sichtbar im Anwendungscode.)
+2. **Setze `chunkSize` auf 4 KB. Welche zwei Effekte erwartest du — und welcher ist auf SoftHSM kaum spuerbar, auf realem HSM aber dominant?** (Hinweis: PKCS#11-Roundtrip-Overhead.)
+3. **Wo im Go-Code passiert die "RSS bleibt konstant"-Garantie?** Verfolge den Buffer-Lifecycle: wird der gleiche Slice wiederverwendet, oder allokiert jeder `Read` einen neuen?
+
+#### Java/Kotlin (`pkcs11-stream-demo`)
+
+| Pattern | Streaming-Stelle |
+|---|---|
+| `Signature.update(buf, off, len)` und `Cipher.update(buf)` mappen 1:1 auf `C_SignUpdate`/`C_EncryptUpdate`. Mit `CipherInputStream` wird daraus ein Standard-Java-Stream-Pattern. | Die Update-Schicht ist hinter SunPKCS11 versteckt; der Aufrufer sieht nur die JCA-Standard-API. |
+
+Leitfragen:
+
+1. **Wo siehst du, dass SunPKCS11 wirklich `C_SignUpdate` aufruft und nicht intern alles puffert?** (Antwort: `pkcs11-spy`-Trace zeigt es; der Code allein ist transparent.)
+2. **`CipherInputStream` ist ein Standard-Java-Pattern. Was muss bei `Cipher.doFinal()` passieren, damit das im HSM mit `C_EncryptFinal` zusammenfaellt?** Verfolge die `read()`-Schleife der Stream-Klasse.
+3. **Warum kann der Java-Code SunPKCS11 transparent durch BouncyCastle ersetzen — ausser bei einer entscheidenden Eigenschaft?** (Tipp: HSM-Resident vs Software-Key.)
+
+#### C# (`Pkcs11StreamDemo`)
+
+| Pattern | Streaming-Stelle |
+|---|---|
+| `ISession.Sign(mech, key, Stream)` und `ISession.Encrypt(mech, key, in, out)` machen Update/Final hinter den Kulissen. Die `Stream`-Ueberladung in Pkcs11Interop iteriert intern. | Pkcs11Interop chunkt mit fester Buffer-Groesse (4096 Byte als interner Default — pruefbar im Source). |
+
+Leitfragen:
+
+1. **Was unterscheidet die `Stream`-Ueberladung von einer manuellen `Update`-Schleife?** Ist das fuer SoftHSM ein praktischer Unterschied — ist es das auf einem PCIe-HSM mit Pro-Call-Overhead?
+2. **Wenn du eine eigene Chunk-Groesse erzwingen willst — welche zwei Pkcs11Interop-API-Stellen wuerdest du nutzen?** (Tipp: `ISession.SignUpdate` und `ISession.SignFinal` direkt, ohne die `Stream`-Ueberladung.)
+3. **Warum sind `using`/`Dispose` hier dramatischer als in Go/Java?** Folge dem Cleanup einer halb-laufenden Sign-Operation, wenn eine Exception zwischen Update und Final fliegt.
+
+### Wenn alle vier Pfade im Kopf zusammenkommen
+
+Die Lehre: Streaming ist eine HSM-Eigenschaft, nicht eine Library-Eigenschaft. Solange der Mechanism Multi-Part erlaubt und das HSM den State haelt, sind 4 KB / 64 KB / 1 MB Chunk-Groesse nur Performance-Knoepfe. Die Korrektheit ist von der Mechanism-Wahl abhaengig — und genau dort macht der Wechsel `CKM_RSA_PKCS` → `CKM_SHA256_RSA_PKCS` (Token hasht selbst) den Unterschied zwischen "245-Byte-Single-Shot-Limit" und "unbegrenzte Stream-Groesse".
 
 ## Eigenexperiment
 

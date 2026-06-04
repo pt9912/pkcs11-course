@@ -1,5 +1,7 @@
 # 05 — Zertifikate
 
+> **Didaktischer Pfad:** Vorher → [`04-signieren-und-verifizieren.md`](04-signieren-und-verifizieren.md) · Nachher → [`06-java-sunpkcs11.md`](06-java-sunpkcs11.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,9 @@ Nach diesem Kapitel kannst du:
 - Private Key und Zertifikat ueber `CKA_ID` koppeln.
 - ein selbstsigniertes Zertifikat ueber den Token-Key erzeugen.
 - Zertifikate mit `pkcs11-tool` importieren und pruefen.
+- **(Bloom 4 — analyze)** den Zusammenhang zwischen `CKA_ID`-Mismatch und unsichtbarem KeyStore-Alias diagnostizieren, ohne in den Java-Stack zu schauen.
+
+> **Geschaetzte Bearbeitungszeit:** ~45 min (Lesen 15 min + Lab 15 min + Eigenexperimente 15 min). Das Lab-Cert ist self-signed; die Production-Variante CSR+CA folgt in Kap. 22.
 
 ## Lab-Bezug
 

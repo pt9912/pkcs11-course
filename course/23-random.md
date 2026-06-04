@@ -1,5 +1,7 @@
 # 23 — HSM als Random-Quelle (C_GenerateRandom)
 
+> **Didaktischer Pfad:** Vorher → [`22-csr-und-ca-workflow.md`](22-csr-und-ca-workflow.md) · Nachher → [`24-ecdh-hkdf.md`](24-ecdh-hkdf.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -10,6 +12,8 @@ Nach diesem Kapitel kannst du:
 - den Performance-Trade-off zwischen Host-RNG und HSM-RNG bewerten — und entscheiden, wann der HSM-RNG es wert ist.
 - den HSM-RNG aus Bash, Go, C# und Java/Kotlin (JCA `SecureRandom`) ansprechen.
 - **(Bloom 5 — evaluate)** fuer ein gegebenes Compliance-Szenario (FIPS-zertifizierte Signatur, Cold-Start einer Cloud-VM, Audit-pflichtige Key-Genese) entscheiden, **welche** Bytes aus dem HSM kommen muessen und welche aus `/dev/urandom` reichen — und welcher Kostenfaktor (Roundtrip, Auditierbarkeit, Throughput) die Entscheidung kippt.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Lab `make random-gen`/`random-bench` 20 min + Sprach-Demo 15 min). Wichtig: SoftHSM-Zahlen nicht auf reale HSMs extrapolieren — die Performance-Realitaet ist umgekehrt.
 
 ## Lab-Bezug
 

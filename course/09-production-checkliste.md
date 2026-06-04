@@ -1,5 +1,7 @@
 # 09 — Produktionscheckliste
 
+> **Didaktischer Pfad:** Vorher → [`07-service-integration.md`](07-service-integration.md) · Nachher → [`13-verschluesselung.md`](13-verschluesselung.md) (Eintritt in die Vertiefungsmodule)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,9 @@ Nach diesem Kapitel kannst du:
 - Sicherheits-, Betriebs- und Compliance-Fragen vor Projektstart stellen.
 - Mechanism-, Session-, Backup- und Audit-Risiken benennen.
 - Cloud-HSMs als eigene Integrationsklasse einordnen.
+- **(Bloom 5 — evaluate)** die zwoelf Produktionsfragen gegen ein konkretes Service-Setup gewichten und Showstopper von Operational Debt trennen.
+
+> **Geschaetzte Bearbeitungszeit:** ~30 min reines Lesen. Die Vertiefung passiert in [`exercises/21-production-audit.md`](../exercises/21-production-audit.md) — dort werden die zwoelf Fragen gegen einen realen Service gefuehrt.
 
 ## Lab-Bezug
 

@@ -1,5 +1,7 @@
 # 22 — CSR und CA-Workflow
 
+> **Didaktischer Pfad:** Vorher → [`21-pin-management.md`](21-pin-management.md) · Nachher → [`23-random.md`](23-random.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -10,6 +12,8 @@ Nach diesem Kapitel kannst du:
 - den vollstaendigen Workflow Generate-CSR → CA-Sign → Cert-Import durchspielen.
 - den Hack aus Kapitel 5 (self-signed Cert via `08-import-cert.sh`) sauber in einen Production-aequivalenten Pfad ueberfuehren.
 - **(Bloom 5 — evaluate)** entscheiden, welche **drei** X.509-Extensions in einer Leaf-CSR fuer ein gegebenes Use-Case-Szenario (TLS-Server, Code-Signing, TSA) zwingend sind — und welche von der CA stillschweigend ueberschrieben werden duerfen, ohne den Use-Case zu brechen.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + CA-Setup + Leaf-Cert + Sprach-CSR 35 min). Die Bridge-Patterns sind identisch zu Kap. 14 — Lesezeit hier daher etwas kuerzer.
 
 ## Lab-Bezug
 

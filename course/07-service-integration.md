@@ -1,5 +1,7 @@
 # 07 — Service-Integration
 
+> **Didaktischer Pfad:** Vorher → [`11-ec-und-pss.md`](11-ec-und-pss.md) · Nachher → [`09-production-checkliste.md`](09-production-checkliste.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,9 @@ Nach diesem Kapitel kannst du:
 - PKCS#11-Details hinter einer kleinen Service-Schicht kapseln.
 - Healthchecks, Fehlerabbildung und Secret-Handling sinnvoll planen.
 - entscheiden, welche Operationen synchron im Request laufen und welche in Betrieb/Provisioning gehoeren.
+- **(Bloom 6 — create)** ein Service-Skelett (Konfiguration, Provider-Factory, KeyService, Controller, HealthIndicator) so skizzieren, dass HSM-Details vollstaendig hinter den Schichtgrenzen verschwinden.
+
+> **Geschaetzte Bearbeitungszeit:** ~30 min (reines Lesen + Skizzieren auf Papier). Kein Lab-Schritt — das eigentliche Bauen passiert in Kap. 10.
 
 ## Lab-Bezug
 

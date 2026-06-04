@@ -1,5 +1,7 @@
 # 18 — HSM-gestuetzte TLS-Terminierung
 
+> **Didaktischer Pfad:** Vorher → [`17-session-pooling.md`](17-session-pooling.md) · Nachher → [`19-ssh-mit-hsm.md`](19-ssh-mit-hsm.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +11,8 @@ Nach diesem Kapitel kannst du:
 - nginx (und HAProxy, Apache analog) so konfigurieren, dass der Privkey via OpenSSL-Engine im HSM bleibt.
 - mit `curl` und `openssl s_client` nachweisen, dass der Handshake tatsaechlich ueber den HSM-Key gelaufen ist.
 - **(Bloom 5 — evaluate)** entscheiden, ob `pkcs11-engine` (Engine-Modell) oder `pkcs11-provider` (Provider-Modell) fuer ein neues Deployment der richtige Pfad ist — und welche Distro-Realitaeten (OpenSSL-3-Migration, Engine-Deprecation) die Wahl in zwei Jahren erzwingen werden.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Lab `make tls-serve` + curl/s_client-Tests 25 min + Spy-Trace 10 min). Engine-Format und das doppelte `pkcs11:` sind die Verwirr-Stellen, die der curl-Test schnell glaettet.
 
 ## Lab-Bezug
 

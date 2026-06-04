@@ -1,5 +1,7 @@
 # 19 — HSM-gestuetzte SSH-Authentifizierung
 
+> **Didaktischer Pfad:** Vorher → [`18-tls-mit-hsm.md`](18-tls-mit-hsm.md) · Nachher → [`20-key-wrap.md`](20-key-wrap.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +11,8 @@ Nach diesem Kapitel kannst du:
 - ssh mit `PKCS11Provider`-Option oder ueber ssh-agent loginieren lassen.
 - die typischen Smartcard-/YubiKey-Use-Cases erkennen, die hier dieselbe Mechanik nutzen.
 - **(Bloom 5 — evaluate)** entscheiden, ob in einem konkreten Operations-Team `PKCS11Provider` pro Login, ssh-agent mit Modul-Cache oder eine SSH-Certificate-Authority die richtige Pubkey-Verteilung ist — und welche Kosten (PIN-Prompts pro Tag, Forwarding-Risiko, CA-Aufbau) die Entscheidung tragen.
+
+> **Geschaetzte Bearbeitungszeit:** ~45 min (Lesen 20 min + Lab `make ssh-test` 15 min + ssh-agent-Eigenexperiment 10 min). Der Mechanism ist klein, die Operations-Achse (Forwarding-Risiko) ist die eigentliche Lehre.
 
 ## Lab-Bezug
 

@@ -64,10 +64,12 @@ Lege eine `OPENSSL_CONF`-Variante an, in der `MODULE_PATH` auf `pkcs11-spy.so` z
 
 ## Reflexionsfragen
 
-- Warum braucht ein **TLS-1.3-Server-Key** nur `CKA_SIGN`, nicht `CKA_DECRYPT`?
-- Wann ist die Reihenfolge `ssl_ciphers ECDHE+AESGCM:CHACHA20` wichtig — was wuerde passieren, wenn statt `ECDHE+AESGCM` `AES256-SHA` als erstes stuende?
-- Welches Risiko bringt es, wenn `pin-value=` in der nginx-Config steht und die Config in einem Git-Repo liegt?
-- Was passiert, wenn dein nginx mit 4 Worker-Prozessen laeuft und die HSM-Library nicht fork-safe ist?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum braucht ein **TLS-1.3-Server-Key** nur `CKA_SIGN`, nicht `CKA_DECRYPT`?
+2. **(Analyse)** Wann ist die Reihenfolge `ssl_ciphers ECDHE+AESGCM:CHACHA20` wichtig — was wuerde passieren, wenn statt `ECDHE+AESGCM` `AES256-SHA` als erstes stuende? Verfolge den HSM-Capability-Pfad: an welcher Stelle im Handshake faellt der Key-Funktions-Mismatch auf?
+3. **(Analyse)** Was passiert, wenn dein nginx mit 4 Worker-Prozessen laeuft und die HSM-Library nicht fork-safe ist? Welche Stelle in `nginx-pkcs11.conf.template` waere die noetige Vorbeugungs-Konfiguration?
+4. **(Evaluate)** Du sollst HSM-TLS-Termination auf 200 Edge-Pods skalieren, ein zentraler HSM-Cluster mit ~8 ms RTT. Welcher Aspekt limitiert zuerst — TLS-Throughput, HSM-Session-Quote oder Handshake-Latenz? Welche zwei Architektur-Knoepfe (Session-Resumption, OCSP-Stapling) wuerdest du drehen, bevor du mehr HSM-Hardware kaufst?
 
 ## Musterloesung
 

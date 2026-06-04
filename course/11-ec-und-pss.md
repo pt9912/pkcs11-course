@@ -1,5 +1,15 @@
 # 11 — ECDSA und RSA-PSS
 
+> **Didaktischer Pfad:** Vorher → [`08-debugging.md`](08-debugging.md) · Nachher → [`07-service-integration.md`](07-service-integration.md) (Architektur-Skizze nach Debugging — sonst happy-path-Trugschluss)
+
+## Bevor du anfaengst — was vermutest du?
+
+> Du nimmst `CKM_RSA_PKCS_PSS`, signierst, der OpenSSL-Verifier akzeptiert die Signatur — mit `-sigopt rsa_padding_mode:pss`. Du wechselst die Salt-Laenge im Verifier-Aufruf von 32 auf 20. Geht der Verify trotzdem durch?
+
+Wahrscheinliche Vermutung: ja. PSS ist eine moderne Sicherheits-Verbesserung, die "richtigen" Parameter sind irgendwo im Algorithmus eingebrannt — Salt-Laenge ist ein Detail, das die Bibliothek schon richtig macht. Mentale Karte: **PSS = ein Padding-Mode wie PKCS#1, mit etwas mehr Schutz**.
+
+Diese Karte uebersieht, dass PSS ein **parametrierter** Modus ist: Hash der Nachricht, MGF-Hash und Salt-Laenge muessen Signer und Verifier **byte-identisch** teilen, sonst schlaegt der Verify ohne klare Fehlermeldung fehl. Bei ECDSA wiederholt sich das Muster auf der Encoding-Achse: `pkcs11-tool` gibt rohe `r||s`-Bytes aus, OpenSSL erwartet DER-codiertes `SEQUENCE { r, s }`. Mathematik korrekt, Encoding falsch — selbe Folge: `Verification Failure` ohne Begruendung. Halte die "PSS/ECDSA ist eingebrannt"-Karte fest. Dieses Kapitel zeigt, dass die *Parameter-Achse* (Salt, MGF, DER vs raw) den Unterschied zwischen "funktioniert" und "Verifier sagt Nein" macht — und dass die HSM-Capabilities (`--list-mechanisms`) entscheiden, bevor die Theorie ueberhaupt anfaengt.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +19,8 @@ Nach diesem Kapitel kannst du:
 - ECDSA-Signaturencoding fuer OpenSSL korrekt behandeln.
 - entscheiden, welcher Mechanism fuer neue Systeme sinnvoll ist.
 - **(Bloom 5 — evaluate)** fuer ein gegebenes System-Szenario (Bestand, FIPS, Cloud) **begruenden**, welcher Mechanism die richtige Wahl ist — und welche zwei HSM-Eigenschaften die Entscheidung tatsaechlich tragen, nicht nur die kryptographische Theorie.
+
+> **Geschaetzte Bearbeitungszeit:** ~75 min (Lesen 30 min + Lab 15 min + ECDSA-/PSS-Eigenexperimente 30 min). PSS-Salt-Mismatch und ECDSA-DER-Encoding sind die zwei Stolperer, die in fast jedem realen Projekt einmal auftauchen.
 
 ## Lab-Bezug
 

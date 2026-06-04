@@ -1,5 +1,7 @@
 # 12 - Sprachbindings im Vergleich
 
+> **Didaktischer Pfad:** Vorher → [`06-java-sunpkcs11.md`](06-java-sunpkcs11.md) · Nachher → [`08-debugging.md`](08-debugging.md) (vorgezogen, weil Debugging Grundwerkzeug ist)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,8 @@ Nach diesem Kapitel kannst du:
 - in jeder Sprache denselben PKCS#11-Grundfluss wiedererkennen.
 - typische Fehler pro Stack schneller einordnen.
 - **(Bloom 5 — evaluate)** fuer eine konkrete Anwendung entscheiden, welche Abstraktionsebene (JCA-`KeyStore`, native PKCS#11-API, Pkcs11Interop-Session) zur Architektur passt — und welche zwei Stack-Eigenschaften (Cleanup-Modell, vorhandene Cert-Plumbing-Erwartung) die Wahl tragen, nicht die Sprachpraeferenz.
+
+> **Geschaetzte Bearbeitungszeit:** ~45 min (Lesen 25 min + alle vier Demos einmal laufen lassen 20 min). Die Lab-Dauer ist kurz, weil die Demos sich gegenseitig validieren — der Lernwert steckt im Vergleich der Stacks.
 
 ## Lab-Bezug
 

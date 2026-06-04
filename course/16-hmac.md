@@ -1,5 +1,15 @@
 # 16 — HMAC und symmetrische Keys
 
+> **Didaktischer Pfad:** Vorher → [`15-streaming.md`](15-streaming.md) · Nachher → [`17-session-pooling.md`](17-session-pooling.md) (Pool-Demos vermessen HMAC-Throughput)
+
+## Bevor du anfaengst — was vermutest du?
+
+> Du sollst "API-Tokens signieren". Reflex: RSA-Privkey, RSA-Pubkey, JWT mit RS256. Warum noch HMAC anschauen, wenn man eh schon einen HSM-Signing-Key hat?
+
+Wahrscheinliche Vermutung: HMAC ist die "kleine" Loesung — wenn man kein PKI hat. Mit HSM und sauberem RSA-Stack ist HMAC ueberfluessig. Mentale Karte: **Signieren = RSA/ECDSA. HMAC = wenn man nichts Besseres hat**.
+
+Diese Karte missdeutet, was MAC und Signatur jeweils kosten und garantieren. RSA-Signatur: ~1 ms pro Operation, **oeffentlich verifizierbar** (Verifier braucht nur den Pubkey). HMAC-SHA256: ~Mikrosekunden, **shared secret** (Sender und Verifier teilen denselben Key). Wenn Sender und Verifier ohnehin im selben Trust-Boundary sitzen — Service-Cluster, gemeinsamer HSM-Zugriff, Webhook-Aussteller und -Empfaenger mit geteiltem Secret — ist HMAC nicht die Notloesung, sondern die *korrekte* Wahl: Faktor 1000 schneller, 32 statt 256 Byte Output, kein Cert-Plumbing. Halte die "HMAC = arme Variante"-Karte fest. Dieses Kapitel zeigt, dass die Auswahl HMAC vs RSA eine **Trust-Boundary-Frage** ist, nicht eine "wie gut ist mein PKI"-Frage — und dass `CKK_GENERIC_SECRET` mit `CKA_SENSITIVE=true`, `CKA_EXTRACTABLE=false` der Standard-Weg ist, ein HMAC-Secret HSM-resident zu halten.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -10,6 +20,8 @@ Nach diesem Kapitel kannst du:
 - HMAC-SHA256 ueber Daten signieren und HSM-seitig via `C_Verify` pruefen.
 - einen HS256-JWT mit einem HSM-Key signieren und verifizieren.
 - **(Bloom 5 — evaluate)** fuer ein gegebenes API-Auth-Szenario (Service-to-Service, Webhook, Multi-Tenant) entscheiden, ob HMAC-im-HSM, JWT mit RS256 oder mTLS die richtige Wahl ist — und welcher der drei Faktoren (Trust-Boundary, Public-Verifiability, Key-Verteilung) den Ausschlag gibt.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Lab + Cross-Sprach-JWT 35 min). Die Cross-Sprach-Demo (Go-JWT, Java-Verify) ist die Lab-Highlight-Stelle — byte-identische Tokens ueber vier Stacks.
 
 ## Lab-Bezug
 

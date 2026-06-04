@@ -84,10 +84,12 @@ openssl req -in lab/work/broken.csr -noout -verify 2>&1 || echo "wie erwartet: u
 
 ## Reflexionsfragen
 
-- Was beweist die CSR-Signatur — und was beweist sie **nicht**?
-- Warum bekommt die CA-CSR vom Antragsteller statt direkt einen vorgefertigten Cert zur Unterschrift?
-- Wer haftet, wenn der `SubjectKeyIdentifier` und `AuthorityKeyIdentifier` nicht zueinander passen?
-- Wenn dein Subject `CN=app.example.org` ist, aber SAN-Extension fehlt: warum lehnt ein moderner Browser das ab?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Was beweist die CSR-Signatur — und was beweist sie **nicht**?
+2. **(Analyse)** Warum bekommt die CA-CSR vom Antragsteller statt direkt einen vorgefertigten Cert zur Unterschrift? Welche Compliance-Eigenschaft (kein Cert ohne Antragstellerbeleg) waere mit dem umgekehrten Workflow gebrochen?
+3. **(Analyse)** Wenn dein Subject `CN=app.example.org` ist, aber SAN-Extension fehlt: warum lehnt ein moderner Browser das ab? Welche RFC- und Browser-Vendor-Entscheidung steht dahinter, und ab welchem Jahr ist das durchgesetzt?
+4. **(Evaluate)** Du sollst eine interne CA fuer ein 50-Service-Mesh aufsetzen. Welche zwei Architektur-Achsen (Issuing-CA-Kompromittierung, Insider mit HSM-Zugriff) kippen die Wahl zwischen "Root + Issuing CA beide im HSM" und "Root offline, Issuing online im HSM"? Und wer haftet, wenn der `SubjectKeyIdentifier` und `AuthorityKeyIdentifier` der Chain nicht zusammenpassen?
 
 ## Musterloesung
 

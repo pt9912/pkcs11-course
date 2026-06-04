@@ -72,10 +72,12 @@ Erwartet: ssh-agent listet die HSM-Pubkeys via `ssh-add -L`. Ein folgender `ssh`
 
 ## Reflexionsfragen
 
-- Wo passiert der einzige PKCS#11-`C_Sign`-Aufruf im SSH-Login-Ablauf, und ueber welche Daten?
-- Warum schicken wir den **Public Key** unverschluesselt an den SSH-Server — ist das ein Leak?
-- Wenn dein HSM 5 Pubkeys exponiert und `authorized_keys` nur einen davon enthaelt: wieviele Versuche macht ssh maximal? Welche Folgekosten hat das?
-- Welcher Angreifer-Move ist mit SSH-Agent-Forwarding (`ssh -A`) ueber einen kompromittierten Jump-Host moeglich?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Wo passiert der einzige PKCS#11-`C_Sign`-Aufruf im SSH-Login-Ablauf, und ueber welche Daten?
+2. **(Analyse)** Warum schicken wir den **Public Key** unverschluesselt an den SSH-Server — ist das ein Leak? Und welche Information ueber den Token-Owner laesst sich aus dem reinen Pubkey nicht ableiten?
+3. **(Analyse)** Wenn dein HSM 5 Pubkeys exponiert und `authorized_keys` nur einen davon enthaelt: wieviele Versuche macht ssh maximal? Welche Folgekosten (PIN-Eingaben, Audit-Log-Eintraege, Token-Counter-Hochzaehlen) hat das?
+4. **(Evaluate)** Du baust SSH-Login fuer eine Admin-Crew (8 Personen mit YubiKey, 400 Hosts). Vergleiche "PKCS#11-Pubkey in `authorized_keys` pro Host" mit "SSH-Certificates ueber HSM-CA". Welche zwei Operations-Achsen kippen die Wahl Richtung SSH-Certificates — und welcher Angreifer-Move ist mit SSH-Agent-Forwarding (`ssh -A`) ueber einen kompromittierten Jump-Host moeglich, der mit SSH-Certs anders aussieht?
 
 ## Musterloesung
 

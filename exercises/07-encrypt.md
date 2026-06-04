@@ -61,10 +61,12 @@ Java und Kotlin brauchen vorher den Plumbing-Cert (das `make`-Target `issue-wrap
 
 ## Reflexionsfragen
 
-- Warum wird der AES-Key auf dem Host erzeugt und nicht im HSM? Was waere der Nachteil, wenn der AES-Key dauerhaft im HSM laege?
-- Wieso fragen Java/Kotlin nicht direkt nach `RSA/ECB/OAEPPadding` mit dem SunPKCS11-Provider, sondern paddieren in Software?
-- Welches Risiko entsteht, wenn der Sender den gewrappten AES-Key wiederverwendet (gleicher Key fuer zwei Dokumente, neuer IV)?
-- Was passiert konkret, wenn Sender und Empfaenger verschiedene OAEP-Hash-Algorithmen waehlen?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum wird der AES-Key auf dem Host erzeugt und nicht im HSM? Was waere der Nachteil, wenn der AES-Key dauerhaft im HSM laege?
+2. **(Analyse)** Wieso fragen Java/Kotlin nicht direkt nach `RSA/ECB/OAEPPadding` mit dem SunPKCS11-Provider, sondern paddieren in Software? Welche Stelle im OpenJDK-Stack waere die "richtige" Stelle, das zu reparieren — und warum macht es BouncyCastle nicht von alleine?
+3. **(Analyse)** Welches Risiko entsteht, wenn der Sender den gewrappten AES-Key wiederverwendet (gleicher Key fuer zwei Dokumente, neuer IV)? Vergleiche mit dem RFC-5116-Argument "AEAD darf jeden Schluessel-Nonce-Paar nur einmal sehen".
+4. **(Evaluate)** Ein Architekt fordert "FIPS-zertifizierte OAEP-Decrypt" auf einem Linux-Java-Service. Du hast zwei Pfade gesehen (JCA-Software-OAEP, HSM-resident). Welcher gewinnt — und welche zwei Achsen (Crypto-Boundary, Audit-Sichtbarkeit) tragen die Entscheidung? Hinweis: Performance ist hier sekundaer.
 
 ## Musterloesung
 

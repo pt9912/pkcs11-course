@@ -1,5 +1,7 @@
 # 17 — Session-Pooling und Thread-Safety
 
+> **Didaktischer Pfad:** Vorher → [`16-hmac.md`](16-hmac.md) · Nachher → [`18-tls-mit-hsm.md`](18-tls-mit-hsm.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Wenn ein PKCS#11-`C_Logout` ein `close()` auf einem TCP-Socket waere — was wuerde dann beim Logout in einer Anwendung mit Pool zerbrechen?
@@ -19,6 +21,8 @@ Nach diesem Kapitel kannst du:
 - empirisch einschaetzen, wann Pooling tatsaechlich Durchsatz bringt — und wann nicht (SoftHSM-Eigenheit).
 - die typischen Stolperfallen rund um `C_Login`-Lebensdauer und `fork()` benennen.
 - **(Bloom 5 — evaluate)** anhand eines gemessenen Benchmarks bewerten, ob ein gegebener Speedup vom HSM, vom Pool oder vom Anwendungs-Overhead stammt — und welche Pool-Groesse fuer einen Production-Service (mit dokumentiertem HSM-Session-Limit) die richtige Wahl ist.
+
+> **Geschaetzte Bearbeitungszeit:** ~75 min (Lesen 25 min + ein Sprach-Worked-Example 25 min + Pool-Size-Variation als Faded 25 min). Die "SoftHSM serialisiert"-Lektion ist mental teurer als der Code — nicht ueberlesen.
 
 ## Lab-Bezug
 
@@ -58,16 +62,89 @@ PKCS#11 §11.4 ist hier unmissverstaendlich: nach `C_Login(session, CKU_USER, pi
 | **miekg/pkcs11 (Go)** | Library handle. Read-only Aufrufe wie `GetSlotList`. | `SessionHandle`-gebundene Calls (`Sign`, `Encrypt`, `Find*`). Wer parallel signiert, braucht parallel Sessions. |
 | **Pkcs11Interop (C#)** | Library, wenn mit `AppType.MultiThreaded` geladen. `ISlot`-Lookup. | `ISession`-Operationen — gleicher Grund wie Go. |
 
-## Pool-Patterns pro Sprache
+## Pool-Patterns pro Sprache: Ueberblick
 
-| Sprache | Datenstruktur | Sync-Primitive |
+Vier Demos, alle mit Pool-Groesse 8 und 10000 HMAC-SHA256-Operationen. Wir arbeiten den Go-Pool vollstaendig durch (`chan`-basiert, Standard-Pattern) und lassen die drei anderen als Faded Examples folgen.
+
+| Sprache | Datenstruktur (kurz) | Sync-Primitive |
 |---|---|---|
 | Go | `chan pkcs11.SessionHandle` | unbuffered channel ist selbst die Semaphore |
 | C# | `BlockingCollection<ISession>` | interne Semaphore, `Take()`/`Add()` |
 | Java | `BlockingQueue<Mac>` (oder `<ISession>`) | `take()`/`put()` |
-| Kotlin | wie Java; alternativ Coroutines + `Channel` | mit Coroutines `withContext(Dispatchers.IO)` |
+| Kotlin | wie Java; alternativ Coroutines + `Channel` | `withContext(Dispatchers.IO)` |
 
-In allen vier Demos liegt die Pool-Groesse bei 8 Sessions und der Lasttest macht 10000 HMAC-SHA256-Operationen. Der gemessene Speedup zeigt eine wichtige Realitaet:
+### Worked Example: der Go-Pool (vollstaendig)
+
+```bash
+make gen-hmac           # Voraussetzung: HMAC-Key auf ID=05
+make go-pool-demo       # Channel-Pool, atomic.Int64-Counter
+```
+
+**Schritt 1 — Init: einmal `C_Initialize`, einmal `C_Login`.** Der `main`-Goroutine ruft `p.Initialize()` einmal beim Startup. Wichtig: Login wirkt anwendungsweit (PKCS#11 §11.4) — wir loggen **einmal** mit einer der spaeter geoeffneten Sessions und nicht pro Session erneut.
+
+**Schritt 2 — Pool aufbauen: N Sessions vorab oeffnen.** Eine Schleife `for i := 0; i < poolSize; i++` ruft `p.OpenSession(slot, CKF_SERIAL_SESSION|CKF_RW_SESSION)` und legt das Handle in den Channel `pool := make(chan pkcs11.SessionHandle, poolSize)`. Nach der Schleife hat der Channel N Handles, der Buffer ist voll.
+
+**Schritt 3 — Hot-Path: Borrow/Return ueber Channel-Operationen.** Jeder Worker macht:
+
+```go
+session := <-pool                 // blockierend, wenn keine Session frei
+sig, err := p.Sign(session, msg)  // HMAC-Operation
+pool <- session                   // zurueck in den Pool
+```
+
+Der Channel **ist** die Semaphore. Wenn 8 Sessions im Pool sind und 12 Worker laufen, blockieren 4 Worker, bis eine Session zurueckkommt — kein `sync.WaitGroup`, kein eigener Mutex.
+
+**Schritt 4 — Mess-Schleife.** Sequenziell: ein Worker, 10000 Operationen, Wallclock. Parallel: 8 Worker, `sync.WaitGroup`, 10000 Operationen verteilt, Wallclock. `atomic.Int64` zaehlt erfolgreiche Operationen, falls einer scheitert.
+
+**Schritt 5 — Cleanup.** `for i := 0; i < poolSize; i++ { p.CloseSession(<-pool) }` leert den Channel und schliesst jede Session. Danach `p.Logout(session)` einmal und `p.Finalize()`. **Reihenfolge** ist wichtig — `Finalize` vor `CloseSession` waere ein Fehler.
+
+**Schritt 6 — Ergebnis lesen.** Auf SoftHSM: Sequenziell ~xxx ops/s, Parallel ~1.0-1.3x. Auf realem HSM mit Hardware-Parallelitaet: bis ~8x bei Pool-Groesse 8. Pool ist Korrektheits-Pattern (verhindert `CKR_OPERATION_ACTIVE`), nicht Performance-Garantie.
+
+Der gewonnene Schema-Kern: **Pool besteht aus drei Stueck: (1) gemeinsame Library-Init + Login einmal, (2) N persistente Sessions im Buffer, (3) sync-Primitive, die als Semaphore wirken. Der Hot-Path beruehrt keine PKCS#11-Lifecycle-Funktionen mehr.**
+
+### Faded Examples — die drei Sprach-Pfade
+
+Pro Pfad: kurze Tabellen-Beschreibung und **drei Leitfragen**.
+
+#### C# (`Pkcs11PoolDemo`)
+
+| Datenstruktur | Sync-Primitive | Worker-Lib |
+|---|---|---|
+| `BlockingCollection<ISession>` | interne Semaphore, `Take()`/`Add()` | `Task.WhenAll` mit `Task.Run(...)` pro Worker. |
+
+Leitfragen:
+
+1. **Was passiert bei `Take()`, wenn die Collection leer ist?** Vergleiche mit Go's `<-pool`. Welche Komponente blockiert wo?
+2. **Pkcs11Interop wird mit `AppType.MultiThreaded` initialisiert. Was bedeutet das fuer die Library-internen Locks, und welcher CKR-Fehler waere bei `SingleThreaded` mit mehreren Workern zu erwarten?**
+3. **Wo passiert `Login` — einmal beim Setup oder pro Session?** Wenn pro Session: was wuerde ein `Logout` in einem der Worker auf alle anderen Sessions auswirken?
+
+#### Java (`pkcs11-pool-demo`)
+
+| Datenstruktur | Sync-Primitive | Besonderheit |
+|---|---|---|
+| `BlockingQueue<Mac>` — Pool von vorgefertigten `Mac`-Instanzen, **nicht** `ISession` direkt. | `take()`/`put()`. | SunPKCS11 hat einen *internen* Session-Pool, der unter den `Mac`-Instanzen liegt — Java-Programmierer muss ihn nicht direkt verwalten. |
+
+Leitfragen:
+
+1. **Warum Pool von `Mac` und nicht von `Session`?** (Tipp: SunPKCS11 macht das transparente Session-Management; was knapp wird, sind die stateful `Mac`-Instanzen pro `getInstance`-Aufruf, die GC-Druck erzeugen.)
+2. **Wo siehst du, dass SunPKCS11 wirklich Sessions wiederverwendet — gibt es ein Indiz im Code oder muss man den Provider-Source lesen?** (Antwort: nicht direkt im Anwendungs-Code; `pkcs11-spy`-Trace zeigt es.)
+3. **Setze die Pool-Groesse auf 1 und starte 8 parallele Worker mit demselben `Mac`. Was passiert?** Vergleiche mit dem Go-Pfad — gleiche Fehlerklasse oder andere?
+
+#### Kotlin (`pkcs11-pool-demo`)
+
+| Variante 1 | Variante 2 |
+|---|---|
+| Identisch zu Java: `BlockingQueue<Mac>` plus `ExecutorService`. | Coroutines: `Channel<Mac>(capacity=8)` plus `withContext(Dispatchers.IO)` pro Worker. |
+
+Leitfragen:
+
+1. **Wann ist Coroutines + `Channel` der bessere Pool — und wann ist es nur eine schickere Java-Variante?** Vergleiche mit der `Dispatchers.IO`-Threadpool-Groesse (default 64) — was wuerde aus 8 Pool-Slots werden, wenn 200 Coroutines parallel `take()` versuchen?
+2. **Eine HSM-Sign-Operation ist blockierend (PKCS#11 hat keine async-API). Was bedeutet das fuer eine Suspend-Funktion mit `withContext(Dispatchers.IO)`?**
+3. **Wuerde `Dispatchers.Default` statt `IO` funktionieren — und wenn nein, woran wuerde es scheitern?** (Tipp: CPU-bound vs blockierend.)
+
+### Wenn alle vier Pfade im Kopf zusammenkommen
+
+Pool-Pattern ist sprachunabhaengig: N persistente Sessions, Sync-Primitive als Semaphore, Login einmal. Der Sprach-Unterschied ist die Wahl der Datenstruktur — und ob die Lib (Java/SunPKCS11) den Session-Layer transparent macht oder ob die Anwendung ihn selbst verwaltet (Go/C#). Auf realer HSM-Hardware ist die Performance-Kurve nicht von der Sprache, sondern vom HSM bestimmt.
 
 ## Realitaets-Check: SoftHSM serialisiert
 

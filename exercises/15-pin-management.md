@@ -77,10 +77,12 @@ In `60-pin-change.sh` die TMP_PIN auf `12` setzen (kuerzer als `pin min=4`). Erw
 
 ## Reflexionsfragen
 
-- Was unterscheidet `C_SetPIN` von `C_InitPIN` semantisch und in der Berechtigung?
-- Warum kann eine Anwendung das `CKF_USER_PIN_FINAL_TRY`-Flag nicht ignorieren, ohne den User in den Lockout zu schicken?
-- Wenn die SO-PIN deines produktiven HSMs verloren geht — was sind realistische Recovery-Optionen?
-- Wieso ist es selten ein Problem, wenn ein Brute-Force-Angreifer alle 4-stelligen PINs durchprobieren will, sobald das Token "kuenstliche Verzoegerung" implementiert?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Was unterscheidet `C_SetPIN` von `C_InitPIN` semantisch und in der Berechtigung?
+2. **(Analyse)** Warum kann eine Anwendung das `CKF_USER_PIN_FINAL_TRY`-Flag nicht ignorieren, ohne den User in den Lockout zu schicken? Welcher Code-Pfad (Auto-Retry, "vielleicht-klappt-es-ja"-Branch) ist dabei besonders gefaehrlich?
+3. **(Analyse)** Wieso ist es selten ein Problem, wenn ein Brute-Force-Angreifer alle 4-stelligen PINs durchprobieren will, sobald das Token "kuenstliche Verzoegerung" implementiert? Rechne grob mit 1 Sekunde Delay pro Fehlversuch: wie viele Stunden waeren noetig fuer alle 10000 PINs?
+4. **(Evaluate)** Wenn die SO-PIN deines produktiven HSMs verloren geht — was sind realistische Recovery-Optionen pro HSM-Klasse (YubiKey, Smartcard, Thales Luna, AWS CloudHSM)? Und welche **eine** organisatorische Massnahme (M-of-N-Ceremony, Backup-Karte, Vendor-Vertrag) wuerdest du *vor* jedem Production-Go fordern?
 
 ## Musterloesung
 

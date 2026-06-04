@@ -1,5 +1,15 @@
 # 06 — Java mit SunPKCS11
 
+> **Didaktischer Pfad:** Vorher → [`05-zertifikate.md`](05-zertifikate.md) · Nachher → [`12-sprachbindings.md`](12-sprachbindings.md) (vorgezogen, damit JCA-Eigenheiten am Stack-Vergleich konkret werden)
+
+## Bevor du anfaengst — was vermutest du?
+
+> Du legst einen RSA-Privkey im Token an, laedst den PKCS#11-KeyStore mit `KeyStore.getInstance("PKCS11", provider)`, rufst `keyStore.aliases()`. Wieviele Aliase erwartest du?
+
+Wahrscheinliche Vermutung: einen. Ein Privkey im Token, ein Alias im KeyStore — das ist die Erfahrung mit JKS oder PKCS#12: pro Key-Eintrag ein Alias. Mentale Karte: **KeyStore = flache Liste der vorhandenen Keys**.
+
+Diese Karte uebersieht die Cert-Kopplung. SunPKCS11 baut die Alias-Liste **nicht** aus den Privkey-Objekten, sondern aus *Zertifikaten*, denen es ueber gleiche `CKA_ID` einen Privkey zuordnen kann. Ohne Zertifikat im Token kein Alias. Go und C# wuerden den Privkey ueber `CKA_ID=01` direkt finden — Java zeigt eine leere Liste, obwohl der Key da ist. Halte die "ein Key = ein Alias"-Karte fest. Dieses Kapitel macht sichtbar, dass die JCA-`KeyStore`-Abstraktion einen Cert-Plumbing-Hack erzwingt, der im echten HSM-Betrieb (CA-signiertes Cert, gleiche `CKA_ID`) saubere Identitaet liefert — im Lab muessen wir den Cert selbst beibringen.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +18,9 @@ Nach diesem Kapitel kannst du:
 - einen PKCS#11-Token als Java-`KeyStore` laden.
 - den Zusammenhang zwischen Zertifikat, `CKA_ID` und Java-Alias erklaeren.
 - mit JCA ueber PKCS#11 signieren und mit einem Public Key verifizieren.
+- **(Bloom 4 — analyze)** unterscheiden, wann ein Verify mit dem Default-Provider klappt und wann er auf `CKA_EXTRACTABLE=false`-Pubkeys scheitert — und welcher Pfad das im Lab-Code zeigt.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 20 min + Lab `make java-demo` 15 min + Eigenexperimente 25 min). Slot-Index-Falle und Default-Provider-Bruch sind die zwei nachhaltigsten Aha-Momente.
 
 ## Lab-Bezug
 

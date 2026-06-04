@@ -86,10 +86,12 @@ In Produktion: KEK-Verlust = Backup-Verlust. KEK muss separat (off-HSM, in einem
 
 ## Reflexionsfragen
 
-- Was unterscheidet `C_WrapKey` semantisch von `C_Encrypt` mit dem gleichen Mechanism?
-- Warum kann der KEK selbst **nicht** mit dem gleichen Mechanism gebackuppt werden?
-- Wozu dient `CKA_WRAP_TEMPLATE` und welche Angreifer-Move verhindert es?
-- Wenn dein produktiver KEK weg ist und du nur das gewrappte Blob hast: was kannst du tun?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Was unterscheidet `C_WrapKey` semantisch von `C_Encrypt` mit dem gleichen Mechanism?
+2. **(Analyse)** Warum kann der KEK selbst **nicht** mit dem gleichen Mechanism gebackuppt werden? Folge der rekursiven Frage: was sichert das Wrapping-Key des Wrapping-Keys?
+3. **(Analyse)** Wozu dient `CKA_WRAP_TEMPLATE`, und welche Angreifer-Move verhindert es? Konkret: ein Angreifer mit Unwrap-Recht koennte sonst was an dem gewrappten Key veraendern, bevor das HSM ihn zurueck-importiert?
+4. **(Evaluate)** Du entwirfst eine KEK-Policy fuer eine eIDAS-Signing-Umgebung. Zwei Vorschlaege: (A) ein KEK mit `CKA_WRAP=true, CKA_UNWRAP=true` auf dem Produktiv-HSM; (B) Wrap-Only-KEK auf Produktiv-HSM plus Unwrap-Only-KEK auf Restore-HSM. Welche zwei Compliance-/Operations-Achsen (Mehraugen, Audit-Trail-Klarheit) kippen die Wahl — und was kannst du tun, wenn dein produktiver KEK weg ist und du nur das gewrappte Blob hast?
 
 ## Musterloesung
 

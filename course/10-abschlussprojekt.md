@@ -1,5 +1,7 @@
 # 10 — Abschlussprojekt
 
+> **Didaktischer Pfad:** Vorher → [`25-rfc3161-timestamps.md`](25-rfc3161-timestamps.md) · Nachher → [`26-abschlussprojekt-advanced.md`](26-abschlussprojekt-advanced.md) (Track-2-Capstone, optional)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,9 @@ Nach diesem Kapitel kannst du:
 - Signatur-, Verify-, Health- und Key-Listing-Endpunkte definieren.
 - HSM-Fehler in stabile API-Fehler uebersetzen.
 - Akzeptanztests fuer Token, Key, Mechanism und Signaturverifikation formulieren.
+- **(Bloom 6 — create)** einen lauffaehigen Signatur-Service bauen, der die Akzeptanzkriterien erfuellt und ueber Cross-Language-Verify bestaetigt, dass die Signaturen standard-kompatibel sind.
+
+> **Geschaetzte Bearbeitungszeit:** **Capstone — mehrere Sitzungen.** Stufe 1 (Akzeptanzkriterien): ~6–8 h. Stufe 2 (Erweiterungen): +4–6 h. Stufe 3 (Production-Audit): +8–12 h. Plan in Sprints, nicht in einer Sitzung.
 
 ## Lab-Bezug
 

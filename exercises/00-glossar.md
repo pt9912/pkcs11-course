@@ -58,8 +58,11 @@ Du bekommst die folgenden Fehler. Was ist die wahrscheinlichste Ursache, ohne da
 
 ## Reflexionsfragen
 
-- Welche der acht Praefix-Familien (Aufgabe 1) erscheint dir gerade am unklarsten? Notiere sie — beim ersten Auftreten im Kurs ist das deine Aha-Stelle.
-- Wenn dir Aufgabe 4 zu mehr als drei der fuenf Fehler nichts einfaellt: starte mit [`course/08-debugging.md`](../course/08-debugging.md). Dort wird genau diese Diagnose-Routine eingeuebt.
+Drei Stufen — eine Recall-, eine Analyse-, eine Evaluate-Frage:
+
+1. **(Recall)** Welche der acht Praefix-Familien (Aufgabe 1) erscheint dir gerade am unklarsten? Notiere sie — beim ersten Auftreten im Kurs ist das deine Aha-Stelle.
+2. **(Analyse)** Wenn dir Aufgabe 4 zu mehr als drei der fuenf Fehler nichts einfaellt: starte mit [`course/08-debugging.md`](../course/08-debugging.md). Dort wird genau diese Diagnose-Routine eingeuebt — welche Diagnose-Reihenfolge (Modul → Slot → Token → Session → Object → Attribute) wuerdest du als naechste lernen?
+3. **(Evaluate)** Welcher der sechs Begriffe (Module, Slot, Token, Session, Object, Mechanism) ist beim Wechsel von "Lab-SoftHSM" auf "produktives Cloud-HSM" am staerksten betroffen — und warum waere "Slot" eine schlechtere Antwort als "Session"?
 
 ## Musterloesung
 

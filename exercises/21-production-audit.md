@@ -80,9 +80,11 @@ Das ist die Bloom-6-Komponente: nicht nur erkennen, sondern ein Stueck Architekt
 
 ## Reflexionsfragen
 
-- Welche der zwoelf Fragen hat dir am laengsten gestockt? Das ist typischerweise die Stelle, an der dein Service unter Produktionslast als erstes brechen wuerde.
-- Wieviele Befunde hast du als "klein" eingestuft, die in Wirklichkeit "mittel" sind, weil sie Tests, Doku und Schulung mitnehmen? Eine Faustregel aus der Praxis: jede HSM-Config-Aenderung kostet im Lab eine Stunde, in Production zwei Wochen.
-- Wenn du beide Tracks gebaut hast: welcher Service hat besser abgeschnitten — und warum? Track 2 hat mehr Kontaktflaeche, also mehr Auditpunkte, aber auch mehr explizit gebaute Antworten.
+Drei Stufen — eine Analyse-, eine Evaluate-, eine Create-Frage:
+
+1. **(Analyse)** Welche der zwoelf Fragen hat dir am laengsten gestockt? Das ist typischerweise die Stelle, an der dein Service unter Produktionslast als erstes brechen wuerde — welche zwei Anschluss-Themen aus den Kursmodulen (Kap. 13–25) wuerden dieselbe Lehre noch tiefer behandeln?
+2. **(Evaluate)** Wieviele Befunde hast du als "klein" eingestuft, die in Wirklichkeit "mittel" sind, weil sie Tests, Doku und Schulung mitnehmen? Eine Faustregel aus der Praxis: jede HSM-Config-Aenderung kostet im Lab eine Stunde, in Production zwei Wochen. Welche **eine** Faustregel wuerdest du fuer dein Team als Schaetzheuristik in den Onboarding-Wiki schreiben?
+3. **(Create)** Wenn du beide Tracks gebaut hast: welcher Service hat besser abgeschnitten — und warum? Track 2 hat mehr Kontaktflaeche, also mehr Auditpunkte, aber auch mehr explizit gebaute Antworten. Skizziere eine "Track 3"-Vision (HSM-Pattern, das in keinem der beiden Tracks vorkommt) und ordne sie in dein eigenes Stufen-1/2/3-Schema ein.
 
 ## Musterloesung
 

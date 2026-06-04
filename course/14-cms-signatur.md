@@ -1,5 +1,7 @@
 # 14 — CMS-Dokumentsignatur (PKCS#7) mit HSM
 
+> **Didaktischer Pfad:** Vorher → [`13-verschluesselung.md`](13-verschluesselung.md) · Nachher → [`15-streaming.md`](15-streaming.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -10,6 +12,8 @@ Nach diesem Kapitel kannst du:
 - die Signatur ueber `openssl cms -verify` (oder die jeweilige Sprach-Lib) pruefen.
 - die zwei wiederkehrenden Bruecken-Probleme zwischen HSMs und Standard-CMS-Libs benennen.
 - **(Bloom 5 — evaluate)** fuer einen neuen .NET-/JVM-/Go-Service entscheiden, welche **eine** CMS-Library die geringste Brueckenkomplexitaet zum HSM produziert — und bei welcher Plattform die Bibliotheks-Wahl die Architektur dominiert (Linux-`SignedCms`-Verbot).
+
+> **Geschaetzte Bearbeitungszeit:** ~75 min (Lesen + Bash-Worked-Example 30 min + ein Sprach-Faded 25 min + ASN.1-Eigenexperiment 20 min). Das `signedAttrs`-Indirekt-Modell und die Bridge-Patterns wiederholen sich in Kap. 22 (CSR) — Zeit hier reinzustecken zahlt sich dort aus.
 
 ## Lab-Bezug
 
@@ -71,14 +75,77 @@ Dieses Lab benutzt **detached** — passt zum gewohnten Sign/Verify-Modell aus K
 
 Jede CMS-Bibliothek erwartet einen "Signer", der irgendwann tatsaechlich Bytes signiert. Der HSM-Private-Key ist aber nicht extractable und liegt hinter PKCS#11. Wie kommt das zusammen?
 
-| Stack | Bruecke |
-|---|---|
-| Bash + OpenSSL | Direkt: `openssl cms -sign -engine pkcs11 -keyform engine -inkey "pkcs11:…"`. Die Engine kapselt PKCS#11. |
-| Java/Kotlin + JCA + BouncyCastle | Direkt: `new JcaContentSignerBuilder("SHA256withRSA").setProvider(sunPkcs11Provider).build(privKey)`. BC vertraut der JCA-Pipeline. |
-| Go + miekg/pkcs11 + digitorus/pkcs7 | Adapter: eigener Typ implementiert `crypto.Signer`, dessen `Sign()` ein DigestInfo wrappt und `C_Sign` mit `CKM_RSA_PKCS` aufruft. digitorus/pkcs7 nimmt den Adapter via `AddSigner(cert, signer, …)`. |
-| C# + Pkcs11Interop + BouncyCastle.Cryptography | Adapter: eigener `ISignatureFactory` liefert einen `IStreamCalculator<IBlockResult>`, der gepufferte signedAttrs-Bytes an einen Callback uebergibt — der ruft `Session.Sign(CKM_SHA256_RSA_PKCS, …)`. |
+Ueberblick — vier Pfade, in jedem verlaesst der private Key den HSM nicht (nur die DER-Kodierung der signedAttrs, ~70 Byte, wandert hin; 256 Byte Signatur zurueck):
 
-In **allen** Faellen verlaesst der private Key den HSM nicht. Nur die DER-Kodierung der signedAttrs (~70 Byte) wandert zum HSM hin und 256 Byte Signatur zurueck.
+| Stack | Bruecke (kurz) |
+|---|---|
+| Bash + OpenSSL | Direkt: openssl-engine kapselt PKCS#11. |
+| Java/Kotlin + JCA + BouncyCastle | Direkt: BC vertraut der JCA-Signature-Pipeline. |
+| Go + miekg/pkcs11 + digitorus/pkcs7 | Adapter ueber `crypto.Signer`. |
+| C# + Pkcs11Interop + BouncyCastle.Cryptography | Adapter ueber `ISignatureFactory`. |
+
+Wir arbeiten **einen Pfad vollstaendig durch** (Bash) und lassen dich an den anderen drei pruefen, ob du das Schema verstehst.
+
+### Worked Example: der Bash-Pfad (vollstaendig)
+
+```bash
+make cms-sign      # alles in einem Aufruf
+make cms-verify    # Cross-Tool-Verify
+```
+
+**Schritt 1 — Vorbereitung.** `make import-cert` legt den signing-key plus das self-signed Cert auf `CKA_ID=01` ab. Die Engine wird OpenSSL ueber eine temporaere `openssl.cnf` zugaenglich gemacht (siehe Kap. 05) — Schema `engine:pkcs11:<uri>`.
+
+**Schritt 2 — `signedAttrs` werden vom CMS-Builder gebaut, nicht vom Signer.** `openssl cms -sign -binary -nodetach …` (oder `-md sha256 -outform DER -in lab/work/cms-document.txt`) konstruiert intern die `SignerInfo` mit `contentType`, `signingTime`, `messageDigest` als signed attributes. Du gibst nur Input-File und Cert-Pfad an.
+
+**Schritt 3 — Engine ruft `C_Sign` auf den DER-`signedAttrs`-Bytes.** Genau **eine** PKCS#11-Operation pro CMS: `C_SignInit(CKM_SHA256_RSA_PKCS, signing-key-handle)`, dann `C_Sign(der_signed_attrs)`. Die rund 70 Byte signedAttrs wandern zum HSM, 256 Byte Signatur kommen zurueck. Das Dokument selbst sieht der HSM **nie** — der Hash daraus steht als `messageDigest`-Attribut bereits in den signedAttrs.
+
+**Schritt 4 — Output ist eine `.p7s`-Datei mit detached SignedData.** `openssl cms -verify -binary -inform DER -in lab/work/cms-document.p7s -content lab/work/cms-document.txt -CAfile lab/work/cert.pem -out /dev/null` zeigt `CMS Verification successful`. Der Verifier macht intern: SignerInfo lesen, `messageDigest`-Attr lesen, Doku hashen, vergleichen, signature-Bytes mit Pubkey gegenpruefen.
+
+Der gewonnene Schema-Kern: **Der HSM signiert die `signedAttrs`-DER-Bytes (klein, ~70 B), nicht das Dokument. Die CMS-Library macht die ASN.1-Verpackung. Die Bruecke ist je nach Stack entweder direkt (Bash-Engine, Java-Provider) oder ueber einen Adapter (Go-`crypto.Signer`, C#-`ISignatureFactory`).**
+
+### Faded Examples — die drei Sprach-Pfade
+
+Du hast jetzt das Schema. Pruefe an den drei anderen Pfaden, ob du die jeweils relevante Variante erkennst. Pro Pfad: kurze Tabellen-Beschreibung und **drei Leitfragen**, die du beantworten koennen solltest, bevor du `make ...-cms-demo` aufrufst.
+
+#### Java/Kotlin (`pkcs11-cms-demo`)
+
+| Bruecke | Mechanism-Wahl |
+|---|---|
+| `JcaContentSignerBuilder("SHA256withRSA").setProvider(sunPkcs11Provider).build(privKey)` — BC bekommt einen JCA-`Signature`-konformen Signer und leitet alles ueber SunPKCS11 ans HSM. | JCA-Mapping: `SHA256withRSA` → `CKM_SHA256_RSA_PKCS`. Token hasht und paddet. |
+
+Leitfragen:
+
+1. **Welche Bibliothek baut die `signedAttrs`-DER-Bytes — JCA, SunPKCS11 oder BouncyCastle?** (Tipp: BC; SunPKCS11 weiss nichts von CMS.)
+2. **Was wuerde passieren, wenn du `SHA256withRSAandMGF1` (PSS) statt `SHA256withRSA` setzt — laeuft das durch, und wo wuerde es in Kap. 11 behandelt?**
+3. **Warum reicht hier ein Cert im Token, in Bash und Go aber nicht?** Vergleiche `KeyStore.getCertificate(alias).getPublicKey()` mit dem Bash-Pfad.
+
+#### C# (`Pkcs11CmsDemo`)
+
+| Bruecke | Mechanism-Wahl |
+|---|---|
+| `ISignatureFactory` (BouncyCastle.Cryptography) liefert einen `IStreamCalculator<IBlockResult>`, der `signedAttrs`-Bytes puffert. Im `IBlockResult.GetResult()`-Callback wird `session.Sign(CKM_SHA256_RSA_PKCS, …)` aufgerufen. | wie Java. Token hasht und paddet. |
+
+Leitfragen:
+
+1. **Warum nutzt der Lab-Code BC.Cryptography und nicht `System.Security.Cryptography.Pkcs.SignedCms`?** Antwort steht in Bridge-Problem 2 weiter unten.
+2. **Welche zwei API-Schichten sind aufeinander gestapelt** — Pkcs11Interop unten, BouncyCastle.Cryptography oben? Was tut welche?
+3. **Wie laeuft `signedAttrs`-Bau hier ab?** BC-internal vor dem `ISignatureFactory`-Aufruf oder erst danach? (Antwort: davor — `ISignatureFactory` sieht nur die fertigen DER-Bytes.)
+
+#### Go (`pkcs11-cms-demo`)
+
+| Bruecke | Mechanism-Wahl |
+|---|---|
+| Eigener Typ `pkcs11RSASigner` implementiert `crypto.Signer`. Sein `Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (sig []byte, err error)` baut die `DigestInfo`-Struktur (SHA-256 OID + Hash) und ruft `C_Sign(CKM_RSA_PKCS, digestinfo_bytes)`. `digitorus/pkcs7` nimmt den Adapter via `signedData.AddSigner(cert, signer, …)`. | DigestInfo wird in der Anwendung gebaut → `CKM_RSA_PKCS` (Token paddet nur, hasht nicht). |
+
+Leitfragen:
+
+1. **Warum baut der Go-Pfad die DigestInfo selbst, der Bash-Pfad aber nicht?** Verbinde mit Kap. 04 §"Wer hasht, wer paddet?". (Tipp: das Go-`crypto.Signer`-Interface gibt dem Signer einen vorgefertigten Hash; das HSM kann von dem nicht wissen, *was* fuer ein Hash das ist — DigestInfo macht das explizit.)
+2. **Was passiert, wenn du im Adapter `CKM_SHA256_RSA_PKCS` statt `CKM_RSA_PKCS` setzt — und das Dokument als Input gibst?** Reproduziere und vergleiche die Fehlermeldung.
+3. **Warum macht `digitorus/pkcs7` kein UnsignedAttributes-API verfuegbar?** Das wird in Kap. 25 fuer den TSA-Embedding-Pfad relevant.
+
+### Wenn alle vier Pfade im Kopf zusammenkommen
+
+Reale CMS-Workloads (S/MIME-Mail-Gateways, eIDAS-Vertragsdienste, Code-Signing-Pipelines) waehlen den Stack nicht nach Geschmack: die Bridge ist der knappste Faktor. Wer eine der vier Bruecken einmal durchgebaut hat, hat den Reflex: **erst sich klarmachen, *welche* Bytes der HSM tatsaechlich signiert (signedAttrs vs DigestInfo vs raw), dann die Bibliothek darum bauen.**
 
 ## Bridge-Problem 2: SignedCms auf Linux funktioniert nicht mit HSM-Keys
 

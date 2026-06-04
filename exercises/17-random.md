@@ -85,10 +85,12 @@ Aenderung danach wieder zuruecksetzen.
 
 ## Reflexionsfragen
 
-- Wann lohnt es sich, den HSM-RNG statt `/dev/urandom` zu nutzen, obwohl letzterer technisch ebenfalls kryptographisch sicher ist?
-- Warum ist die SoftHSM-Performance-Zahl irrefuehrend, wenn man sie auf produktive HSM-Hardware extrapoliert?
-- `C_SeedRandom` ist in der Spec optional. Warum lehnen die meisten HSMs es ab — und wieso ist das aus Sicherheitssicht ein **Feature**, kein Bug?
-- Shannon-Entropie von 7.99 bit/byte beweist nicht, dass der RNG sicher ist. Was waere ein simpler RNG, der diesen Wert ueberbietet aber trotzdem komplett unsicher ist?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** `C_SeedRandom` ist in der Spec optional. Warum lehnen die meisten HSMs es ab — und wieso ist das aus Sicherheitssicht ein **Feature**, kein Bug?
+2. **(Analyse)** Warum ist die SoftHSM-Performance-Zahl irrefuehrend, wenn man sie auf produktive HSM-Hardware extrapoliert? Welche zwei Faktoren (in-Process-OpenSSL vs. PCIe-/Netz-Roundtrip) tragen den Unterschied?
+3. **(Analyse)** Shannon-Entropie von 7.99 bit/byte beweist nicht, dass der RNG sicher ist. Was waere ein simpler RNG, der diesen Wert ueberbietet aber trotzdem komplett unsicher ist? Konstruiere ein Beispiel (Tipp: AES-CTR-Mode mit bekanntem Key — die Ausgabe ist statistisch perfekt, aber vorhersagbar).
+4. **(Evaluate)** Wann lohnt es sich, den HSM-RNG statt `/dev/urandom` zu nutzen, obwohl letzterer technisch ebenfalls kryptographisch sicher ist? Entscheide an drei Szenarien (FIPS-Compliance, Cold-Start-Cloud-VM, Audit-pflichtige Key-Genese) und benenne den **einen** Faktor (Compliance-Boundary, Cold-Start-Entropie, Auditierbarkeit), der jeweils kippt.
 
 ## Musterloesung
 

@@ -1,5 +1,15 @@
 # 03 — Token und Objekte
 
+> **Didaktischer Pfad:** Vorher → [`02-lab-setup.md`](02-lab-setup.md) · Nachher → [`04-signieren-und-verifizieren.md`](04-signieren-und-verifizieren.md)
+
+## Bevor du anfaengst — was vermutest du?
+
+> Du legst einen RSA-Key auf SoftHSM an, machst dir eine Notiz `id=01`, listest spaeter `pkcs11-tool --list-objects`. Wo schaust du als erstes nach, um *deinen* Key wiederzufinden — beim Label, beim Handle, beim Slot?
+
+Wahrscheinliche Vermutung: am Handle. Ein Handle ist eine Zahl, die zeigt auf ein konkretes Objekt, das ist doch wie ein Pointer. Mentale Karte: **Objekt-Identitaet = Handle. Zwei Aufrufe mit demselben Handle treffen denselben Key**.
+
+Diese Karte uebersieht zwei Ebenen. Erstens: Object-Handles sind **session-lokal** (PKCS#11 §11.7). Ein Handle aus Session A ist in Session B bedeutungslos — selbst im selben Prozess, selbst auf demselben Token. Zweitens: der **persistente** Identifier eines Objekts ist seine Attribut-Menge, nicht das Handle. Zwei Anwendungen, die denselben Key meinen, einigen sich ueber `CKA_LABEL`/`CKA_ID` — die Bytes, die im Token persistent stehen. Halte die "Handle = stabile Adresse"-Karte fest. Dieses Kapitel zeigt, dass Identitaet von Objekten **ueber Attribute** laeuft, und dass `CKA_EXTRACTABLE` als Einbahnstrasse beim **Erzeugen** entschieden wird, nicht spaeter.
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -9,6 +19,9 @@ Nach diesem Kapitel kannst du:
 - RSA-Keypairs im Token erzeugen.
 - Public Key, Private Key und Zertifikat als PKCS#11-Objekte einordnen.
 - `CKA_LABEL` und `CKA_ID` fuer Anwendungen erklaeren.
+- **(Bloom 5 — evaluate)** die `CKA_EXTRACTABLE`-Einbahnstrasse aus PKCS#11 §10.2.6 fuer eine konkrete Key-Erzeugung gewichten — was ist der Recovery-Pfad bei falscher Wahl?
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 20 min + Lab + Eigenexperiment `CKA_EXTRACTABLE` 25 min + Uebung 15 min).
 
 ## Lab-Bezug
 

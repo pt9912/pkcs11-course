@@ -1,5 +1,7 @@
 # 04 — Signieren und Verifizieren
 
+> **Didaktischer Pfad:** Vorher → [`03-token-und-objekte.md`](03-token-und-objekte.md) · Nachher → [`05-zertifikate.md`](05-zertifikate.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Du nimmst `CKM_RSA_PKCS` und gibst dem Token einen SHA-256-Hash deiner Daten als Input. Hinterher prueft `openssl dgst -sha256 -verify` die Signatur. Geht das durch?
@@ -16,6 +18,9 @@ Nach diesem Kapitel kannst du:
 - den Public Key aus dem Token exportieren.
 - eine Signatur mit OpenSSL ausserhalb des Tokens verifizieren.
 - Hashing, Padding und Mechanism-Wahl als zusammenhaengendes Problem behandeln.
+- **(Bloom 4 — analyze)** die DigestInfo-Falle zwischen `CKM_RSA_PKCS` (Anwendung hasht + paddet selbst) und `CKM_SHA256_RSA_PKCS` (Token hasht + paddet) so trennen, dass ein Verify-Mismatch auf die richtige Mechanism-Familie zurueckgefuehrt wird.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Lab 15 min + Uebung mit Fehlerfall 20 min).
 
 ## Lab-Bezug
 

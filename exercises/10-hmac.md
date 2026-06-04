@@ -72,10 +72,12 @@ Aendere in einer Sprach-Demo `CKM_SHA256_HMAC` auf `CKM_SHA512_HMAC` (in Java/Ko
 
 ## Reflexionsfragen
 
-- Warum kann man mit dem HMAC-Key sowohl sign als auch verify, mit einem RSA-Privkey aber nur sign?
-- Welcher Angriffspfad bleibt offen, wenn der HMAC-Verifier seinen MAC-Vergleich nicht in constant time macht?
-- Wann ist `RS256` (RSA-Signatur) besser als `HS256` (HMAC) bei JWT — und wann umgekehrt?
-- Was passiert, wenn ein JWT-Verifier nicht prueft, dass der `alg`-Header tatsaechlich `HS256` ist?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum kann man mit dem HMAC-Key sowohl sign als auch verify, mit einem RSA-Privkey aber nur sign?
+2. **(Analyse)** Welcher Angriffspfad bleibt offen, wenn der HMAC-Verifier seinen MAC-Vergleich nicht in constant time macht? Schaetze ab, ob ein remote-Timing-Angriff ueber TCP/IP realistisch ist — und welche Library-Funktion ihn ausschliesst.
+3. **(Analyse)** Was passiert, wenn ein JWT-Verifier nicht prueft, dass der `alg`-Header tatsaechlich `HS256` ist? Beschreibe konkret den `alg: none`-Angriff plus den `alg: HS256` → `alg: RS256`-Confusion-Angriff (Pubkey wird als HMAC-Secret missbraucht).
+4. **(Evaluate)** Wann ist `RS256` (RSA-Signatur) besser als `HS256` (HMAC) bei JWT — und wann umgekehrt? Entscheide an drei Achsen (Trust-Boundary, Public-Verifiability, Key-Verteilung) fuer drei Faelle: (a) interner Service-zu-Service, (b) OAuth2-Provider zu Client, (c) Webhook-Aussteller zu beliebigem Empfaenger.
 
 ## Musterloesung
 

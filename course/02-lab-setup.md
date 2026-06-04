@@ -1,5 +1,7 @@
 # 02 - Lab-Setup
 
+> **Didaktischer Pfad:** Vorher → [`01-grundlagen.md`](01-grundlagen.md) · Nachher → [`03-token-und-objekte.md`](03-token-und-objekte.md)
+
 ## Lernziele
 
 Nach diesem Kapitel kannst du:
@@ -8,6 +10,9 @@ Nach diesem Kapitel kannst du:
 - erklaeren, warum Make-Targets im Devcontainer direkt laufen.
 - die wichtigsten Pfade, PINs und Umgebungsvariablen benennen.
 - SoftHSM-Slots und Token reproduzierbar untersuchen.
+- **(Bloom 3 — apply)** die Fehlerfall-Patterns (Devcontainer/Compose) so anwenden, dass eine bewusst falsche ENV-Variable den Fehler **in der gewuenschten Schicht** erzeugt.
+
+> **Geschaetzte Bearbeitungszeit:** ~45 min (Lesen 15 min + Lab-Setup 25 min + Sanity-Check 5 min). Build kann initial laenger dauern.
 
 ## Inhalt des Labs
 

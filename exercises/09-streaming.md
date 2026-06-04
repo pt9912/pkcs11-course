@@ -76,10 +76,12 @@ Beobachte Laufzeit und Anzahl PKCS#11-Aufrufe ueber pkcs11-spy. Kleinere Chunks 
 
 ## Reflexionsfragen
 
-- Warum darf der **Sign**-Pfad mehrere `C_SignUpdate`-Calls haben, aber den `C_Sign` finalen Aufruf am Ende NICHT vergessen?
-- Was passiert, wenn du in der Mitte des Encrypt-Streamings die Session schliesst? (Hinweis: Token-State geht verloren, Final-Buffer enthaelt halben Block — Daten unverwendbar.)
-- Warum erlaubt SoftHSM `CKM_AES_CBC_PAD` als Multi-Part, aber `CKM_AES_GCM` macht oft Probleme?
-- Wie messen, ob das Token tatsaechlich streamt — oder ob die PKCS#11-Bridge im Hintergrund alles puffert?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum darf der **Sign**-Pfad mehrere `C_SignUpdate`-Calls haben, aber den `C_SignFinal` am Ende NICHT vergessen?
+2. **(Analyse)** Was passiert, wenn du in der Mitte des Encrypt-Streamings die Session schliesst? Vergleiche mit "halber HTTP-Request abgebrochen" — wo im Token-State liegt das Aequivalent zu "Final-Buffer enthaelt halben Block"?
+3. **(Analyse)** Warum erlaubt SoftHSM `CKM_AES_CBC_PAD` als Multi-Part, aber `CKM_AES_GCM` macht oft Probleme? Welche Eigenschaft des GCM-Tags (Position, Berechnung) macht Multi-Part zu einem Spec-Sonderfall?
+4. **(Evaluate)** Ein Architekt fordert "10 GB-Dokumente in einer 1-MB-Pod-Memory-Limit-Umgebung signieren". Welche **eine** Stellschraube (Mechanism-Wahl, Chunk-Groesse, Pool-Groesse aus Kap. 17) ist die richtige — und welche Messung (Wallclock, RSS, `pkcs11-spy`-Call-Count) beweist, dass das Token wirklich streamt und nicht der PKCS#11-Wrapper puffert?
 
 ## Musterloesung
 

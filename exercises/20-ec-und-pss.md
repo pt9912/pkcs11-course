@@ -86,10 +86,12 @@ Wenn die Lab-Demo diese ENV nicht implementiert, das Verhalten als Reflexionstei
 
 ## Reflexionsfragen
 
-- Warum gibt `pkcs11-tool` ECDSA standardmaessig als `r||s` aus und nicht als DER? (Tipp: PKCS#11-Spec §6.10.1.)
-- Welche Salt-Laenge ist bei `RSA-PSS` der "sichere Default", und warum schreibt RFC 8017 das nicht als Pflicht vor?
-- Warum bricht eine Veraenderung des MGF-Hashes immer "still", also ohne hilfreiche Fehlermeldung beim Verifier?
-- Wann wuerdest du `CKM_ECDSA` (Pre-Hash) gegenueber `CKM_ECDSA_SHA256` (Token hasht) bevorzugen?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Warum gibt `pkcs11-tool` ECDSA standardmaessig als `r||s` aus und nicht als DER? (Tipp: PKCS#11-Spec §6.10.1.)
+2. **(Analyse)** Welche Salt-Laenge ist bei `RSA-PSS` der "sichere Default", und warum schreibt RFC 8017 das nicht als Pflicht vor? Verfolge das Argument: was waere die Konsequenz fuer Verifier-Implementierungen, die mit aelterer Software interoperieren muessen?
+3. **(Analyse)** Warum bricht eine Veraenderung des MGF-Hashes immer "still", also ohne hilfreiche Fehlermeldung beim Verifier? Schau in die PSS-Mathematik: an welchem Schritt wuerde der Verifier merken, dass der MGF-Hash anders war, und warum kommt als Ergebnis nur "ungueltig" raus?
+4. **(Evaluate)** Wann wuerdest du `CKM_ECDSA` (Pre-Hash) gegenueber `CKM_ECDSA_SHA256` (Token hasht) bevorzugen? Entscheide an drei Faktoren (HSM-Verfuegbarkeit aus `--list-mechanisms`, gewuenschter Hash-Algorithmus, Streaming-Bedarf) — und welcher Faktor ist im Cloud-HSM-Kontext der wichtigste?
 
 ## Musterloesung
 

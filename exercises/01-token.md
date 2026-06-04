@@ -41,8 +41,11 @@ Fuehre `make init-token` ein zweites Mal aus. Erwartet: Das Skript erkennt den b
 
 ## Reflexionsfragen
 
-- Warum ist `--token-label dev-token` robuster als ein fester Slot?
-- Welche Information brauchst du in einer Anwendung, um den richtigen Token zu finden?
+Drei Stufen — eine Recall-, eine Analyse-, eine Evaluate-Frage:
+
+1. **(Recall)** Warum ist `--token-label dev-token` robuster als ein fester Slot?
+2. **(Analyse)** Welche Information brauchst du in einer Anwendung, um den richtigen Token zu finden — und welche zwei API-Calls (`C_*`) waeren noetig, um sie aus einem PKCS#11-Modul zu bekommen?
+3. **(Evaluate)** Du sollst die Slot-Auswahl in einer produktiven Multi-HSM-Umgebung (5 HSMs, je 2 Tokens) entwerfen: Token-Label, PKCS#11-URI (RFC 7512) oder Konfigurations-Mapping ueber Slot-Serien? Welcher Faktor (Inventur-Drift, Recovery-Lesbarkeit, Cluster-Failover) bricht eine Slot-Index-Loesung als erstes?
 
 ## Musterloesung
 

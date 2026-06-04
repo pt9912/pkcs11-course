@@ -1,5 +1,7 @@
 # 26 — Abschlussprojekt Track 2: CMS-Service mit Audit-Log und RFC-3161-Timestamps
 
+> **Didaktischer Pfad:** Vorher → [`10-abschlussprojekt.md`](10-abschlussprojekt.md) · Nachher → [`exercises/21-production-audit.md`](../exercises/21-production-audit.md) (Production-Readiness-Audit auf Track-2-Service)
+
 ## Lernziele
 
 Nach diesem Projekt kannst du:
@@ -7,6 +9,9 @@ Nach diesem Projekt kannst du:
 - die Vertiefungsmodule (Kap. 13–25) als zusammenhaengende Architektur denken, nicht als Einzelteile.
 - einen CMS-Signaturservice betreiben, der unter Last (Session-Pool) korrekt bleibt, qualifizierte Zeitnachweise produziert (CAdES-T) und einen revisionssicheren Audit-Log fuehrt.
 - die Schnittstellen, Fehlerklassen und Health-Checks fuer einen produktionsnahen HSM-gestuetzten Signaturdienst formulieren.
+- **(Bloom 6 — create)** ein Service-Design liefern, in dem CMS, Session-Pool, TSA-Embedding und append-only Audit-Log als eine Architektur zusammenwirken — nicht als entkoppelte Bausteine.
+
+> **Geschaetzte Bearbeitungszeit:** **Capstone Track 2 — mehrere Sitzungen.** Stufe 1: ~10–14 h (CAdES-T plus Pool plus Audit-Log). Stufe 2: +6–10 h (CAdES-LT/mTLS/OTel). Stufe 3: +10–14 h (Production-Audit, SIEM, Reconnect). Plan analog Kap. 10 in Sprints.
 
 ## Lab-Bezug
 

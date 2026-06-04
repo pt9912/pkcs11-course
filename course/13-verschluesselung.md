@@ -1,5 +1,7 @@
 # 13 — Hybride Verschluesselung mit RSA-OAEP und AES-GCM
 
+> **Didaktischer Pfad:** Vorher → [`09-production-checkliste.md`](09-production-checkliste.md) · Nachher → [`14-cms-signatur.md`](14-cms-signatur.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Du sollst eine 50 MB grosse Datei mit RSA verschluesseln. Welche API rufst du auf?
@@ -20,6 +22,8 @@ Nach diesem Kapitel kannst du:
 - den Empfaengerpfad ueber den HSM ausfuehren.
 - die typischen Stolperfallen bei OAEP-Parametern und SoftHSM einordnen.
 - **(Bloom 5 — evaluate)** entscheiden, wann ein HSM-residenter OAEP-Decrypt-Pfad gegenueber dem JCA-Software-OAEP-Pfad (`RSA/ECB/NoPadding` plus manuelles Unpadding) der richtige Weg ist — und welche Compliance-/Performance-Achsen die Wahl tragen.
+
+> **Geschaetzte Bearbeitungszeit:** ~90 min (Lesen + Bash-Worked-Example 35 min + ein Sprach-Faded-Example deiner Wahl 30 min + Reflexion zu den anderen drei Pfaden 25 min). Schwerstes Kapitel der Vertiefungsmodule — Worked-Example/Faded-Struktur ist absichtlich gewaehlt, um die intrinsische Last zu chunken.
 
 ## Lab-Bezug
 

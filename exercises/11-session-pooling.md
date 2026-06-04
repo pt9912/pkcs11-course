@@ -65,10 +65,12 @@ Erwartet: das Token-Listing wird zeitweise inkonsistent (Slot wandert, Token-Lab
 
 ## Reflexionsfragen
 
-- Warum bringt Pooling auf SoftHSM kaum Speedup, aber auf realen HSMs oft 5x bis 10x?
-- Was ist der Unterschied zwischen "Pool von Sessions" (Go/C#) und "Pool von Mac-Instanzen" (Java)? Wieso reicht in Java das zweite?
-- Welche Situation provoziert `CKR_OPERATION_ACTIVE` zuverlaessig?
-- Wenn dein Service 200 Request/s hat und das HSM 50 ops/s liefert: hilft mehr Pooling, oder ist das Problem ein anderes?
+Vier Stufen — eine Recall-, zwei Analyse- und eine Evaluate-Frage:
+
+1. **(Recall)** Welche Situation provoziert `CKR_OPERATION_ACTIVE` zuverlaessig?
+2. **(Analyse)** Warum bringt Pooling auf SoftHSM kaum Speedup, aber auf realen HSMs oft 5x bis 10x? Verfolge das Bottleneck-Argument: was passiert intern in der SoftHSM-Library, das Anwendungs-Parallelitaet wirkungslos macht?
+3. **(Analyse)** Was ist der Unterschied zwischen "Pool von Sessions" (Go/C#) und "Pool von Mac-Instanzen" (Java)? Wieso reicht in Java das zweite? Beziehe dich auf die SunPKCS11-interne Session-Verwaltung aus [Kap. 17 §"Thread-Safety pro Binding"](../course/17-session-pooling.md).
+4. **(Evaluate)** Dein Service liefert 200 Request/s, das HSM 50 ops/s. Mehr Pooling — Loesung oder Symptom? Welche zwei Architektur-Alternativen (Caching idempotenter Operationen, HSM-Cluster, Re-Architektur mit gecachten JWTs statt jeden Request neu zu signieren) wuerdest du gegenueber "groesserer Pool" abwaegen — und welche Messung beweist, dass das HSM saturiert ist?
 
 ## Musterloesung
 

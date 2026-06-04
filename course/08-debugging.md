@@ -1,5 +1,7 @@
 # 08 — Debugging
 
+> **Didaktischer Pfad:** Vorher → [`12-sprachbindings.md`](12-sprachbindings.md) · Nachher → [`11-ec-und-pss.md`](11-ec-und-pss.md) (Mechanism-Wahl als Hintergrund fuer Kap. 13/14)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Dein Anwendungs-Code spricht laut Spec sauberes PKCS#11. Ein CI-Lauf liefert `CKR_KEY_HANDLE_INVALID`, obwohl `pkcs11-tool --list-objects` denselben Key auf demselben Slot zeigt. Wo suchst du zuerst?
@@ -16,6 +18,9 @@ Nach diesem Kapitel kannst du:
 - Mechanism-Namen zwischen PKCS#11, `pkcs11-tool`, OpenSSL und JCA uebersetzen.
 - Slot-, Token-, PIN-, Objekt- und Mechanism-Probleme voneinander trennen.
 - `pkcs11-spy` gezielt einsetzen.
+- **(Bloom 4 — analyze)** aus einem `CKR_*`-Fehler die Lebenszeit-Ebene (Modul / Slot / Session / Handle) ableiten und die naechste Diagnose-Aktion auswaehlen — statt zu raten.
+
+> **Geschaetzte Bearbeitungszeit:** ~60 min (Lesen 25 min + Spy-Setup + Trace lesen 25 min + Eigenexperiment 10 min). Lohnt sich frueh — die Mechanism-Mapping-Tabelle braucht man fast in jedem weiteren Kapitel.
 
 ## Lab-Bezug
 

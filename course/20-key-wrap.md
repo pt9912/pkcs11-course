@@ -1,5 +1,7 @@
 ## 20 — Key Wrap und Unwrap (Backup, Escrow, Migration)
 
+> **Didaktischer Pfad:** Vorher → [`19-ssh-mit-hsm.md`](19-ssh-mit-hsm.md) · Nachher → [`21-pin-management.md`](21-pin-management.md)
+
 ## Bevor du anfaengst — was vermutest du?
 
 > Du sollst einen produktiven HSM-Key sichern. Du rufst `C_WrapKey` auf, bekommst ein Backup-Blob, legst es auf S3 mit Object Lock. Ist der Key damit safe gesichert?
@@ -17,6 +19,8 @@ Nach diesem Kapitel kannst du:
 - ein backup-faehiges Blob ueber `CKM_AES_KEY_WRAP_PAD` erzeugen und mit demselben KEK wieder ins Token unwrappen.
 - die HSM-Library- und Tool-Quirks rund um Unwrap-Templates (`CKA_VALUE_LEN`, fehlende SunPKCS11-Registrierung) einordnen.
 - **(Bloom 6 — create)** eine KEK-Policy fuer ein gegebenes Setup **entwerfen**: welche Attribute, welche `CKA_WRAP_TEMPLATE`-Constraints, welcher Restore-Workflow, welche Mehraugen-Anforderung beim Unwrap — und gegen welche zwei realistischen Angriffsszenarien dieses Design verteidigt.
+
+> **Geschaetzte Bearbeitungszeit:** ~75 min (Lesen 30 min + Bash + Go-Wrap-Demo 25 min + KEK-Policy-Skizze auf Papier 20 min). Die "Backup ist Policy, nicht ein API-Call"-Erkenntnis ist die schwerste mentale Aenderung in den Vertiefungsmodulen.
 
 ## Lab-Bezug
 
