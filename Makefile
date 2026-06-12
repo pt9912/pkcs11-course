@@ -1,4 +1,4 @@
-.PHONY: build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo validate-key-usage gen-ecdh-keys ecdh-derive go-ecdh-demo csharp-ecdh-demo java-ecdh-demo kotlin-ecdh-demo issue-ecdh-certs tsa-setup tsa-serve cms-tsa-sign cms-tsa-verify go-cms-tsa-demo csharp-cms-tsa-demo java-cms-tsa-demo kotlin-cms-tsa-demo clean clean-tokens distclean
+.PHONY: docs-check build shell restore csharp-restore init-token list-slots list-mechanisms gen-rsa list-objects sign verify import-cert gen-ec sign-ec verify-ec sign-pss java-demo go-demo kotlin-demo csharp-demo gen-rsa-wrap encrypt decrypt issue-wrap-cert java-encrypt-demo go-encrypt-demo kotlin-encrypt-demo csharp-encrypt-demo cms-sign cms-verify java-cms-demo go-cms-demo kotlin-cms-demo csharp-cms-demo gen-aes-stream stream-sign stream-verify stream-encrypt stream-decrypt java-stream-demo go-stream-demo kotlin-stream-demo csharp-stream-demo gen-hmac hmac-sign hmac-verify java-hmac-demo go-hmac-demo kotlin-hmac-demo csharp-hmac-demo go-pool-demo csharp-pool-demo java-pool-demo kotlin-pool-demo gen-tls-cert tls-serve ssh-pubkey ssh-test gen-kek wrap-backup go-wrap-demo csharp-wrap-demo pin-info pin-change pin-recovery go-pin-demo csharp-pin-demo gen-ca-key issue-ca-cert issue-leaf-cert go-csr-demo csharp-csr-demo java-csr-demo kotlin-csr-demo random-gen random-bench go-random-demo csharp-random-demo java-random-demo kotlin-random-demo validate-key-usage gen-ecdh-keys ecdh-derive go-ecdh-demo csharp-ecdh-demo java-ecdh-demo kotlin-ecdh-demo issue-ecdh-certs tsa-setup tsa-serve cms-tsa-sign cms-tsa-verify go-cms-tsa-demo csharp-cms-tsa-demo java-cms-tsa-demo kotlin-cms-tsa-demo clean clean-tokens distclean
 
 # Defaults — koennen via Umgebung (`PKCS11_USER_PIN=... make sign`) oder
 # direkt am make-Aufruf (`make sign PKCS11_USER_PIN=...`) ueberschrieben werden.
@@ -401,3 +401,11 @@ distclean: clean clean-tokens
 ifneq ($(PKCS11_IN_DEVCONTAINER),1)
 	docker compose -f lab/docker-compose.yml down -v
 endif
+
+# Doku-Referenz-Checks via d-check (Digest-Pin auf v0.2.1, siehe
+# https://github.com/pt9912/d-check/releases/tag/v0.2.1); Konfiguration
+# in .d-check.yml (lab/work/** wird nicht betreten — Token-Residuen).
+D_CHECK_IMAGE ?= ghcr.io/pt9912/d-check@sha256:7bdef75be26e808a137ad817cd7fec8bf4eccd282fa78932d2e3d3bbc0e050eb
+
+docs-check:
+	docker run --rm -v "$(CURDIR)":/repo:ro $(D_CHECK_IMAGE)
