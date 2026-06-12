@@ -1,0 +1,11 @@
+# Doku-Referenz-Checks via d-check (ghcr.io/pt9912/d-check) —
+# Neu-Adoption 2026-06-12 (erster Doku-Check dieses Repos, kein
+# Alt-Tool). Scan über die gesamte Repo-Wurzel: course/, docs/,
+# exercises/, lab/, solutions/ und Root-Doku.
+# Beschreibung siehe: https://raw.githubusercontent.com/pt9912/d-check/refs/heads/main/README.md
+scan:
+  roots: ["."]
+  # Laufzeit-Residuen der Lab-Übungen (SoftHSM-Tokens, tlw. fremde
+  # Owner) — vollständig ignorierte Teilbäume werden nicht betreten.
+  ignore: ["lab/work/**"]
+modules: [links, anchors]

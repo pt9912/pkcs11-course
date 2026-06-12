@@ -19,7 +19,7 @@ Dieses Glossar ist ein schneller Nachschlag fuer Begriffe, die im Kurs immer wie
 | `CSPRNG` | Cryptographically Secure PRNG | PRNG mit zusaetzlichen Vorwaerts- und Rueckwaerts-Sicherheits-Eigenschaften. |
 | `DER` | Distinguished Encoding Rules | Binaere ASN.1-Codierung, z. B. fuer Zertifikate, Public Keys oder ECDSA-Signaturen. |
 | `DRBG` | Deterministic Random Bit Generator | NIST-Begriff fuer CSPRNG aus SP 800-90A (CTR_DRBG, HMAC_DRBG, Hash_DRBG). |
-| `EAL` | Evaluation Assurance Level | Stufenskala 1-7 in [Common Criteria](#cc); HSMs zielen typisch auf EAL4+ oder EAL5+. Sagt etwas ueber Tiefe der Pruefung, nicht ueber Funktionsumfang. |
+| `EAL` | Evaluation Assurance Level | Stufenskala 1-7 in Common Criteria (`CC`); HSMs zielen typisch auf EAL4+ oder EAL5+. Sagt etwas ueber Tiefe der Pruefung, nicht ueber Funktionsumfang. |
 | `EC` | Elliptic Curve | Oberbegriff fuer [Kryptografie auf elliptischen Kurven](elliptische-kurven.md). |
 | `ECDH` | Elliptic Curve Diffie-Hellman | Schluesselaustausch auf elliptischen Kurven; nicht post-quantum-sicher, aber relevant fuer Hybrid-Migration. |
 | `ECDSA` | Elliptic Curve Digital Signature Algorithm | Signaturverfahren auf elliptischen Kurven. Siehe [EC-Grundlagen](elliptische-kurven.md). |
